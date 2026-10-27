@@ -11,17 +11,36 @@ const Ajustes = (() => {
     CONFIGURACAO.quantidadeMesas = limitarQuantidadeMesas(valor);
   }
 
+  function aplicarModoResposta(modo) {
+    if (Object.keys(CONFIGURACAO.rotulosModoResposta).includes(modo)) {
+      CONFIGURACAO.modoResposta = modo;
+    }
+  }
+
+  function salvar() {
+    Armazenamento.salvar(CONFIGURACAO.chaveAjustes, {
+      quantidadeMesas: CONFIGURACAO.quantidadeMesas,
+      modoResposta: CONFIGURACAO.modoResposta
+    });
+  }
+
   function definirQuantidadeMesas(valor) {
     aplicarQuantidadeMesas(valor);
-    Armazenamento.salvar(CONFIGURACAO.chaveAjustes, { quantidadeMesas: CONFIGURACAO.quantidadeMesas });
+    salvar();
+  }
+
+  function definirModoResposta(modo) {
+    aplicarModoResposta(modo);
+    salvar();
   }
 
   function carregar() {
     const ajustesSalvos = Armazenamento.carregar(CONFIGURACAO.chaveAjustes);
     if (ajustesSalvos) {
       aplicarQuantidadeMesas(ajustesSalvos.quantidadeMesas);
+      aplicarModoResposta(ajustesSalvos.modoResposta);
     }
   }
 
-  return { carregar, aplicarQuantidadeMesas, definirQuantidadeMesas };
+  return { carregar, aplicarQuantidadeMesas, definirQuantidadeMesas, definirModoResposta };
 })();

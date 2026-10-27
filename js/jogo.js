@@ -11,6 +11,8 @@ const Jogo = (() => {
   let dicaVisivel = false;
   let ajudaUsada = false;
   let textoResultado = "";
+  let alternativas = [];
+  let julgando = false;
   let progressoSalvo = null;
   let proximaMusicaSalva = 0;
 
@@ -26,12 +28,16 @@ const Jogo = (() => {
     return indiceMusica === totalMusicas() - 1;
   }
 
-  function ehRodadaDupla(indice) {
-    return indice >= totalMusicas() - CONFIGURACAO.quantidadeRodadasDuplas;
+  function pontosDaMusica(indice) {
+    return MUSICAS[indice].pontos || CONFIGURACAO.pontosPadrao;
   }
 
-  function pontosDaMusica(indice) {
-    return ehRodadaDupla(indice) ? CONFIGURACAO.pontosRodadaDupla : CONFIGURACAO.pontosPadrao;
+  function valeMaisQueOPadrao(indice) {
+    return pontosDaMusica(indice) > CONFIGURACAO.pontosPadrao;
+  }
+
+  function modoComJuiz() {
+    return CONFIGURACAO.modoResposta === "juiz";
   }
 
   function existeProgressoSalvo() {
@@ -66,6 +72,49 @@ const Jogo = (() => {
       return perda;
     }
     return Math.min(perda, Math.max(Placar.pontosDaMesa(mesa), 0));
+  }
+
+  function embaralhar(lista) {
+    const copia = [...lista];
+    for (let i = copia.length - 1; i > 0; i--) {
+      const sorteado = Math.floor(Math.random() * (i + 1));
+      [copia[i], copia[sorteado]] = [copia[sorteado], copia[i]];
+    }
+    return copia;
+  }
+
+  function escolherTitulosErrados(musica) {
+    const quantidadeNecessaria = CONFIGURACAO.quantidadeAlternativas - 1;
+    const escolhidosPorVoce = musica.alternativasErradas || [];
+    const outras = MUSICAS.filter((outra) => outra.titulo !== musica.titulo);
+    const mesmaCategoria = outras.filter((outra) => outra.categoria === musica.categoria);
+    const mesmaDecada = outras.filter((outra) => outra.decada === musica.decada && outra.categoria !== musica.categoria);
+    const demais = outras.filter((outra) => outra.decada !== musica.decada && outra.categoria !== musica.categoria);
+
+    const candidatos = [
+      ...escolhidosPorVoce,
+      ...embaralhar(mesmaCategoria).map((outra) => outra.titulo),
+      ...embaralhar(mesmaDecada).map((outra) => outra.titulo),
+      ...embaralhar(demais).map((outra) => outra.titulo)
+    ];
+    return [...new Set(candidatos)].slice(0, quantidadeNecessaria);
+  }
+
+  function sortearAlternativas(musica) {
+    const corretas = [{ texto: musica.titulo, correta: true }];
+    const erradas = escolherTitulosErrados(musica).map((texto) => ({ texto, correta: false }));
+    return embaralhar([...corretas, ...erradas]);
+  }
+
+  function descreverSituacao(indice) {
+    const emPartida = estado !== "inicio" && estado !== "encerrado";
+    if (emPartida && indice === indiceMusica && estado !== "revelado") {
+      return { situacao: "atual", rotulo: "Tocando agora" };
+    }
+    if (indice < proximaMusicaSalva) {
+      return { situacao: "tocada", rotulo: "Já tocou" };
+    }
+    return { situacao: "pendente", rotulo: "Falta tocar" };
   }
 
   function descreverCampeas() {
@@ -104,8 +153,8 @@ const Jogo = (() => {
 
     preparando() {
       const pontos = pontosDaMusica(indiceMusica);
-      const valor = ehRodadaDupla(indiceMusica)
-        ? `Rodada dupla: vale ${pontos} pontos!`
+      const valor = valeMaisQueOPadrao(indiceMusica)
+        ? `Vale mais: ${pontos} pontos!`
         : `Vale ${pontos} pontos`;
       const penalidade = CONFIGURACAO.pontosPerdidosPorErro > 0
         ? ` • quem errar perde ${CONFIGURACAO.pontosPerdidosPorErro}`
@@ -140,7 +189,7 @@ const Jogo = (() => {
     respondendo() {
       return {
         titulo: `Mesa ${mesaEmResposta}`,
-        subtitulo: "Qual é a música?"
+        subtitulo: modoComJuiz() ? "Qual é a música?" : "Qual é a música? Diga o número da resposta"
       };
     },
 
@@ -183,6 +232,8 @@ const Jogo = (() => {
       mostrarParar: emPartida
     });
     Tela.mostrarAjusteMesas(estado === "inicio" && !existeProgressoSalvo(), CONFIGURACAO.quantidadeMesas);
+    Tela.definirModoResposta(CONFIGURACAO.modoResposta);
+    Tela.mostrarAjusteModo(estado === "inicio", CONFIGURACAO.rotulosModoResposta[CONFIGURACAO.modoResposta]);
 
     if (apresentacao.centroDisco !== undefined) {
       Tela.definirCentroDisco(apresentacao.centroDisco);
@@ -204,7 +255,9 @@ const Jogo = (() => {
     trechoAcabou = false;
     dicaVisivel = false;
     ajudaUsada = false;
+    julgando = false;
     textoResultado = "";
+    alternativas = sortearAlternativas(musicaAtual());
 
     ReprodutorTrecho.carregar(musicaAtual());
     ReprodutorTrecho.precarregar(MUSICAS[indice + 1]);
@@ -317,6 +370,9 @@ const Jogo = (() => {
 
     mesaEmResposta = numero;
     estado = "respondendo";
+    if (!modoComJuiz()) {
+      Tela.montarAlternativas(alternativas.map((alternativa) => alternativa.texto), escolherAlternativa);
+    }
     renderizar();
   }
 
@@ -367,6 +423,57 @@ const Jogo = (() => {
     retomarTrecho();
   }
 
+  function escolherAlternativa(indice) {
+    const alternativa = alternativas[indice];
+    const podeResponder = estado === "respondendo" && !modoComJuiz() && !julgando && alternativa;
+    if (!podeResponder) {
+      return;
+    }
+
+    julgando = true;
+    Tela.marcarResultadoAlternativa(indice, alternativa.correta);
+    setTimeout(() => {
+      julgando = false;
+      if (alternativa.correta) {
+        confirmarAcerto();
+      } else {
+        registrarErro();
+      }
+    }, CONFIGURACAO.atrasoAposRespostaMilissegundos);
+  }
+
+  function alternarModoResposta() {
+    if (estado !== "inicio") {
+      return;
+    }
+    const modos = Object.keys(CONFIGURACAO.rotulosModoResposta);
+    const proximoModo = modos[(modos.indexOf(CONFIGURACAO.modoResposta) + 1) % modos.length];
+    Ajustes.definirModoResposta(proximoModo);
+    renderizar();
+  }
+
+  function alternarListaMusicas() {
+    const linhas = MUSICAS.map((musica, indice) => {
+      const situacao = descreverSituacao(indice);
+      return {
+        numero: indice + 1,
+        titulo: musica.titulo,
+        interprete: musica.interprete,
+        categoria: musica.categoria,
+        decada: musica.decada,
+        duracao: musica.duracaoSegundos || CONFIGURACAO.duracaoPadraoTrechoSegundos,
+        pontos: pontosDaMusica(indice),
+        situacao: situacao.situacao,
+        rotuloSituacao: situacao.rotulo
+      };
+    });
+    Tela.alternarListaMusicas(linhas);
+  }
+
+  function estaJulgando() {
+    return julgando;
+  }
+
   function irParaProximaMusica() {
     if (ehUltimaMusica()) {
       encerrar();
@@ -381,7 +488,7 @@ const Jogo = (() => {
       case "preparando": return tocarTrecho();
       case "tocando": return pausarParaMesa();
       case "pausado": return confirmarMesaDigitada();
-      case "respondendo": return confirmarAcerto();
+      case "respondendo": return modoComJuiz() ? confirmarAcerto() : undefined;
       case "revelado": return irParaProximaMusica();
     }
   }
@@ -405,6 +512,10 @@ const Jogo = (() => {
   }
 
   function digitar(digito) {
+    if (estado === "respondendo" && !modoComJuiz()) {
+      escolherAlternativa(Number(digito) - 1);
+      return;
+    }
     if (estado === "tocando") {
       pausarParaMesa();
     }
@@ -583,6 +694,9 @@ const Jogo = (() => {
       aoAbrirPlacar: alternarPlacar,
       aoPedirEncerramento: pedirEncerramento,
       aoAbrirComandos: () => Tela.alternarAjuda(),
+      aoAbrirListaMusicas: alternarListaMusicas,
+      aoAlternarModoResposta: alternarModoResposta,
+      aoImprimirLista: () => window.print(),
       aoDiminuirMesas: () => alterarQuantidadeMesas(-1),
       aoAumentarMesas: () => alterarQuantidadeMesas(1),
       aoConfirmarEncerramento: confirmarEncerramento,
@@ -607,6 +721,9 @@ const Jogo = (() => {
     confirmarEncerramento,
     desfazerPontuacao,
     alternarPlacar,
+    alternarModoResposta,
+    alternarListaMusicas,
+    estaJulgando,
     novoJogo
   };
 })();

@@ -24,10 +24,12 @@ const comandosPorTecla = {
   "?": "comandos",
   "f": "telaCheia",
   "c": "barra",
+  "l": "listaMusicas",
+  "j": "modoResposta",
   "n": "novoJogo"
 };
 
-const comandosQueFecham = ["avancar", "voltar", "placar", "comandos"];
+const comandosQueFecham = ["avancar", "voltar", "placar", "comandos", "listaMusicas"];
 
 const acoesDosComandos = {
   avancar: () => Jogo.avancar(),
@@ -46,6 +48,8 @@ const acoesDosComandos = {
   comandos: () => Tela.alternarAjuda(),
   telaCheia: () => Tela.alternarTelaCheia(),
   barra: () => Tela.alternarBarra(),
+  listaMusicas: () => Jogo.alternarListaMusicas(),
+  modoResposta: () => Jogo.alternarModoResposta(),
   novoJogo: () => Jogo.novoJogo()
 };
 
@@ -68,7 +72,7 @@ function executarComando(comando) {
 
 function tratarTecla(evento) {
   const comTeclaModificadora = evento.ctrlKey || evento.metaKey || evento.altKey;
-  if (comTeclaModificadora || evento.repeat) {
+  if (comTeclaModificadora || evento.repeat || Jogo.estaJulgando()) {
     return;
   }
 

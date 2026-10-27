@@ -22,6 +22,13 @@ const Tela = (() => {
   const botaoPlacar = document.getElementById("botaoPlacar");
   const botaoParar = document.getElementById("botaoParar");
   const botaoComandos = document.getElementById("botaoComandos");
+  const botaoMusicas = document.getElementById("botaoMusicas");
+  const areaAlternativas = document.getElementById("areaAlternativas");
+  const areaModoResposta = document.getElementById("areaModoResposta");
+  const botaoModoResposta = document.getElementById("botaoModoResposta");
+  const listaDeMusicas = document.getElementById("listaDeMusicas");
+  const corpoTabelaMusicas = document.getElementById("corpoTabelaMusicas");
+  const botaoImprimirLista = document.getElementById("botaoImprimirLista");
   const botaoConfirmarParada = document.getElementById("botaoConfirmarParada");
   const botaoContinuarJogando = document.getElementById("botaoContinuarJogando");
   const podio = document.getElementById("podio");
@@ -84,6 +91,9 @@ const Tela = (() => {
       [botaoPlacar, acoes.aoAbrirPlacar],
       [botaoParar, acoes.aoPedirEncerramento],
       [botaoComandos, acoes.aoAbrirComandos],
+      [botaoMusicas, acoes.aoAbrirListaMusicas],
+      [botaoModoResposta, acoes.aoAlternarModoResposta],
+      [botaoImprimirLista, acoes.aoImprimirLista],
       [botaoMenosMesas, acoes.aoDiminuirMesas],
       [botaoMaisMesas, acoes.aoAumentarMesas],
       [botaoConfirmarParada, acoes.aoConfirmarEncerramento],
@@ -181,7 +191,7 @@ const Tela = (() => {
   }
 
   function sobreposicaoAberta() {
-    return !placar.hidden || !ajuda.hidden || !confirmacao.hidden;
+    return !placar.hidden || !ajuda.hidden || !confirmacao.hidden || !listaDeMusicas.hidden;
   }
 
   function confirmacaoAberta() {
@@ -192,6 +202,7 @@ const Tela = (() => {
     placar.hidden = true;
     ajuda.hidden = true;
     confirmacao.hidden = true;
+    listaDeMusicas.hidden = true;
   }
 
   function alternarPlacar(classificacao) {
@@ -215,6 +226,64 @@ const Tela = (() => {
   function abrirConfirmacao() {
     fecharSobreposicoes();
     confirmacao.hidden = false;
+  }
+
+  function definirModoResposta(modo) {
+    corpo.dataset.resposta = modo;
+  }
+
+  function mostrarAjusteModo(visivel, rotulo) {
+    areaModoResposta.hidden = !visivel;
+    botaoModoResposta.textContent = rotulo;
+  }
+
+  function montarAlternativas(textos, aoEscolher) {
+    const botoes = textos.map((texto, indice) => {
+      const botao = criarElemento("button", "alternativa", "");
+      botao.type = "button";
+      botao.append(
+        criarElemento("span", "alternativa__numero", String(indice + 1)),
+        criarElemento("span", "alternativa__texto", texto)
+      );
+      evitarFocoPeloMouse(botao);
+      botao.addEventListener("click", () => aoEscolher(indice));
+      return botao;
+    });
+    areaAlternativas.replaceChildren(...botoes);
+  }
+
+  function marcarResultadoAlternativa(indice, acertou) {
+    const botao = areaAlternativas.children[indice];
+    if (botao) {
+      botao.classList.add(acertou ? "certa" : "errada");
+    }
+  }
+
+  function criarLinhaTabelaMusica(linha) {
+    const linhaTabela = document.createElement("tr");
+    linhaTabela.dataset.situacao = linha.situacao;
+    const valores = [
+      linha.numero,
+      linha.titulo,
+      linha.interprete,
+      linha.categoria,
+      linha.decada,
+      `${linha.duracao}s`,
+      linha.pontos,
+      linha.rotuloSituacao
+    ];
+    valores.forEach((valor) => linhaTabela.append(criarElemento("td", "", String(valor))));
+    return linhaTabela;
+  }
+
+  function alternarListaMusicas(linhas) {
+    const estavaAberta = !listaDeMusicas.hidden;
+    fecharSobreposicoes();
+    if (estavaAberta) {
+      return;
+    }
+    corpoTabelaMusicas.replaceChildren(...linhas.map(criarLinhaTabelaMusica));
+    listaDeMusicas.hidden = false;
   }
 
   function alternarBarra() {
@@ -259,6 +328,11 @@ const Tela = (() => {
     alternarPlacar,
     alternarAjuda,
     abrirConfirmacao,
+    definirModoResposta,
+    mostrarAjusteModo,
+    montarAlternativas,
+    marcarResultadoAlternativa,
+    alternarListaMusicas,
     alternarBarra,
     alternarTelaCheia,
     mostrarAviso

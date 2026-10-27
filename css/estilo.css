@@ -17,6 +17,7 @@ body[data-categoria="samba"] { --cor-categoria: #5fd38d; }
 body[data-categoria="mpb"] { --cor-categoria: #5db7ff; }
 body[data-categoria="sertanejo"] { --cor-categoria: #e9a23b; }
 body[data-categoria="romantica"] { --cor-categoria: #ff8fb1; }
+body[data-categoria="bossa-nova"] { --cor-categoria: #4fd1c5; }
 
 * { box-sizing: border-box; }
 
@@ -190,7 +191,8 @@ body[data-estado="encerrado"] .titulo {
 }
 
 body[data-estado="pausado"] .area-mesas { display: block; }
-body[data-estado="respondendo"] .area-resposta { display: flex; }
+body[data-estado="respondendo"][data-resposta="juiz"] .area-resposta { display: flex; }
+body[data-estado="respondendo"][data-resposta="multipla-escolha"] .area-alternativas { display: grid; }
 body[data-estado="encerrado"] .podio { display: block; }
 
 .mesa-digitada {
@@ -520,6 +522,164 @@ kbd {
   text-align: center;
 }
 
+.area-alternativas {
+  display: none;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(8px, 1.2vw, 20px);
+}
+
+.alternativa {
+  display: flex;
+  align-items: center;
+  gap: 1vw;
+  padding: 2vh 1.4vw;
+  border: 0.25vw solid rgba(244, 201, 93, 0.55);
+  border-radius: 1.2vw;
+  background: var(--fundo-elevado);
+  color: var(--creme);
+  font-size: clamp(1.3rem, 2.6vw, 2.8rem);
+  font-weight: 600;
+  line-height: 1.1;
+  text-align: left;
+}
+
+.alternativa:hover {
+  border-color: var(--ouro);
+}
+
+.alternativa__numero {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 1.6em;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--ouro);
+  color: #1a0b10;
+  font-weight: 700;
+}
+
+.alternativa.certa {
+  border-color: var(--acerto);
+  background: var(--acerto);
+  color: #10231a;
+}
+
+.alternativa.errada {
+  border-color: var(--erro);
+  background: var(--erro);
+  color: #2a0d0d;
+}
+
+.area-modo-resposta {
+  display: flex;
+  align-items: center;
+  gap: 2vw;
+  font-size: clamp(1.2rem, 2.4vw, 2.4rem);
+}
+
+.botao-modo {
+  padding: 0.6vh 1.6vw;
+  border: 0.2vw solid rgba(244, 201, 93, 0.55);
+  border-radius: 999px;
+  background: var(--fundo-elevado);
+  color: var(--ouro);
+  font-size: 1em;
+  font-weight: 600;
+}
+
+.botao-modo:hover {
+  border-color: var(--ouro);
+}
+
+.legenda-modo {
+  font-size: 0.6em;
+  color: var(--creme-suave);
+  opacity: 0.7;
+}
+
+.aviso-lista {
+  margin: 0;
+  color: var(--erro);
+  font-size: clamp(1rem, 1.6vw, 1.6rem);
+}
+
+.rolagem-tabela {
+  flex: 1;
+  overflow: auto;
+}
+
+.tabela-musicas {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: clamp(0.95rem, 1.5vw, 1.5rem);
+}
+
+.tabela-musicas th,
+.tabela-musicas td {
+  padding: 0.7vh 1vw;
+  border-bottom: 1px solid rgba(230, 207, 168, 0.2);
+  text-align: left;
+}
+
+.tabela-musicas th {
+  position: sticky;
+  top: 0;
+  background: #140810;
+  color: var(--ouro);
+}
+
+.tabela-musicas tr[data-situacao="tocada"] td {
+  opacity: 0.5;
+}
+
+.tabela-musicas tr[data-situacao="atual"] td {
+  color: var(--ouro);
+  font-weight: 700;
+}
+
+.botoes-lista {
+  display: flex;
+  justify-content: center;
+}
+
+@media print {
+  body {
+    overflow: visible;
+    background: #fff;
+  }
+
+  .palco,
+  #placar,
+  #ajuda,
+  #confirmacao,
+  .aviso,
+  .botoes-lista,
+  .dica-sobreposicao,
+  .aviso-lista {
+    display: none !important;
+  }
+
+  #listaDeMusicas {
+    position: static;
+    padding: 0;
+    background: #fff;
+    color: #000;
+  }
+
+  #listaDeMusicas h2,
+  .tabela-musicas th {
+    background: #fff;
+    color: #000;
+  }
+
+  .tabela-musicas td {
+    color: #000;
+    opacity: 1 !important;
+    border-bottom-color: #bbb;
+  }
+}
+
 @media (max-width: 800px) {
   body {
     overflow: auto;
@@ -542,6 +702,10 @@ kbd {
 
   .grade-mesas {
     --colunas: 5 !important;
+  }
+
+  .area-alternativas {
+    grid-template-columns: 1fr;
   }
 
   .lista-placar {

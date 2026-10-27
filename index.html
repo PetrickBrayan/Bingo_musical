@@ -38,6 +38,12 @@
           <button id="botaoMaisMesas" class="botao-ajuste" type="button" aria-label="Mais uma mesa">+</button>
         </div>
 
+        <div id="areaModoResposta" class="area-modo-resposta" hidden>
+          <span class="rotulo-ajuste">Como responder?</span>
+          <button id="botaoModoResposta" class="botao-modo" type="button"></button>
+          <small class="legenda-modo">J troca</small>
+        </div>
+
         <div class="area-mesas">
           <p id="mesaDigitada" class="mesa-digitada"></p>
           <div id="gradeMesas" class="grade-mesas"></div>
@@ -47,6 +53,8 @@
           <button id="botaoAcertou" class="botao-resposta botao-acerto" type="button">Acertou <small>ENTER</small></button>
           <button id="botaoErrou" class="botao-resposta botao-erro" type="button">Errou <small id="legendaErro">ESC</small></button>
         </div>
+
+        <div id="areaAlternativas" class="area-alternativas"></div>
 
         <p id="resultado" class="resultado"></p>
         <ol id="podio" class="podio"></ol>
@@ -58,6 +66,7 @@
       <nav class="barra-controles" aria-label="Controles do apresentador">
         <button id="botaoDica" class="botao-controle" type="button" aria-pressed="false" hidden>Dica <small>D</small></button>
         <button id="botaoAjuda" class="botao-controle" type="button" hidden>+5 segundos <small>A</small></button>
+        <button id="botaoMusicas" class="botao-controle" type="button">Músicas <small>L</small></button>
         <button id="botaoPlacar" class="botao-controle" type="button">Placar <small>P</small></button>
         <button id="botaoParar" class="botao-controle botao-parar" type="button" hidden>Parar por aqui <small>E</small></button>
         <button id="botaoComandos" class="botao-controle" type="button">Comandos <small>H</small></button>
@@ -70,6 +79,32 @@
     <h2>Placar das Mesas</h2>
     <ol id="listaPlacar" class="lista-placar"></ol>
     <p class="dica-sobreposicao">P ou ESC fecha</p>
+  </section>
+
+  <section id="listaDeMusicas" class="sobreposicao" hidden>
+    <h2>Lista de Músicas</h2>
+    <p class="aviso-lista">Esta tela mostra as respostas. Use antes do jogo ou fora do telão.</p>
+    <div class="rolagem-tabela">
+      <table class="tabela-musicas">
+        <thead>
+          <tr>
+            <th>Nº</th>
+            <th>Música</th>
+            <th>Cantor</th>
+            <th>Categoria</th>
+            <th>Década</th>
+            <th>Trecho</th>
+            <th>Pontos</th>
+            <th>Situação</th>
+          </tr>
+        </thead>
+        <tbody id="corpoTabelaMusicas"></tbody>
+      </table>
+    </div>
+    <div class="botoes-lista">
+      <button id="botaoImprimirLista" class="botao-controle" type="button">Imprimir lista</button>
+    </div>
+    <p class="dica-sobreposicao">L ou ESC fecha</p>
   </section>
 
   <section id="ajuda" class="sobreposicao" hidden>
@@ -113,6 +148,15 @@
 
       <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
       <dd>Na abertura: mais ou menos mesas</dd>
+
+      <dt><kbd>1</kbd> a <kbd>4</kbd></dt>
+      <dd>Na resposta da mesa: escolher a alternativa (múltipla escolha)</dd>
+
+      <dt><kbd>L</kbd></dt>
+      <dd>Lista de músicas (com opção de imprimir)</dd>
+
+      <dt><kbd>J</kbd></dt>
+      <dd>Na abertura: trocar entre múltipla escolha e juiz</dd>
 
       <dt><kbd>F</kbd></dt>
       <dd>Tela cheia</dd>
