@@ -3,7 +3,7 @@ const MUSICAS = [
   { titulo: "Ternura", interprete: "Wanderléa", decada: "Anos 60", categoria: "Jovem Guarda", arquivo: "02.mp3" },
   { titulo: "Menina Linda", interprete: "Renato e Seus Blue Caps", decada: "Anos 60", categoria: "Jovem Guarda", arquivo: "03.mp3" },
   { titulo: "A Banda", interprete: "Chico Buarque", decada: "Anos 60", categoria: "MPB", arquivo: "04.mp3" },
-  { titulo: "Deixa Isso pra Lá", interprete: "Jair Rodrigues", decada: "Anos 60", categoria: "Samba", arquivo: "05.mp3" },
+  { titulo: "Chega de Saudade", interprete: "João Gilberto", decada: "Anos 50", categoria: "Bossa Nova", arquivo: "05.mp3" },
   { titulo: "Naquela Mesa", interprete: "Nelson Gonçalves", decada: "Anos 70", categoria: "Seresta", arquivo: "06.mp3" },
   { titulo: "Eu Não Sou Cachorro Não", interprete: "Waldick Soriano", decada: "Anos 70", categoria: "Seresta", arquivo: "07.mp3" },
   { titulo: "Azul da Cor do Mar", interprete: "Tim Maia", decada: "Anos 70", categoria: "MPB", arquivo: "08.mp3" },
