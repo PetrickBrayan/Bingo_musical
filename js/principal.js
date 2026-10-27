@@ -7,45 +7,63 @@ const comandosPorTecla = {
   "ArrowLeft": "voltar",
   "PageUp": "voltar",
   "Backspace": "apagar",
+  "ArrowUp": "maisMesas",
+  "+": "maisMesas",
+  "ArrowDown": "menosMesas",
+  "-": "menosMesas",
+  "d": "dica",
+  "a": "maisTempo",
   "v": "revelar",
   "r": "repetir",
   "m": "som",
   "u": "desfazer",
   "p": "placar",
-  "h": "ajuda",
-  "?": "ajuda",
+  "e": "parar",
+  "s": "sim",
+  "h": "comandos",
+  "?": "comandos",
   "f": "telaCheia",
-  "d": "dicas",
+  "c": "barra",
   "n": "novoJogo"
 };
 
-const comandosQueFecham = ["avancar", "voltar", "placar", "ajuda"];
+const comandosQueFecham = ["avancar", "voltar", "placar", "comandos"];
 
 const acoesDosComandos = {
   avancar: () => Jogo.avancar(),
   voltar: () => Jogo.voltar(),
   apagar: () => Jogo.apagarDigito(),
+  maisMesas: () => Jogo.alterarQuantidadeMesas(1),
+  menosMesas: () => Jogo.alterarQuantidadeMesas(-1),
+  dica: () => Jogo.alternarDica(),
+  maisTempo: () => Jogo.pedirAjuda(),
   revelar: () => Jogo.revelarResposta(),
   repetir: () => Jogo.repetir(),
   som: () => Jogo.alternarSom(),
   desfazer: () => Jogo.desfazerPontuacao(),
   placar: () => Jogo.alternarPlacar(),
-  ajuda: () => Tela.alternarAjuda(),
+  parar: () => Jogo.pedirEncerramento(),
+  comandos: () => Tela.alternarAjuda(),
   telaCheia: () => Tela.alternarTelaCheia(),
-  dicas: () => Tela.alternarDicas(),
+  barra: () => Tela.alternarBarra(),
   novoJogo: () => Jogo.novoJogo()
 };
 
 function executarComando(comando) {
   if (Tela.sobreposicaoAberta()) {
-    if (comandosQueFecham.includes(comando)) {
+    if (comando === "sim" && Tela.confirmacaoAberta()) {
+      Jogo.confirmarEncerramento();
+    } else if (comandosQueFecham.includes(comando)) {
       Tela.fecharSobreposicoes();
     } else if (comando === "telaCheia") {
       acoesDosComandos.telaCheia();
     }
     return;
   }
-  acoesDosComandos[comando]();
+
+  if (acoesDosComandos[comando]) {
+    acoesDosComandos[comando]();
+  }
 }
 
 function tratarTecla(evento) {
@@ -73,6 +91,19 @@ function tratarTecla(evento) {
   executarComando(comando);
 }
 
+const tempoParaEsconderBarraMilissegundos = 3000;
+let temporizadorDaBarra = null;
+
+function mostrarBarraPorAlgunsSegundos() {
+  document.body.classList.add("mouse-ativo");
+  clearTimeout(temporizadorDaBarra);
+  temporizadorDaBarra = setTimeout(() => {
+    document.body.classList.remove("mouse-ativo");
+  }, tempoParaEsconderBarraMilissegundos);
+}
+
 document.addEventListener("keydown", tratarTecla);
+document.addEventListener("pointermove", mostrarBarraPorAlgunsSegundos);
+document.addEventListener("pointerdown", mostrarBarraPorAlgunsSegundos);
 
 Jogo.iniciarAplicacao();

@@ -4,19 +4,34 @@ const Tela = (() => {
   const rotuloProgresso = document.getElementById("rotuloProgresso");
   const titulo = document.getElementById("titulo");
   const subtitulo = document.getElementById("subtitulo");
+  const textoDica = document.getElementById("textoDica");
   const resultado = document.getElementById("resultado");
-  const dica = document.getElementById("dica");
   const centroDisco = document.getElementById("centroDisco");
   const anelProgresso = document.getElementById("anelProgresso");
+  const areaAjusteMesas = document.getElementById("areaAjusteMesas");
+  const quantidadeMesas = document.getElementById("quantidadeMesas");
+  const botaoMenosMesas = document.getElementById("botaoMenosMesas");
+  const botaoMaisMesas = document.getElementById("botaoMaisMesas");
   const mesaDigitada = document.getElementById("mesaDigitada");
   const gradeMesas = document.getElementById("gradeMesas");
   const botaoAcertou = document.getElementById("botaoAcertou");
   const botaoErrou = document.getElementById("botaoErrou");
+  const legendaErro = document.getElementById("legendaErro");
+  const botaoDica = document.getElementById("botaoDica");
+  const botaoAjuda = document.getElementById("botaoAjuda");
+  const botaoPlacar = document.getElementById("botaoPlacar");
+  const botaoParar = document.getElementById("botaoParar");
+  const botaoComandos = document.getElementById("botaoComandos");
+  const botaoConfirmarParada = document.getElementById("botaoConfirmarParada");
+  const botaoContinuarJogando = document.getElementById("botaoContinuarJogando");
   const podio = document.getElementById("podio");
   const placar = document.getElementById("placar");
   const listaPlacar = document.getElementById("listaPlacar");
   const ajuda = document.getElementById("ajuda");
+  const confirmacao = document.getElementById("confirmacao");
   const aviso = document.getElementById("aviso");
+
+  const mesasPorLinhaNoPlacar = 3;
 
   let botoesMesas = [];
   let temporizadorAviso = null;
@@ -43,6 +58,10 @@ const Tela = (() => {
     botao.addEventListener("mousedown", (evento) => evento.preventDefault());
   }
 
+  function calcularColunasDaGrade(quantidade) {
+    return Math.min(10, Math.ceil(Math.sqrt(quantidade * 2.2)));
+  }
+
   function montarGradeMesas(aoEscolherMesa) {
     botoesMesas = [];
     for (let numero = 1; numero <= CONFIGURACAO.quantidadeMesas; numero++) {
@@ -52,14 +71,33 @@ const Tela = (() => {
       botao.addEventListener("click", () => aoEscolherMesa(numero));
       botoesMesas.push(botao);
     }
+    gradeMesas.style.setProperty("--colunas", String(calcularColunasDaGrade(CONFIGURACAO.quantidadeMesas)));
     gradeMesas.replaceChildren(...botoesMesas);
   }
 
-  function ligarBotoesResposta(aoAcertar, aoErrar) {
-    evitarFocoPeloMouse(botaoAcertou);
-    evitarFocoPeloMouse(botaoErrou);
-    botaoAcertou.addEventListener("click", aoAcertar);
-    botaoErrou.addEventListener("click", aoErrar);
+  function ligarControles(acoes) {
+    const ligacoes = [
+      [botaoAcertou, acoes.aoAcertar],
+      [botaoErrou, acoes.aoErrar],
+      [botaoDica, acoes.aoAlternarDica],
+      [botaoAjuda, acoes.aoPedirAjuda],
+      [botaoPlacar, acoes.aoAbrirPlacar],
+      [botaoParar, acoes.aoPedirEncerramento],
+      [botaoComandos, acoes.aoAbrirComandos],
+      [botaoMenosMesas, acoes.aoDiminuirMesas],
+      [botaoMaisMesas, acoes.aoAumentarMesas],
+      [botaoConfirmarParada, acoes.aoConfirmarEncerramento],
+      [botaoContinuarJogando, acoes.aoContinuarJogando]
+    ];
+
+    ligacoes.forEach(([botao, acao]) => {
+      evitarFocoPeloMouse(botao);
+      botao.addEventListener("click", acao);
+    });
+  }
+
+  function definirLegendaErro(pontosPerdidos) {
+    legendaErro.textContent = pontosPerdidos > 0 ? `ESC • perde ${pontosPerdidos}` : "ESC";
   }
 
   function definirEstado(estado) {
@@ -79,8 +117,24 @@ const Tela = (() => {
     resultado.textContent = textoResultado || "";
   }
 
-  function definirDica(texto) {
-    dica.textContent = texto;
+  function definirTextoDica(texto) {
+    textoDica.textContent = texto;
+    textoDica.hidden = !texto;
+  }
+
+  function atualizarBarra(situacao) {
+    botaoDica.hidden = !situacao.mostrarDica;
+    botaoDica.setAttribute("aria-pressed", String(situacao.dicaAtiva));
+    botaoAjuda.hidden = !situacao.mostrarAjuda;
+    botaoAjuda.disabled = !situacao.ajudaDisponivel;
+    botaoParar.hidden = !situacao.mostrarParar;
+  }
+
+  function mostrarAjusteMesas(visivel, quantidade) {
+    areaAjusteMesas.hidden = !visivel;
+    quantidadeMesas.textContent = String(quantidade);
+    botaoMenosMesas.disabled = quantidade <= CONFIGURACAO.quantidadeMinimaMesas;
+    botaoMaisMesas.disabled = quantidade >= CONFIGURACAO.quantidadeMaximaMesas;
   }
 
   function definirCentroDisco(texto) {
@@ -127,12 +181,17 @@ const Tela = (() => {
   }
 
   function sobreposicaoAberta() {
-    return !placar.hidden || !ajuda.hidden;
+    return !placar.hidden || !ajuda.hidden || !confirmacao.hidden;
+  }
+
+  function confirmacaoAberta() {
+    return !confirmacao.hidden;
   }
 
   function fecharSobreposicoes() {
     placar.hidden = true;
     ajuda.hidden = true;
+    confirmacao.hidden = true;
   }
 
   function alternarPlacar(classificacao) {
@@ -141,6 +200,8 @@ const Tela = (() => {
     if (estavaAberto) {
       return;
     }
+    const linhas = Math.ceil(classificacao.length / mesasPorLinhaNoPlacar);
+    listaPlacar.style.setProperty("--linhas-placar", String(linhas));
     listaPlacar.replaceChildren(...classificacao.map(criarLinhaPlacar));
     placar.hidden = false;
   }
@@ -151,8 +212,13 @@ const Tela = (() => {
     ajuda.hidden = estavaAberta;
   }
 
-  function alternarDicas() {
-    corpo.dataset.dicas = corpo.dataset.dicas === "ocultas" ? "" : "ocultas";
+  function abrirConfirmacao() {
+    fecharSobreposicoes();
+    confirmacao.hidden = false;
+  }
+
+  function alternarBarra() {
+    corpo.dataset.barra = corpo.dataset.barra === "oculta" ? "" : "oculta";
   }
 
   function alternarTelaCheia() {
@@ -174,21 +240,26 @@ const Tela = (() => {
 
   return {
     montarGradeMesas,
-    ligarBotoesResposta,
+    ligarControles,
+    definirLegendaErro,
     definirEstado,
     definirCabecalho,
     definirTextos,
-    definirDica,
+    definirTextoDica,
+    atualizarBarra,
+    mostrarAjusteMesas,
     definirCentroDisco,
     definirProgressoAnel,
     atualizarCronometro,
     atualizarGradeMesas,
     mostrarPodio,
     sobreposicaoAberta,
+    confirmacaoAberta,
     fecharSobreposicoes,
     alternarPlacar,
     alternarAjuda,
-    alternarDicas,
+    abrirConfirmacao,
+    alternarBarra,
     alternarTelaCheia,
     mostrarAviso
   };

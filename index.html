@@ -29,6 +29,14 @@
       <div class="conteudo">
         <h1 id="titulo" class="titulo"></h1>
         <p id="subtitulo" class="subtitulo"></p>
+        <p id="textoDica" class="texto-dica" hidden></p>
+
+        <div id="areaAjusteMesas" class="area-ajuste-mesas" hidden>
+          <span class="rotulo-ajuste">Quantas mesas?</span>
+          <button id="botaoMenosMesas" class="botao-ajuste" type="button" aria-label="Menos uma mesa">−</button>
+          <output id="quantidadeMesas" class="quantidade-mesas">21</output>
+          <button id="botaoMaisMesas" class="botao-ajuste" type="button" aria-label="Mais uma mesa">+</button>
+        </div>
 
         <div class="area-mesas">
           <p id="mesaDigitada" class="mesa-digitada"></p>
@@ -36,8 +44,8 @@
         </div>
 
         <div class="area-resposta">
-          <button id="botaoAcertou" class="botao-resposta botao-acerto" type="button" tabindex="-1">Acertou <small>ENTER</small></button>
-          <button id="botaoErrou" class="botao-resposta botao-erro" type="button" tabindex="-1">Errou <small>ESC</small></button>
+          <button id="botaoAcertou" class="botao-resposta botao-acerto" type="button">Acertou <small>ENTER</small></button>
+          <button id="botaoErrou" class="botao-resposta botao-erro" type="button">Errou <small id="legendaErro">ESC</small></button>
         </div>
 
         <p id="resultado" class="resultado"></p>
@@ -47,7 +55,13 @@
     </section>
 
     <footer class="rodape">
-      <p id="dica" class="dica"></p>
+      <nav class="barra-controles" aria-label="Controles do apresentador">
+        <button id="botaoDica" class="botao-controle" type="button" aria-pressed="false" hidden>Dica <small>D</small></button>
+        <button id="botaoAjuda" class="botao-controle" type="button" hidden>+5 segundos <small>A</small></button>
+        <button id="botaoPlacar" class="botao-controle" type="button">Placar <small>P</small></button>
+        <button id="botaoParar" class="botao-controle botao-parar" type="button" hidden>Parar por aqui <small>E</small></button>
+        <button id="botaoComandos" class="botao-controle" type="button">Comandos <small>H</small></button>
+      </nav>
     </footer>
 
   </main>
@@ -71,7 +85,13 @@
       <dd>Digitar o número da mesa (pausa a música sozinho)</dd>
 
       <dt><kbd>BACKSPACE</kbd></dt>
-      <dd>Apagar o número digitado</dd>
+      <dd>Apagar o último número digitado</dd>
+
+      <dt><kbd>D</kbd></dt>
+      <dd>Mostrar ou esconder a dica da música</dd>
+
+      <dt><kbd>A</kbd></dt>
+      <dd>Ajuda: mais 5 segundos de música (uma vez por música)</dd>
 
       <dt><kbd>V</kbd></dt>
       <dd>Revelar a resposta sem pontuar</dd>
@@ -83,21 +103,36 @@
       <dd>Pausar ou continuar o som na revelação</dd>
 
       <dt><kbd>U</kbd></dt>
-      <dd>Desfazer a última pontuação</dd>
+      <dd>Desfazer a última pontuação ou desconto</dd>
 
       <dt><kbd>P</kbd></dt>
       <dd>Abrir ou fechar o placar</dd>
 
+      <dt><kbd>E</kbd></dt>
+      <dd>Parar por aqui e ver a mesa campeã (pede confirmação com <kbd>S</kbd>)</dd>
+
+      <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
+      <dd>Na abertura: mais ou menos mesas</dd>
+
       <dt><kbd>F</kbd></dt>
       <dd>Tela cheia</dd>
 
-      <dt><kbd>D</kbd></dt>
-      <dd>Mostrar ou ocultar as dicas do rodapé</dd>
+      <dt><kbd>C</kbd></dt>
+      <dd>Esconder ou mostrar a barra de botões</dd>
 
       <dt><kbd>N</kbd></dt>
       <dd>Novo jogo (só na abertura e no final)</dd>
     </dl>
     <p class="dica-sobreposicao">H ou ESC fecha</p>
+  </section>
+
+  <section id="confirmacao" class="sobreposicao sobreposicao-centro" hidden>
+    <h2>Parar por aqui?</h2>
+    <p class="texto-confirmacao">O jogo termina agora e mostramos a mesa com mais pontos.</p>
+    <div class="botoes-confirmacao">
+      <button id="botaoConfirmarParada" class="botao-resposta botao-acerto" type="button">Sim, mostrar a campeã <small>S</small></button>
+      <button id="botaoContinuarJogando" class="botao-resposta botao-erro" type="button">Continuar jogando <small>ESC</small></button>
+    </div>
   </section>
 
   <div id="aviso" class="aviso" role="status" hidden></div>
@@ -107,6 +142,7 @@
   <script src="js/configuracao.js"></script>
   <script src="js/musicas.js"></script>
   <script src="js/armazenamento.js"></script>
+  <script src="js/ajustes.js"></script>
   <script src="js/placar.js"></script>
   <script src="js/reprodutor.js"></script>
   <script src="js/tela.js"></script>

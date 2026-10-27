@@ -1,5 +1,6 @@
 const Jogo = (() => {
   const formatadorLista = new Intl.ListFormat("pt-BR", { style: "long", type: "conjunction" });
+  const estadosComDica = ["tocando", "pausado", "respondendo"];
 
   let estado = "inicio";
   let indiceMusica = 0;
@@ -7,6 +8,8 @@ const Jogo = (() => {
   let mesaEmResposta = null;
   let numeroDigitado = "";
   let trechoAcabou = false;
+  let dicaVisivel = false;
+  let ajudaUsada = false;
   let textoResultado = "";
   let progressoSalvo = null;
   let proximaMusicaSalva = 0;
@@ -39,15 +42,37 @@ const Jogo = (() => {
 
   function salvarProgresso(proximaMusica) {
     proximaMusicaSalva = proximaMusica;
-    progressoSalvo = { proximaMusica, placar: Placar.exportar() };
-    Armazenamento.salvar(progressoSalvo);
+    progressoSalvo = {
+      proximaMusica,
+      quantidadeMesas: CONFIGURACAO.quantidadeMesas,
+      placar: Placar.exportar()
+    };
+    Armazenamento.salvar(CONFIGURACAO.chaveProgresso, progressoSalvo);
+  }
+
+  function montarTextoDaDica(musica) {
+    if (musica.dica) {
+      return musica.dica;
+    }
+    const palavras = musica.titulo.split(" ").length;
+    const inicial = musica.titulo.charAt(0).toUpperCase();
+    const rotuloPalavras = palavras === 1 ? "palavra" : "palavras";
+    return `${musica.decada} • título com ${palavras} ${rotuloPalavras} • começa com “${inicial}”`;
+  }
+
+  function calcularPontosPerdidos(mesa) {
+    const perda = CONFIGURACAO.pontosPerdidosPorErro;
+    if (CONFIGURACAO.permitirPontosNegativos) {
+      return perda;
+    }
+    return Math.min(perda, Math.max(Placar.pontosDaMesa(mesa), 0));
   }
 
   function descreverCampeas() {
     const lideres = Placar.classificacao().filter((item) => item.posicao === 1);
     const pontos = lideres[0].pontos;
 
-    if (pontos === 0) {
+    if (pontos <= 0) {
       return "Nenhuma mesa pontuou";
     }
     if (lideres.length === 1) {
@@ -66,24 +91,28 @@ const Jogo = (() => {
       if (concluido) {
         resultado = "Jogo anterior concluído. ESPAÇO mostra o resultado final.";
       } else if (retomando) {
-        resultado = `Jogo salvo: parou na música ${progressoSalvo.proximaMusica + 1} de ${totalMusicas()}. ESPAÇO continua.`;
+        resultado = `Jogo salvo: parou na música ${progressoSalvo.proximaMusica + 1} de ${totalMusicas()}, com ${CONFIGURACAO.quantidadeMesas} mesas. ESPAÇO continua.`;
       }
 
       return {
         titulo: "Bingo Musical",
         subtitulo: "Anos Dourados",
         resultado,
-        dica: retomando ? "ESPAÇO continua • N novo jogo • H comandos" : "ESPAÇO começa • H comandos",
         centroDisco: "♪"
       };
     },
 
     preparando() {
       const pontos = pontosDaMusica(indiceMusica);
+      const valor = ehRodadaDupla(indiceMusica)
+        ? `Rodada dupla: vale ${pontos} pontos!`
+        : `Vale ${pontos} pontos`;
+      const penalidade = CONFIGURACAO.pontosPerdidosPorErro > 0
+        ? ` • quem errar perde ${CONFIGURACAO.pontosPerdidosPorErro}`
+        : "";
       return {
-        titulo: `Música ${indiceMusica + 1} de ${totalMusicas()}`,
-        subtitulo: ehRodadaDupla(indiceMusica) ? `Rodada dupla: vale ${pontos} pontos!` : `Vale ${pontos} pontos`,
-        dica: "ESPAÇO toca o trecho • P placar • H comandos",
+        titulo: "Prepare-se!",
+        subtitulo: valor + penalidade,
         centroDisco: "♪"
       };
     },
@@ -91,8 +120,7 @@ const Jogo = (() => {
     tocando() {
       return {
         titulo: "Que música é essa?",
-        subtitulo: "Levantem a plaquinha da mesa!",
-        dica: "ESPAÇO ou número da mesa: alguém levantou • V revela a resposta"
+        subtitulo: "Levantem a plaquinha da mesa!"
       };
     },
 
@@ -100,22 +128,19 @@ const Jogo = (() => {
       if (trechoAcabou) {
         return {
           titulo: "O trecho acabou!",
-          subtitulo: "Alguém sabe? Digite o número da mesa ou clique",
-          dica: "R repete o trecho • ESPAÇO revela a resposta • número + ENTER escolhe a mesa"
+          subtitulo: "Alguém sabe? Digite o número da mesa ou clique"
         };
       }
       return {
         titulo: "Quem levantou primeiro?",
-        subtitulo: "Digite o número da mesa e ENTER, ou clique",
-        dica: "Número + ENTER escolhe a mesa • ESC retoma a música • V revela a resposta"
+        subtitulo: "Digite o número da mesa e ENTER, ou clique"
       };
     },
 
     respondendo() {
       return {
         titulo: `Mesa ${mesaEmResposta}`,
-        subtitulo: "Qual é a música?",
-        dica: "ENTER acertou • ESC errou • U desfaz a última pontuação"
+        subtitulo: "Qual é a música?"
       };
     },
 
@@ -125,18 +150,14 @@ const Jogo = (() => {
         titulo: musica.titulo,
         subtitulo: `${musica.interprete} • ${musica.decada}`,
         resultado: textoResultado,
-        dica: ehUltimaMusica()
-          ? "ESPAÇO mostra o resultado final • R toca de novo • M pausa o som • U desfaz pontuação"
-          : "ESPAÇO próxima música • R toca de novo • M pausa o som • P placar",
         centroDisco: "♪"
       };
     },
 
     encerrado() {
       return {
-        titulo: "Fim do Bingo Musical!",
+        titulo: "Resultado final",
         subtitulo: descreverCampeas(),
-        dica: "P placar completo • N novo jogo",
         centroDisco: "♪"
       };
     }
@@ -144,6 +165,7 @@ const Jogo = (() => {
 
   function renderizar() {
     const emPartida = estado !== "inicio" && estado !== "encerrado";
+    const comDica = estadosComDica.includes(estado);
     const apresentacao = apresentacoes[estado]();
 
     Tela.definirEstado(estado);
@@ -152,7 +174,15 @@ const Jogo = (() => {
       emPartida ? `Música ${indiceMusica + 1} de ${totalMusicas()}` : ""
     );
     Tela.definirTextos(apresentacao.titulo, apresentacao.subtitulo, apresentacao.resultado);
-    Tela.definirDica(apresentacao.dica);
+    Tela.definirTextoDica(comDica && dicaVisivel ? montarTextoDaDica(musicaAtual()) : "");
+    Tela.atualizarBarra({
+      mostrarDica: comDica,
+      dicaAtiva: dicaVisivel,
+      mostrarAjuda: estado === "tocando" || estado === "pausado",
+      ajudaDisponivel: !ajudaUsada,
+      mostrarParar: emPartida
+    });
+    Tela.mostrarAjusteMesas(estado === "inicio" && !existeProgressoSalvo(), CONFIGURACAO.quantidadeMesas);
 
     if (apresentacao.centroDisco !== undefined) {
       Tela.definirCentroDisco(apresentacao.centroDisco);
@@ -172,6 +202,8 @@ const Jogo = (() => {
     mesaEmResposta = null;
     numeroDigitado = "";
     trechoAcabou = false;
+    dicaVisivel = false;
+    ajudaUsada = false;
     textoResultado = "";
 
     ReprodutorTrecho.carregar(musicaAtual());
@@ -183,6 +215,7 @@ const Jogo = (() => {
 
   function encerrar() {
     estado = "encerrado";
+    dicaVisivel = false;
     ReprodutorTrecho.parar();
     salvarProgresso(totalMusicas());
     renderizar();
@@ -208,7 +241,7 @@ const Jogo = (() => {
       Tela.mostrarAviso("Novo jogo só pode começar na abertura ou no final");
       return;
     }
-    Armazenamento.limpar();
+    Armazenamento.limpar(CONFIGURACAO.chaveProgresso);
     progressoSalvo = null;
     proximaMusicaSalva = 0;
     Placar.reiniciar();
@@ -216,6 +249,16 @@ const Jogo = (() => {
     Tela.definirProgressoAnel(1);
     renderizar();
     Tela.mostrarAviso("Novo jogo: progresso anterior apagado");
+  }
+
+  function alterarQuantidadeMesas(variacao) {
+    if (estado !== "inicio" || existeProgressoSalvo()) {
+      return;
+    }
+    Ajustes.definirQuantidadeMesas(CONFIGURACAO.quantidadeMesas + variacao);
+    Placar.reiniciar();
+    Tela.montarGradeMesas(escolherMesa);
+    renderizar();
   }
 
   function tocarTrecho() {
@@ -286,13 +329,29 @@ const Jogo = (() => {
   }
 
   function confirmarAcerto() {
+    if (estado !== "respondendo") {
+      return;
+    }
     const mesa = mesaEmResposta;
-    Placar.adicionar(mesa, pontosDaMusica(indiceMusica), indiceMusica);
+    Placar.adicionar(mesa, pontosDaMusica(indiceMusica), indiceMusica, "acerto");
     revelar(mesa);
   }
 
   function registrarErro() {
-    mesasBloqueadas.add(mesaEmResposta);
+    if (estado !== "respondendo") {
+      return;
+    }
+
+    const mesa = mesaEmResposta;
+    const pontosPerdidos = calcularPontosPerdidos(mesa);
+
+    if (pontosPerdidos > 0) {
+      Placar.adicionar(mesa, -pontosPerdidos, indiceMusica, "erro");
+      salvarProgresso(proximaMusicaSalva);
+      Tela.mostrarAviso(`Mesa ${mesa} perdeu ${pontosPerdidos} pontos`);
+    }
+
+    mesasBloqueadas.add(mesa);
     mesaEmResposta = null;
 
     if (mesasBloqueadas.size >= CONFIGURACAO.quantidadeMesas) {
@@ -357,7 +416,7 @@ const Jogo = (() => {
     if (novoNumero.length > 2 || Number(novoNumero) > CONFIGURACAO.quantidadeMesas) {
       novoNumero = digito;
     }
-    if (Number(novoNumero) === 0) {
+    if (Number(novoNumero) === 0 || Number(novoNumero) > CONFIGURACAO.quantidadeMesas) {
       return;
     }
 
@@ -370,6 +429,38 @@ const Jogo = (() => {
       numeroDigitado = numeroDigitado.slice(0, -1);
       renderizar();
     }
+  }
+
+  function alternarDica() {
+    if (!estadosComDica.includes(estado)) {
+      return;
+    }
+    dicaVisivel = !dicaVisivel;
+    renderizar();
+  }
+
+  function pedirAjuda() {
+    if (estado !== "tocando" && estado !== "pausado") {
+      return;
+    }
+    if (ajudaUsada) {
+      Tela.mostrarAviso("A ajuda já foi usada nesta música");
+      return;
+    }
+    if (!ReprodutorTrecho.adicionarSegundos(CONFIGURACAO.segundosDeAjuda)) {
+      Tela.mostrarAviso("Este trecho não tem mais áudio. Use um arquivo mais longo.");
+      return;
+    }
+
+    ajudaUsada = true;
+    Tela.mostrarAviso(`+${CONFIGURACAO.segundosDeAjuda} segundos de música`);
+
+    if (estado === "pausado" && trechoAcabou) {
+      trechoAcabou = false;
+      retomarTrecho();
+      return;
+    }
+    renderizar();
   }
 
   function revelarResposta() {
@@ -392,6 +483,27 @@ const Jogo = (() => {
     }
   }
 
+  function pedirEncerramento() {
+    if (estado === "inicio" || estado === "encerrado") {
+      return;
+    }
+    Tela.abrirConfirmacao();
+  }
+
+  function confirmarEncerramento() {
+    Tela.fecharSobreposicoes();
+    if (estado !== "inicio" && estado !== "encerrado") {
+      encerrar();
+    }
+  }
+
+  function descreverDesfeita(desfeita) {
+    if (desfeita.pontos < 0) {
+      return `Desfeito: mesa ${desfeita.mesa} recupera ${-desfeita.pontos} pontos`;
+    }
+    return `Desfeito: mesa ${desfeita.mesa} perde ${desfeita.pontos} pontos`;
+  }
+
   function desfazerPontuacao() {
     const desfeita = Placar.desfazerUltimo();
     if (!desfeita) {
@@ -400,9 +512,13 @@ const Jogo = (() => {
     }
 
     salvarProgresso(proximaMusicaSalva);
-    Tela.mostrarAviso(`Desfeito: mesa ${desfeita.mesa} perde ${desfeita.pontos} pontos`);
+    Tela.mostrarAviso(descreverDesfeita(desfeita));
 
-    if (estado === "revelado" && desfeita.indiceMusica === indiceMusica) {
+    const ehDestaMusica = desfeita.indiceMusica === indiceMusica;
+    if (desfeita.tipo === "erro" && ehDestaMusica) {
+      mesasBloqueadas.delete(desfeita.mesa);
+    }
+    if (desfeita.tipo === "acerto" && ehDestaMusica && estado === "revelado") {
       textoResultado = `Pontuação da mesa ${desfeita.mesa} desfeita`;
     }
     renderizar();
@@ -441,8 +557,14 @@ const Jogo = (() => {
   }
 
   function iniciarAplicacao() {
-    progressoSalvo = Armazenamento.carregar();
+    Ajustes.carregar();
+    progressoSalvo = Armazenamento.carregar(CONFIGURACAO.chaveProgresso);
     proximaMusicaSalva = existeProgressoSalvo() ? progressoSalvo.proximaMusica : 0;
+
+    if (existeProgressoSalvo() && progressoSalvo.quantidadeMesas) {
+      Ajustes.aplicarQuantidadeMesas(progressoSalvo.quantidadeMesas);
+    }
+    Placar.reiniciar();
 
     ReprodutorTrecho.definirOuvintes({
       aoTempo: aoReceberTempo,
@@ -452,7 +574,20 @@ const Jogo = (() => {
     });
 
     Tela.montarGradeMesas(escolherMesa);
-    Tela.ligarBotoesResposta(confirmarAcerto, registrarErro);
+    Tela.definirLegendaErro(CONFIGURACAO.pontosPerdidosPorErro);
+    Tela.ligarControles({
+      aoAcertar: confirmarAcerto,
+      aoErrar: registrarErro,
+      aoAlternarDica: alternarDica,
+      aoPedirAjuda: pedirAjuda,
+      aoAbrirPlacar: alternarPlacar,
+      aoPedirEncerramento: pedirEncerramento,
+      aoAbrirComandos: () => Tela.alternarAjuda(),
+      aoDiminuirMesas: () => alterarQuantidadeMesas(-1),
+      aoAumentarMesas: () => alterarQuantidadeMesas(1),
+      aoConfirmarEncerramento: confirmarEncerramento,
+      aoContinuarJogando: () => Tela.fecharSobreposicoes()
+    });
     renderizar();
   }
 
@@ -462,9 +597,14 @@ const Jogo = (() => {
     voltar,
     digitar,
     apagarDigito,
+    alterarQuantidadeMesas,
+    alternarDica,
+    pedirAjuda,
     revelarResposta,
     repetir,
     alternarSom,
+    pedirEncerramento,
+    confirmarEncerramento,
     desfazerPontuacao,
     alternarPlacar,
     novoJogo

@@ -7,9 +7,13 @@ const Placar = (() => {
     historico = [];
   }
 
-  function adicionar(mesa, pontos, indiceMusica) {
+  function adicionar(mesa, pontos, indiceMusica, tipo) {
     pontosPorMesa[mesa - 1] += pontos;
-    historico.push({ mesa, pontos, indiceMusica });
+    historico.push({ mesa, pontos, indiceMusica, tipo });
+  }
+
+  function pontosDaMesa(mesa) {
+    return pontosPorMesa[mesa - 1];
   }
 
   function desfazerUltimo() {
@@ -55,5 +59,5 @@ const Placar = (() => {
 
   reiniciar();
 
-  return { reiniciar, adicionar, desfazerUltimo, classificacao, exportar, importar };
+  return { reiniciar, adicionar, pontosDaMesa, desfazerUltimo, classificacao, exportar, importar };
 })();

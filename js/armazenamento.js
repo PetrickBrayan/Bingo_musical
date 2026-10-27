@@ -1,24 +1,24 @@
 const Armazenamento = {
-  carregar() {
+  carregar(chave) {
     try {
-      const texto = localStorage.getItem(CONFIGURACAO.chaveArmazenamento);
+      const texto = localStorage.getItem(chave);
       return texto ? JSON.parse(texto) : null;
     } catch (erro) {
       return null;
     }
   },
 
-  salvar(dados) {
+  salvar(chave, dados) {
     try {
-      localStorage.setItem(CONFIGURACAO.chaveArmazenamento, JSON.stringify(dados));
+      localStorage.setItem(chave, JSON.stringify(dados));
     } catch (erro) {
       return;
     }
   },
 
-  limpar() {
+  limpar(chave) {
     try {
-      localStorage.removeItem(CONFIGURACAO.chaveArmazenamento);
+      localStorage.removeItem(chave);
     } catch (erro) {
       return;
     }

@@ -13,6 +13,8 @@ const ReprodutorTrecho = (() => {
   let temporizador = null;
   let modoSimulado = false;
   let tempoSimulado = 0;
+  let segundosExtras = 0;
+  let duracaoBaseSegundos = CONFIGURACAO.duracaoPadraoTrechoSegundos;
   let precarga = null;
 
   function definirOuvintes(novosOuvintes) {
@@ -24,7 +26,7 @@ const ReprodutorTrecho = (() => {
   }
 
   function limiteDoTrecho() {
-    const maximo = CONFIGURACAO.duracaoMaximaTrechoSegundos;
+    const maximo = duracaoBaseSegundos + segundosExtras;
     if (modoSimulado || !Number.isFinite(elemento.duration)) {
       return maximo;
     }
@@ -81,6 +83,8 @@ const ReprodutorTrecho = (() => {
     elemento.pause();
     modoSimulado = false;
     tempoSimulado = 0;
+    segundosExtras = 0;
+    duracaoBaseSegundos = musica.duracaoSegundos || CONFIGURACAO.duracaoPadraoTrechoSegundos;
     elemento.src = caminhoDoAudio(musica);
     elemento.load();
   }
@@ -111,6 +115,19 @@ const ReprodutorTrecho = (() => {
         ativarModoSimulado();
       }
     }
+  }
+
+  function adicionarSegundos(segundos) {
+    if (!modoSimulado && elemento.ended) {
+      return false;
+    }
+
+    segundosExtras += segundos;
+    if (limiteDoTrecho() - tempoDecorrido() < 0.5) {
+      segundosExtras -= segundos;
+      return false;
+    }
+    return true;
   }
 
   function pausar() {
@@ -177,6 +194,7 @@ const ReprodutorTrecho = (() => {
     carregar,
     precarregar,
     tocar,
+    adicionarSegundos,
     pausar,
     reiniciar,
     iniciarRevelacao,
