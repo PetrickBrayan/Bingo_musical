@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bingo Musical - Anos Dourados</title>
+  <link rel="stylesheet" href="css/estilo.css">
+</head>
+<body data-estado="inicio">
+
+  <main class="palco">
+
+    <header class="cabecalho">
+      <span id="rotuloRodada" class="rotulo-rodada" hidden></span>
+      <span id="rotuloProgresso" class="rotulo-progresso"></span>
+    </header>
+
+    <section class="cena">
+
+      <div class="toca-discos">
+        <svg class="anel" viewBox="0 0 120 120" aria-hidden="true">
+          <circle class="anel-fundo" cx="60" cy="60" r="56" pathLength="100"></circle>
+          <circle id="anelProgresso" class="anel-progresso" cx="60" cy="60" r="56" pathLength="100" transform="rotate(-90 60 60)"></circle>
+        </svg>
+        <div class="disco" aria-hidden="true"></div>
+        <div class="miolo-disco"><span id="centroDisco">♪</span></div>
+      </div>
+
+      <div class="conteudo">
+        <h1 id="titulo" class="titulo"></h1>
+        <p id="subtitulo" class="subtitulo"></p>
+
+        <div class="area-mesas">
+          <p id="mesaDigitada" class="mesa-digitada"></p>
+          <div id="gradeMesas" class="grade-mesas"></div>
+        </div>
+
+        <div class="area-resposta">
+          <button id="botaoAcertou" class="botao-resposta botao-acerto" type="button" tabindex="-1">Acertou <small>ENTER</small></button>
+          <button id="botaoErrou" class="botao-resposta botao-erro" type="button" tabindex="-1">Errou <small>ESC</small></button>
+        </div>
+
+        <p id="resultado" class="resultado"></p>
+        <ol id="podio" class="podio"></ol>
+      </div>
+
+    </section>
+
+    <footer class="rodape">
+      <p id="dica" class="dica"></p>
+    </footer>
+
+  </main>
+
+  <section id="placar" class="sobreposicao" hidden>
+    <h2>Placar das Mesas</h2>
+    <ol id="listaPlacar" class="lista-placar"></ol>
+    <p class="dica-sobreposicao">P ou ESC fecha</p>
+  </section>
+
+  <section id="ajuda" class="sobreposicao" hidden>
+    <h2>Comandos</h2>
+    <dl class="lista-ajuda">
+      <dt><kbd>ESPAÇO</kbd> <kbd>→</kbd> <kbd>PgDn</kbd> <kbd>ENTER</kbd></dt>
+      <dd>Avançar: tocar, alguém levantou, acertou, próxima música</dd>
+
+      <dt><kbd>ESC</kbd> <kbd>←</kbd> <kbd>PgUp</kbd></dt>
+      <dd>Voltar: retomar a música, mesa errou</dd>
+
+      <dt><kbd>0</kbd> a <kbd>9</kbd></dt>
+      <dd>Digitar o número da mesa (pausa a música sozinho)</dd>
+
+      <dt><kbd>BACKSPACE</kbd></dt>
+      <dd>Apagar o número digitado</dd>
+
+      <dt><kbd>V</kbd></dt>
+      <dd>Revelar a resposta sem pontuar</dd>
+
+      <dt><kbd>R</kbd></dt>
+      <dd>Repetir o trecho (ou tocar de novo na revelação)</dd>
+
+      <dt><kbd>M</kbd></dt>
+      <dd>Pausar ou continuar o som na revelação</dd>
+
+      <dt><kbd>U</kbd></dt>
+      <dd>Desfazer a última pontuação</dd>
+
+      <dt><kbd>P</kbd></dt>
+      <dd>Abrir ou fechar o placar</dd>
+
+      <dt><kbd>F</kbd></dt>
+      <dd>Tela cheia</dd>
+
+      <dt><kbd>D</kbd></dt>
+      <dd>Mostrar ou ocultar as dicas do rodapé</dd>
+
+      <dt><kbd>N</kbd></dt>
+      <dd>Novo jogo (só na abertura e no final)</dd>
+    </dl>
+    <p class="dica-sobreposicao">H ou ESC fecha</p>
+  </section>
+
+  <div id="aviso" class="aviso" role="status" hidden></div>
+
+  <audio id="reprodutor" preload="auto"></audio>
+
+  <script src="js/configuracao.js"></script>
+  <script src="js/musicas.js"></script>
+  <script src="js/armazenamento.js"></script>
+  <script src="js/placar.js"></script>
+  <script src="js/reprodutor.js"></script>
+  <script src="js/tela.js"></script>
+  <script src="js/jogo.js"></script>
+  <script src="js/principal.js"></script>
+</body>
+</html>
