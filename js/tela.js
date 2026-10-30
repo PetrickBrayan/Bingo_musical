@@ -1,47 +1,79 @@
 const Tela = (() => {
   const corpo = document.body;
-  const rotuloRodada = document.getElementById("rotuloRodada");
-  const rotuloProgresso = document.getElementById("rotuloProgresso");
-  const titulo = document.getElementById("titulo");
-  const subtitulo = document.getElementById("subtitulo");
-  const textoDica = document.getElementById("textoDica");
-  const resultado = document.getElementById("resultado");
-  const centroDisco = document.getElementById("centroDisco");
-  const anelProgresso = document.getElementById("anelProgresso");
-  const areaAjusteMesas = document.getElementById("areaAjusteMesas");
-  const quantidadeMesas = document.getElementById("quantidadeMesas");
-  const botaoMenosMesas = document.getElementById("botaoMenosMesas");
-  const botaoMaisMesas = document.getElementById("botaoMaisMesas");
-  const mesaDigitada = document.getElementById("mesaDigitada");
-  const gradeMesas = document.getElementById("gradeMesas");
-  const botaoAcertou = document.getElementById("botaoAcertou");
-  const botaoErrou = document.getElementById("botaoErrou");
-  const legendaErro = document.getElementById("legendaErro");
-  const botaoDica = document.getElementById("botaoDica");
-  const botaoAjuda = document.getElementById("botaoAjuda");
-  const botaoPlacar = document.getElementById("botaoPlacar");
-  const botaoParar = document.getElementById("botaoParar");
-  const botaoComandos = document.getElementById("botaoComandos");
-  const botaoMusicas = document.getElementById("botaoMusicas");
-  const areaAlternativas = document.getElementById("areaAlternativas");
-  const areaModoResposta = document.getElementById("areaModoResposta");
-  const botaoModoResposta = document.getElementById("botaoModoResposta");
-  const listaDeMusicas = document.getElementById("listaDeMusicas");
-  const corpoTabelaMusicas = document.getElementById("corpoTabelaMusicas");
-  const botaoImprimirLista = document.getElementById("botaoImprimirLista");
-  const botaoConfirmarParada = document.getElementById("botaoConfirmarParada");
-  const botaoContinuarJogando = document.getElementById("botaoContinuarJogando");
-  const podio = document.getElementById("podio");
-  const placar = document.getElementById("placar");
-  const listaPlacar = document.getElementById("listaPlacar");
-  const ajuda = document.getElementById("ajuda");
-  const confirmacao = document.getElementById("confirmacao");
-  const aviso = document.getElementById("aviso");
+  const pegar = (identificador) => document.getElementById(identificador);
 
-  const mesasPorLinhaNoPlacar = 3;
+  const rotuloRodada = pegar("rotuloRodada");
+  const rotuloValor = pegar("rotuloValor");
+  const rotuloProgresso = pegar("rotuloProgresso");
+  const barraProgresso = pegar("barraProgresso");
+  const titulo = pegar("titulo");
+  const subtitulo = pegar("subtitulo");
+  const textoDica = pegar("textoDica");
+  const centroDisco = pegar("centroDisco");
+  const anelProgresso = pegar("anelProgresso");
+  const areaAjusteMesas = pegar("areaAjusteMesas");
+  const quantidadeMesas = pegar("quantidadeMesas");
+  const botaoMenosMesas = pegar("botaoMenosMesas");
+  const botaoMaisMesas = pegar("botaoMaisMesas");
+  const areaModoResposta = pegar("areaModoResposta");
+  const botaoModoResposta = pegar("botaoModoResposta");
+  const areaAtalhosInicio = pegar("areaAtalhosInicio");
+  const botaoAbrirGuia = pegar("botaoAbrirGuia");
+  const botaoAbrirLista = pegar("botaoAbrirLista");
+  const mesaDigitada = pegar("mesaDigitada");
+  const gradeMesas = pegar("gradeMesas");
+  const areaAlternativas = pegar("areaAlternativas");
+  const botaoMicrofone = pegar("botaoMicrofone");
+  const rotuloMicrofone = pegar("rotuloMicrofone");
+  const legendaMicrofone = pegar("legendaMicrofone");
+  const botaoAcertou = pegar("botaoAcertou");
+  const botaoErrou = pegar("botaoErrou");
+  const rotuloAcertou = pegar("rotuloAcertou");
+  const rotuloErrou = pegar("rotuloErrou");
+  const legendaAcertou = pegar("legendaAcertou");
+  const legendaErrou = pegar("legendaErrou");
+  const faixaResultado = pegar("faixaResultado");
+  const iconeResultado = pegar("iconeResultado");
+  const tituloResultado = pegar("tituloResultado");
+  const detalheResultado = pegar("detalheResultado");
+  const comentarioResultado = pegar("comentarioResultado");
+  const podio = pegar("podio");
+  const botaoDica = pegar("botaoDica");
+  const botaoAjuda = pegar("botaoAjuda");
+  const botaoMusicas = pegar("botaoMusicas");
+  const botaoPlacar = pegar("botaoPlacar");
+  const botaoGuia = pegar("botaoGuia");
+  const botaoParar = pegar("botaoParar");
+  const botaoComandos = pegar("botaoComandos");
+  const botaoVoltar = pegar("botaoVoltar");
+  const botaoPrincipal = pegar("botaoPrincipal");
+  const botaoMenu = pegar("botaoMenu");
+  const placar = pegar("placar");
+  const listaPlacar = pegar("listaPlacar");
+  const listaDeMusicas = pegar("listaDeMusicas");
+  const corpoTabelaMusicas = pegar("corpoTabelaMusicas");
+  const botaoImprimirLista = pegar("botaoImprimirLista");
+  const guia = pegar("guia");
+  const paginasGuia = Array.prototype.slice.call(document.querySelectorAll(".pagina-guia"));
+  const pontosGuia = pegar("pontosGuia");
+  const botaoGuiaAnterior = pegar("botaoGuiaAnterior");
+  const botaoGuiaProximo = pegar("botaoGuiaProximo");
+  const menuAcoes = pegar("menuAcoes");
+  const listaMenu = pegar("listaMenu");
+  const ajuda = pegar("ajuda");
+  const confirmacao = pegar("confirmacao");
+  const botaoConfirmarParada = pegar("botaoConfirmarParada");
+  const botaoContinuarJogando = pegar("botaoContinuarJogando");
+  const aviso = pegar("aviso");
+
+  const sobreposicoes = [placar, listaDeMusicas, guia, menuAcoes, ajuda, confirmacao];
+  const sobreposicoesComBotaoFechar = [placar, listaDeMusicas, guia, ajuda];
 
   let botoesMesas = [];
   let temporizadorAviso = null;
+  let paginaDoGuia = 0;
+  let itensDoMenu = [];
+  let indiceDoMenu = 0;
 
   function criarElemento(etiqueta, classe, texto) {
     const elemento = document.createElement(etiqueta);
@@ -50,6 +82,16 @@ const Tela = (() => {
     }
     elemento.textContent = texto;
     return elemento;
+  }
+
+  function limpar(elemento) {
+    while (elemento.firstChild) {
+      elemento.removeChild(elemento.firstChild);
+    }
+  }
+
+  function acrescentar(pai, filhos) {
+    filhos.forEach((filho) => pai.appendChild(filho));
   }
 
   function normalizarParaIdentificador(texto) {
@@ -65,10 +107,6 @@ const Tela = (() => {
     botao.addEventListener("mousedown", (evento) => evento.preventDefault());
   }
 
-  function calcularColunasDaGrade(quantidade) {
-    return Math.min(10, Math.ceil(Math.sqrt(quantidade * 2.2)));
-  }
-
   function montarGradeMesas(aoEscolherMesa) {
     botoesMesas = [];
     for (let numero = 1; numero <= CONFIGURACAO.quantidadeMesas; numero++) {
@@ -78,17 +116,36 @@ const Tela = (() => {
       botao.addEventListener("click", () => aoEscolherMesa(numero));
       botoesMesas.push(botao);
     }
-    gradeMesas.style.setProperty("--colunas", String(calcularColunasDaGrade(CONFIGURACAO.quantidadeMesas)));
-    gradeMesas.replaceChildren(...botoesMesas);
+    limpar(gradeMesas);
+    acrescentar(gradeMesas, botoesMesas);
+  }
+
+  function criarBotoesFechar(aoFechar) {
+    sobreposicoesComBotaoFechar.forEach((sobreposicao) => {
+      const botao = criarElemento("button", "botao-controle botao-fechar", "Fechar");
+      botao.type = "button";
+      evitarFocoPeloMouse(botao);
+      botao.addEventListener("click", aoFechar);
+      sobreposicao.appendChild(botao);
+    });
+  }
+
+  function montarPontosDoGuia() {
+    limpar(pontosGuia);
+    paginasGuia.forEach(() => pontosGuia.appendChild(criarElemento("span", "ponto-guia", "")));
   }
 
   function ligarControles(acoes) {
     const ligacoes = [
       [botaoAcertou, acoes.aoAcertar],
       [botaoErrou, acoes.aoErrar],
+      [botaoMicrofone, acoes.aoCantar],
       [botaoDica, acoes.aoAlternarDica],
       [botaoAjuda, acoes.aoPedirAjuda],
       [botaoPlacar, acoes.aoAbrirPlacar],
+      [botaoGuia, acoes.aoAbrirGuia],
+      [botaoAbrirGuia, acoes.aoAbrirGuia],
+      [botaoAbrirLista, acoes.aoAbrirListaMusicas],
       [botaoParar, acoes.aoPedirEncerramento],
       [botaoComandos, acoes.aoAbrirComandos],
       [botaoMusicas, acoes.aoAbrirListaMusicas],
@@ -97,34 +154,47 @@ const Tela = (() => {
       [botaoMenosMesas, acoes.aoDiminuirMesas],
       [botaoMaisMesas, acoes.aoAumentarMesas],
       [botaoConfirmarParada, acoes.aoConfirmarEncerramento],
-      [botaoContinuarJogando, acoes.aoContinuarJogando]
+      [botaoContinuarJogando, acoes.aoContinuarJogando],
+      [botaoVoltar, acoes.aoVoltar],
+      [botaoPrincipal, acoes.aoAvancar],
+      [botaoMenu, acoes.aoAbrirMenu],
+      [botaoGuiaAnterior, guiaAnterior],
+      [botaoGuiaProximo, guiaProxima]
     ];
 
-    ligacoes.forEach(([botao, acao]) => {
-      evitarFocoPeloMouse(botao);
-      botao.addEventListener("click", acao);
+    ligacoes.forEach((ligacao) => {
+      evitarFocoPeloMouse(ligacao[0]);
+      ligacao[0].addEventListener("click", ligacao[1]);
     });
-  }
-
-  function definirLegendaErro(pontosPerdidos) {
-    legendaErro.textContent = pontosPerdidos > 0 ? `ESC • perde ${pontosPerdidos}` : "ESC";
+    criarBotoesFechar(fecharSobreposicoes);
+    montarPontosDoGuia();
   }
 
   function definirEstado(estado) {
     corpo.dataset.estado = estado;
   }
 
-  function definirCabecalho(categoria, progresso) {
+  function definirModoResposta(modo) {
+    corpo.dataset.resposta = modo;
+  }
+
+  function definirCabecalho(categoria, progresso, fracaoConcluida) {
     rotuloRodada.textContent = categoria;
     rotuloRodada.hidden = !categoria;
     rotuloProgresso.textContent = progresso;
     corpo.dataset.categoria = categoria ? normalizarParaIdentificador(categoria) : "";
+    barraProgresso.style.width = String(Math.round(fracaoConcluida * 100)) + "%";
   }
 
-  function definirTextos(textoTitulo, textoSubtitulo, textoResultado) {
+  function definirValor(texto, reduzido) {
+    rotuloValor.textContent = texto;
+    rotuloValor.hidden = !texto;
+    rotuloValor.classList.toggle("reduzido", reduzido);
+  }
+
+  function definirTextos(textoTitulo, textoSubtitulo) {
     titulo.textContent = textoTitulo;
     subtitulo.textContent = textoSubtitulo;
-    resultado.textContent = textoResultado || "";
   }
 
   function definirTextoDica(texto) {
@@ -140,11 +210,53 @@ const Tela = (() => {
     botaoParar.hidden = !situacao.mostrarParar;
   }
 
+  function definirBarraToque(situacao) {
+    botaoPrincipal.textContent = situacao.principal;
+    botaoPrincipal.disabled = !situacao.principalAtivo;
+    botaoPrincipal.style.visibility = situacao.principal ? "visible" : "hidden";
+    botaoVoltar.textContent = situacao.voltar;
+    botaoVoltar.style.visibility = situacao.voltar ? "visible" : "hidden";
+  }
+
   function mostrarAjusteMesas(visivel, quantidade) {
     areaAjusteMesas.hidden = !visivel;
     quantidadeMesas.textContent = String(quantidade);
     botaoMenosMesas.disabled = quantidade <= CONFIGURACAO.quantidadeMinimaMesas;
     botaoMaisMesas.disabled = quantidade >= CONFIGURACAO.quantidadeMaximaMesas;
+  }
+
+  function mostrarAjusteModo(visivel, rotulo) {
+    areaModoResposta.hidden = !visivel;
+    botaoModoResposta.textContent = rotulo;
+  }
+
+  function mostrarAtalhosInicio(visivel) {
+    areaAtalhosInicio.hidden = !visivel;
+  }
+
+  function mostrarMicrofone(visivel, legenda) {
+    botaoMicrofone.hidden = !visivel;
+    legendaMicrofone.textContent = legenda;
+  }
+
+  function definirRotulosResposta(rotulos) {
+    rotuloAcertou.textContent = rotulos.acertou;
+    legendaAcertou.textContent = rotulos.legendaAcertou;
+    rotuloErrou.textContent = rotulos.errou;
+    legendaErrou.textContent = rotulos.legendaErrou;
+  }
+
+  function mostrarResultado(resultado) {
+    if (!resultado) {
+      faixaResultado.hidden = true;
+      return;
+    }
+    faixaResultado.dataset.tipo = resultado.tipo;
+    iconeResultado.textContent = resultado.icone;
+    tituloResultado.textContent = resultado.titulo;
+    detalheResultado.textContent = resultado.detalhe;
+    comentarioResultado.textContent = resultado.comentario;
+    faixaResultado.hidden = false;
   }
 
   function definirCentroDisco(texto) {
@@ -160,67 +272,127 @@ const Tela = (() => {
     definirProgressoAnel(limiteSegundos > 0 ? segundosRestantes / limiteSegundos : 0);
   }
 
-  function atualizarGradeMesas(mesasBloqueadas, numeroDigitado) {
-    mesaDigitada.textContent = numeroDigitado ? `Mesa ${numeroDigitado}` : " ";
+  function atualizarGradeMesas(mesasBloqueadas, numeroDigitado, lideres) {
+    mesaDigitada.textContent = numeroDigitado ? "Mesa " + numeroDigitado : " ";
     botoesMesas.forEach((botao, indice) => {
       const numero = indice + 1;
       botao.classList.toggle("bloqueada", mesasBloqueadas.has(numero));
-      botao.classList.toggle("pre-selecionada", String(numero) === numeroDigitado);
+      botao.classList.toggle("selecionada", String(numero) === numeroDigitado);
+      botao.classList.toggle("lider", lideres.indexOf(numero) !== -1);
+    });
+  }
+
+  function montarAlternativas(textos, aoEscolher) {
+    limpar(areaAlternativas);
+    textos.forEach((texto, indice) => {
+      const botao = criarElemento("button", "alternativa", "");
+      botao.type = "button";
+      botao.appendChild(criarElemento("span", "alternativa__numero", String(indice + 1)));
+      botao.appendChild(criarElemento("span", "alternativa__texto", texto));
+      evitarFocoPeloMouse(botao);
+      botao.addEventListener("click", () => aoEscolher(indice));
+      areaAlternativas.appendChild(botao);
+    });
+  }
+
+  function marcarResultadoAlternativa(indice, acertou) {
+    Array.prototype.forEach.call(areaAlternativas.children, (botao, posicao) => {
+      if (posicao === indice) {
+        botao.classList.add(acertou ? "certa" : "errada");
+      } else {
+        botao.classList.add("apagada");
+      }
     });
   }
 
   function mostrarPodio(classificacao) {
     const premiadas = classificacao.filter((item) => item.posicao <= 3 && item.pontos > 0);
-    const linhas = premiadas.map((item) =>
-      criarElemento("li", "", `${item.posicao}º lugar: Mesa ${item.mesa} com ${item.pontos} pontos`)
-    );
-    podio.replaceChildren(...linhas);
+    limpar(podio);
+    premiadas.forEach((item) => {
+      const linha = criarElemento("li", item.posicao === 1 ? "campea" : "", "");
+      linha.appendChild(criarElemento("span", "podio__posicao", item.posicao + "º"));
+      linha.appendChild(criarElemento("span", "podio__mesa", "Mesa " + item.mesa));
+      linha.appendChild(criarElemento("span", "podio__pontos", item.pontos + " pts"));
+      podio.appendChild(linha);
+    });
   }
 
   function criarLinhaPlacar(item) {
-    const linha = criarElemento("li", "linha-placar", "");
-    if (item.posicao <= 3 && item.pontos > 0) {
-      linha.dataset.destaque = String(item.posicao);
-    }
-    linha.append(
-      criarElemento("span", "posicao", item.pontos > 0 ? `${item.posicao}º` : "–"),
-      criarElemento("span", "nome", `Mesa ${item.mesa}`),
-      criarElemento("span", "pontos", String(item.pontos))
-    );
+    const linha = criarElemento("li", item.posicao === 1 && item.pontos > 0 ? "lider" : "", "");
+    linha.appendChild(criarElemento("span", "lista-placar__posicao", item.pontos > 0 ? item.posicao + "º" : "–"));
+    linha.appendChild(criarElemento("span", "lista-placar__mesa", "Mesa " + item.mesa));
+    linha.appendChild(criarElemento("span", "lista-placar__pontos", String(item.pontos)));
     return linha;
   }
 
+  function criarLinhaTabelaMusica(linha) {
+    const linhaTabela = document.createElement("tr");
+    if (linha.situacao === "atual") {
+      linhaTabela.className = "atual";
+    }
+    [
+      linha.numero,
+      linha.titulo,
+      linha.interprete,
+      linha.categoria,
+      linha.decada,
+      linha.duracao + "s",
+      linha.pontos,
+      linha.rotuloSituacao
+    ].forEach((valor) => linhaTabela.appendChild(criarElemento("td", "", String(valor))));
+    return linhaTabela;
+  }
+
   function sobreposicaoAberta() {
-    return !placar.hidden || !ajuda.hidden || !confirmacao.hidden || !listaDeMusicas.hidden;
+    return sobreposicoes.some((sobreposicao) => !sobreposicao.hidden);
   }
 
   function confirmacaoAberta() {
     return !confirmacao.hidden;
   }
 
+  function menuAberto() {
+    return !menuAcoes.hidden;
+  }
+
+  function guiaAberto() {
+    return !guia.hidden;
+  }
+
   function fecharSobreposicoes() {
-    placar.hidden = true;
-    ajuda.hidden = true;
-    confirmacao.hidden = true;
-    listaDeMusicas.hidden = true;
+    sobreposicoes.forEach((sobreposicao) => {
+      sobreposicao.hidden = true;
+    });
+  }
+
+  function alternarSobreposicao(sobreposicao, preparar) {
+    const estavaAberta = !sobreposicao.hidden;
+    fecharSobreposicoes();
+    if (estavaAberta) {
+      return;
+    }
+    if (preparar) {
+      preparar();
+    }
+    sobreposicao.hidden = false;
   }
 
   function alternarPlacar(classificacao) {
-    const estavaAberto = !placar.hidden;
-    fecharSobreposicoes();
-    if (estavaAberto) {
-      return;
-    }
-    const linhas = Math.ceil(classificacao.length / mesasPorLinhaNoPlacar);
-    listaPlacar.style.setProperty("--linhas-placar", String(linhas));
-    listaPlacar.replaceChildren(...classificacao.map(criarLinhaPlacar));
-    placar.hidden = false;
+    alternarSobreposicao(placar, () => {
+      limpar(listaPlacar);
+      acrescentar(listaPlacar, classificacao.map(criarLinhaPlacar));
+    });
+  }
+
+  function alternarListaMusicas(linhas) {
+    alternarSobreposicao(listaDeMusicas, () => {
+      limpar(corpoTabelaMusicas);
+      acrescentar(corpoTabelaMusicas, linhas.map(criarLinhaTabelaMusica));
+    });
   }
 
   function alternarAjuda() {
-    const estavaAberta = !ajuda.hidden;
-    fecharSobreposicoes();
-    ajuda.hidden = estavaAberta;
+    alternarSobreposicao(ajuda);
   }
 
   function abrirConfirmacao() {
@@ -228,73 +400,118 @@ const Tela = (() => {
     confirmacao.hidden = false;
   }
 
-  function definirModoResposta(modo) {
-    corpo.dataset.resposta = modo;
-  }
-
-  function mostrarAjusteModo(visivel, rotulo) {
-    areaModoResposta.hidden = !visivel;
-    botaoModoResposta.textContent = rotulo;
-  }
-
-  function montarAlternativas(textos, aoEscolher) {
-    const botoes = textos.map((texto, indice) => {
-      const botao = criarElemento("button", "alternativa", "");
-      botao.type = "button";
-      botao.append(
-        criarElemento("span", "alternativa__numero", String(indice + 1)),
-        criarElemento("span", "alternativa__texto", texto)
-      );
-      evitarFocoPeloMouse(botao);
-      botao.addEventListener("click", () => aoEscolher(indice));
-      return botao;
+  function mostrarPaginaDoGuia() {
+    paginasGuia.forEach((pagina, indice) => {
+      pagina.hidden = indice !== paginaDoGuia;
     });
-    areaAlternativas.replaceChildren(...botoes);
+    Array.prototype.forEach.call(pontosGuia.children, (ponto, indice) => {
+      ponto.classList.toggle("ativo", indice === paginaDoGuia);
+    });
+    const ultima = paginaDoGuia === paginasGuia.length - 1;
+    botaoGuiaProximo.textContent = ultima ? "Entendi!" : "Próxima";
+    botaoGuiaAnterior.textContent = paginaDoGuia === 0 ? "Fechar" : "Anterior";
   }
 
-  function marcarResultadoAlternativa(indice, acertou) {
-    const botao = areaAlternativas.children[indice];
-    if (botao) {
-      botao.classList.add(acertou ? "certa" : "errada");
-    }
+  function alternarGuia() {
+    alternarSobreposicao(guia, () => {
+      paginaDoGuia = 0;
+      mostrarPaginaDoGuia();
+    });
   }
 
-  function criarLinhaTabelaMusica(linha) {
-    const linhaTabela = document.createElement("tr");
-    linhaTabela.dataset.situacao = linha.situacao;
-    const valores = [
-      linha.numero,
-      linha.titulo,
-      linha.interprete,
-      linha.categoria,
-      linha.decada,
-      `${linha.duracao}s`,
-      linha.pontos,
-      linha.rotuloSituacao
-    ];
-    valores.forEach((valor) => linhaTabela.append(criarElemento("td", "", String(valor))));
-    return linhaTabela;
-  }
-
-  function alternarListaMusicas(linhas) {
-    const estavaAberta = !listaDeMusicas.hidden;
-    fecharSobreposicoes();
-    if (estavaAberta) {
+  function guiaProxima() {
+    if (paginaDoGuia >= paginasGuia.length - 1) {
+      fecharSobreposicoes();
       return;
     }
-    corpoTabelaMusicas.replaceChildren(...linhas.map(criarLinhaTabelaMusica));
-    listaDeMusicas.hidden = false;
+    paginaDoGuia += 1;
+    mostrarPaginaDoGuia();
+  }
+
+  function guiaAnterior() {
+    if (paginaDoGuia === 0) {
+      fecharSobreposicoes();
+      return;
+    }
+    paginaDoGuia -= 1;
+    mostrarPaginaDoGuia();
+  }
+
+  function renderizarMenu() {
+    limpar(listaMenu);
+    itensDoMenu.forEach((item, indice) => {
+      const classes = [];
+      if (indice === indiceDoMenu) {
+        classes.push("selecionado");
+      }
+      if (!item.ativo) {
+        classes.push("desativado");
+      }
+      const linha = criarElemento("li", classes.join(" "), item.rotulo);
+      linha.addEventListener("click", () => {
+        indiceDoMenu = indice;
+        executarMenu();
+      });
+      listaMenu.appendChild(linha);
+    });
+    const selecionado = listaMenu.children[indiceDoMenu];
+    if (selecionado && selecionado.scrollIntoView) {
+      selecionado.scrollIntoView(false);
+    }
+  }
+
+  function abrirMenu(itens) {
+    fecharSobreposicoes();
+    itensDoMenu = itens;
+    indiceDoMenu = Math.max(itens.findIndex((item) => item.ativo), 0);
+    renderizarMenu();
+    menuAcoes.hidden = false;
+  }
+
+  function moverMenu(passo) {
+    const total = itensDoMenu.length;
+    for (let tentativa = 1; tentativa <= total; tentativa++) {
+      const candidato = (indiceDoMenu + passo * tentativa + total * tentativa) % total;
+      if (itensDoMenu[candidato].ativo) {
+        indiceDoMenu = candidato;
+        break;
+      }
+    }
+    renderizarMenu();
+  }
+
+  function executarMenu() {
+    const item = itensDoMenu[indiceDoMenu];
+    if (!item || !item.ativo) {
+      return;
+    }
+    fecharSobreposicoes();
+    if (item.acao) {
+      item.acao();
+    }
   }
 
   function alternarBarra() {
-    corpo.dataset.barra = corpo.dataset.barra === "oculta" ? "" : "oculta";
+    corpo.classList.toggle("mouse-ativo");
+  }
+
+  function ativarModoToque() {
+    corpo.classList.add("modo-toque");
   }
 
   function alternarTelaCheia() {
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
-    } else if (document.documentElement.requestFullscreen) {
-      document.documentElement.requestFullscreen().catch(() => {});
+    const elemento = document.documentElement;
+    const pedir = elemento.requestFullscreen || elemento.webkitRequestFullscreen;
+    const sair = document.exitFullscreen || document.webkitExitFullscreen;
+    const ativa = document.fullscreenElement || document.webkitFullscreenElement;
+
+    if (ativa && sair) {
+      sair.call(document);
+    } else if (pedir) {
+      const promessa = pedir.call(elemento);
+      if (promessa && promessa.catch) {
+        promessa.catch(() => {});
+      }
     }
   }
 
@@ -310,30 +527,44 @@ const Tela = (() => {
   return {
     montarGradeMesas,
     ligarControles,
-    definirLegendaErro,
     definirEstado,
+    definirModoResposta,
     definirCabecalho,
+    definirValor,
     definirTextos,
     definirTextoDica,
     atualizarBarra,
+    definirBarraToque,
     mostrarAjusteMesas,
+    mostrarAjusteModo,
+    mostrarAtalhosInicio,
+    mostrarMicrofone,
+    definirRotulosResposta,
+    mostrarResultado,
     definirCentroDisco,
     definirProgressoAnel,
     atualizarCronometro,
     atualizarGradeMesas,
+    montarAlternativas,
+    marcarResultadoAlternativa,
     mostrarPodio,
     sobreposicaoAberta,
     confirmacaoAberta,
+    menuAberto,
+    guiaAberto,
     fecharSobreposicoes,
     alternarPlacar,
-    alternarAjuda,
-    abrirConfirmacao,
-    definirModoResposta,
-    mostrarAjusteModo,
-    montarAlternativas,
-    marcarResultadoAlternativa,
     alternarListaMusicas,
+    alternarAjuda,
+    alternarGuia,
+    guiaProxima,
+    guiaAnterior,
+    abrirConfirmacao,
+    abrirMenu,
+    moverMenu,
+    executarMenu,
     alternarBarra,
+    ativarModoToque,
     alternarTelaCheia,
     mostrarAviso
   };

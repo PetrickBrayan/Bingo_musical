@@ -34,7 +34,7 @@ const Placar = (() => {
       if (indice === 0 || item.pontos !== lista[indice - 1].pontos) {
         posicaoAtual = indice + 1;
       }
-      return { ...item, posicao: posicaoAtual };
+      return Object.assign({}, item, { posicao: posicaoAtual });
     });
   }
 

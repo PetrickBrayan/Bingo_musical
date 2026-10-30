@@ -18,7 +18,7 @@ const ReprodutorTrecho = (() => {
   let precarga = null;
 
   function definirOuvintes(novosOuvintes) {
-    ouvintes = { ...ouvintes, ...novosOuvintes };
+    ouvintes = Object.assign({}, ouvintes, novosOuvintes);
   }
 
   function caminhoDoAudio(musica) {

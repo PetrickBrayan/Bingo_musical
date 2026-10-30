@@ -2,17 +2,22 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1a0b10">
   <title>Bingo Musical - Anos Dourados</title>
   <link rel="stylesheet" href="css/estilo.css">
 </head>
-<body data-estado="inicio">
+<body data-estado="inicio" data-resposta="multipla-escolha">
 
   <main class="palco">
 
     <header class="cabecalho">
       <span id="rotuloRodada" class="rotulo-rodada" hidden></span>
+      <span id="rotuloValor" class="rotulo-valor" hidden></span>
       <span id="rotuloProgresso" class="rotulo-progresso"></span>
+      <div class="trilha-progresso" aria-hidden="true">
+        <div id="barraProgresso" class="trilha-progresso__barra"></div>
+      </div>
     </header>
 
     <section class="cena">
@@ -44,19 +49,41 @@
           <small class="legenda-modo">J troca</small>
         </div>
 
+        <div id="areaAtalhosInicio" class="area-atalhos-inicio" hidden>
+          <button id="botaoAbrirGuia" class="botao-atalho" type="button">Como jogar <small>G</small></button>
+          <button id="botaoAbrirLista" class="botao-atalho" type="button">Lista de músicas <small>L</small></button>
+        </div>
+
         <div class="area-mesas">
           <p id="mesaDigitada" class="mesa-digitada"></p>
           <div id="gradeMesas" class="grade-mesas"></div>
         </div>
 
-        <div class="area-resposta">
-          <button id="botaoAcertou" class="botao-resposta botao-acerto" type="button">Acertou <small>ENTER</small></button>
-          <button id="botaoErrou" class="botao-resposta botao-erro" type="button">Errou <small id="legendaErro">ESC</small></button>
-        </div>
-
         <div id="areaAlternativas" class="area-alternativas"></div>
 
-        <p id="resultado" class="resultado"></p>
+        <button id="botaoMicrofone" class="botao-microfone" type="button" hidden>
+          <svg class="botao-microfone__icone" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"></rect>
+            <path d="M5 11a7 7 0 0014 0M12 18v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+          <span id="rotuloMicrofone">Não sei o nome… vou cantar!</span>
+          <small id="legendaMicrofone">5</small>
+        </button>
+
+        <div class="area-resposta">
+          <button id="botaoAcertou" class="botao-resposta botao-acerto" type="button"><span id="rotuloAcertou">Acertou</span> <small id="legendaAcertou">ENTER</small></button>
+          <button id="botaoErrou" class="botao-resposta botao-erro" type="button"><span id="rotuloErrou">Errou</span> <small id="legendaErrou">ESC</small></button>
+        </div>
+
+        <div id="faixaResultado" class="faixa-resultado" data-tipo="neutro" hidden>
+          <div id="iconeResultado" class="faixa-resultado__icone" aria-hidden="true"></div>
+          <div class="faixa-resultado__textos">
+            <p id="tituloResultado" class="faixa-resultado__titulo"></p>
+            <p id="detalheResultado" class="faixa-resultado__detalhe"></p>
+            <p id="comentarioResultado" class="faixa-resultado__comentario"></p>
+          </div>
+        </div>
+
         <ol id="podio" class="podio"></ol>
       </div>
 
@@ -68,8 +95,15 @@
         <button id="botaoAjuda" class="botao-controle" type="button" hidden>+5 segundos <small>A</small></button>
         <button id="botaoMusicas" class="botao-controle" type="button">Músicas <small>L</small></button>
         <button id="botaoPlacar" class="botao-controle" type="button">Placar <small>P</small></button>
+        <button id="botaoGuia" class="botao-controle" type="button">Como jogar <small>G</small></button>
         <button id="botaoParar" class="botao-controle botao-parar" type="button" hidden>Parar por aqui <small>E</small></button>
         <button id="botaoComandos" class="botao-controle" type="button">Comandos <small>H</small></button>
+      </nav>
+
+      <nav id="barraToque" class="barra-toque" aria-label="Controles de toque">
+        <button id="botaoVoltar" class="botao-toque botao-toque--secundario" type="button"></button>
+        <button id="botaoPrincipal" class="botao-toque botao-toque--principal" type="button"></button>
+        <button id="botaoMenu" class="botao-toque botao-toque--secundario" type="button">Menu</button>
       </nav>
     </footer>
 
@@ -107,8 +141,120 @@
     <p class="dica-sobreposicao">L ou ESC fecha</p>
   </section>
 
+  <section id="guia" class="sobreposicao" hidden>
+    <h2>Como jogar</h2>
+
+    <div class="paginas-guia">
+
+      <article class="pagina-guia">
+        <h3>Bem-vindos ao Bingo Musical!</h3>
+        <p class="guia-destaque">Hoje quem manda é a música.</p>
+        <ul class="guia-lista">
+          <li>Cada mesa é um time, e a mesa inteira joga junto.</li>
+          <li>Ouça o trecho de uma música dos Anos Dourados.</li>
+          <li>Quem souber levanta a plaquinha da mesa.</li>
+          <li>No final, vence a mesa que somar mais pontos.</li>
+        </ul>
+      </article>
+
+      <article class="pagina-guia" hidden>
+        <h3>Como é cada rodada</h3>
+        <ol class="guia-passos">
+          <li><strong>Ouvir.</strong> O trecho toca e o disco gira.</li>
+          <li><strong>Levantar.</strong> Quem souber levanta a plaquinha. A música para e o apresentador anota a primeira mesa.</li>
+          <li><strong>Responder.</strong> A mesa escolhe uma entre quatro respostas e diz o número em voz alta.</li>
+          <li><strong>Resultado.</strong> O jogo confere na hora e a festa (ou a provocação) começa.</li>
+        </ol>
+      </article>
+
+      <article class="pagina-guia" hidden>
+        <h3>Ganhar e perder pontos</h3>
+        <div class="guia-cartoes">
+          <div class="guia-cartao guia-cartao--certo">
+            <p class="guia-cartao__numero">+10</p>
+            <p>Acertou. O valor de cada música aparece no topo da tela, e algumas valem mais.</p>
+          </div>
+          <div class="guia-cartao guia-cartao--errado">
+            <p class="guia-cartao__numero">−3</p>
+            <p>Errou. A mesa perde 3 pontos e fica fora daquela música.</p>
+          </div>
+          <div class="guia-cartao">
+            <p class="guia-cartao__numero">0</p>
+            <p>Ninguém acertou? Ninguém ganha e ninguém perde.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="pagina-guia" hidden>
+        <h3>Precisa de uma ajudinha?</h3>
+        <div class="guia-cartoes">
+          <div class="guia-cartao">
+            <p class="guia-cartao__numero">+5s</p>
+            <p>O trecho toca por mais 5 segundos. Custa 2 pontos do valor daquela música, e só vale uma vez por música.</p>
+          </div>
+          <div class="guia-cartao">
+            <p class="guia-cartao__numero">Dica</p>
+            <p>Uma pista aparece na tela, como a década e o tamanho do título. Não custa nada.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="pagina-guia" hidden>
+        <h3>Hora do microfone!</h3>
+        <p class="guia-destaque">Não sabe o nome nem o cantor? Cante!</p>
+        <ul class="guia-lista">
+          <li>A mesa que levantou escolhe a opção do microfone.</li>
+          <li>Alguém da mesa canta o começo ou o refrão da música.</li>
+          <li>A plateia decide com aplausos se mandou bem.</li>
+          <li>Mandou bem: ganha metade dos pontos da música. Não rolou: não perde nada, mas fica fora daquela música.</li>
+        </ul>
+      </article>
+
+      <article class="pagina-guia" hidden>
+        <h3>Quem vence?</h3>
+        <ul class="guia-lista">
+          <li>Vence a mesa com mais pontos no final das músicas.</li>
+          <li>O apresentador pode parar o jogo a qualquer momento e a campeã é anunciada na hora.</li>
+          <li>Pode torcer, pode provocar, mas sempre com carinho. Vale tudo, menos ficar bravo.</li>
+        </ul>
+      </article>
+
+      <article class="pagina-guia" hidden>
+        <h3>Controles do apresentador</h3>
+        <div class="guia-cartoes">
+          <div class="guia-cartao">
+            <p class="guia-cartao__titulo">Teclado</p>
+            <p>Espaço avança, Esc volta, números escolhem a mesa e as respostas. H mostra todos os comandos.</p>
+          </div>
+          <div class="guia-cartao">
+            <p class="guia-cartao__titulo">Controle da TV</p>
+            <p>OK avança, ← volta, ↑ abre o menu e os números escolhem a mesa. Verde é dica, amarelo é ajuda e azul é placar.</p>
+          </div>
+          <div class="guia-cartao">
+            <p class="guia-cartao__titulo">Celular</p>
+            <p>Toque nos números das mesas e nas respostas. Os botões grandes embaixo fazem o resto.</p>
+          </div>
+        </div>
+      </article>
+
+    </div>
+
+    <div class="navegacao-guia">
+      <button id="botaoGuiaAnterior" class="botao-controle" type="button">Anterior</button>
+      <div id="pontosGuia" class="pontos-guia" aria-hidden="true"></div>
+      <button id="botaoGuiaProximo" class="botao-controle botao-controle--destaque" type="button">Próxima</button>
+    </div>
+    <p class="dica-sobreposicao">← → navegam • ESC fecha</p>
+  </section>
+
+  <section id="menuAcoes" class="sobreposicao sobreposicao-centro" hidden>
+    <h2>Menu</h2>
+    <ul id="listaMenu" class="lista-menu"></ul>
+    <p class="dica-sobreposicao">↑ ↓ escolhem • OK confirma • Voltar fecha</p>
+  </section>
+
   <section id="ajuda" class="sobreposicao" hidden>
-    <h2>Comandos</h2>
+    <h2>Comandos do teclado</h2>
     <dl class="lista-ajuda">
       <dt><kbd>ESPAÇO</kbd> <kbd>→</kbd> <kbd>PgDn</kbd> <kbd>ENTER</kbd></dt>
       <dd>Avançar: tocar, alguém levantou, acertou, próxima música</dd>
@@ -116,8 +262,17 @@
       <dt><kbd>ESC</kbd> <kbd>←</kbd> <kbd>PgUp</kbd></dt>
       <dd>Voltar: retomar a música, mesa errou</dd>
 
+      <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
+      <dd>Abrir o menu (na abertura: mais ou menos mesas)</dd>
+
       <dt><kbd>0</kbd> a <kbd>9</kbd></dt>
       <dd>Digitar o número da mesa (pausa a música sozinho)</dd>
+
+      <dt><kbd>1</kbd> a <kbd>4</kbd></dt>
+      <dd>Na resposta da mesa: escolher a alternativa</dd>
+
+      <dt><kbd>5</kbd> ou <kbd>C</kbd></dt>
+      <dd>Na resposta da mesa: desafio do microfone</dd>
 
       <dt><kbd>BACKSPACE</kbd></dt>
       <dd>Apagar o último número digitado</dd>
@@ -126,7 +281,7 @@
       <dd>Mostrar ou esconder a dica da música</dd>
 
       <dt><kbd>A</kbd></dt>
-      <dd>Ajuda: mais 5 segundos de música (uma vez por música)</dd>
+      <dd>Ajuda: mais 5 segundos (custa 2 pontos da música, uma vez por música)</dd>
 
       <dt><kbd>V</kbd></dt>
       <dd>Revelar a resposta sem pontuar</dd>
@@ -140,29 +295,17 @@
       <dt><kbd>U</kbd></dt>
       <dd>Desfazer a última pontuação ou desconto</dd>
 
-      <dt><kbd>P</kbd></dt>
-      <dd>Abrir ou fechar o placar</dd>
+      <dt><kbd>P</kbd> <kbd>L</kbd> <kbd>G</kbd></dt>
+      <dd>Placar, lista de músicas e guia do jogo</dd>
 
       <dt><kbd>E</kbd></dt>
-      <dd>Parar por aqui e ver a mesa campeã (pede confirmação com <kbd>S</kbd>)</dd>
-
-      <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
-      <dd>Na abertura: mais ou menos mesas</dd>
-
-      <dt><kbd>1</kbd> a <kbd>4</kbd></dt>
-      <dd>Na resposta da mesa: escolher a alternativa (múltipla escolha)</dd>
-
-      <dt><kbd>L</kbd></dt>
-      <dd>Lista de músicas (com opção de imprimir)</dd>
+      <dd>Parar por aqui e ver a mesa campeã</dd>
 
       <dt><kbd>J</kbd></dt>
       <dd>Na abertura: trocar entre múltipla escolha e juiz</dd>
 
-      <dt><kbd>F</kbd></dt>
-      <dd>Tela cheia</dd>
-
-      <dt><kbd>C</kbd></dt>
-      <dd>Esconder ou mostrar a barra de botões</dd>
+      <dt><kbd>F</kbd> <kbd>B</kbd></dt>
+      <dd>Tela cheia e esconder ou mostrar a barra de botões</dd>
 
       <dt><kbd>N</kbd></dt>
       <dd>Novo jogo (só na abertura e no final)</dd>
@@ -174,12 +317,14 @@
     <h2>Parar por aqui?</h2>
     <p class="texto-confirmacao">O jogo termina agora e mostramos a mesa com mais pontos.</p>
     <div class="botoes-confirmacao">
-      <button id="botaoConfirmarParada" class="botao-resposta botao-acerto" type="button">Sim, mostrar a campeã <small>S</small></button>
-      <button id="botaoContinuarJogando" class="botao-resposta botao-erro" type="button">Continuar jogando <small>ESC</small></button>
+      <button id="botaoConfirmarParada" class="botao-resposta botao-acerto" type="button">Sim, mostrar a campeã <small>OK</small></button>
+      <button id="botaoContinuarJogando" class="botao-resposta botao-erro" type="button">Continuar jogando <small>Voltar</small></button>
     </div>
   </section>
 
   <div id="aviso" class="aviso" role="status" hidden></div>
+
+  <canvas id="confete" class="confete" aria-hidden="true"></canvas>
 
   <audio id="reprodutor" preload="auto"></audio>
 
@@ -189,6 +334,9 @@
   <script src="js/ajustes.js"></script>
   <script src="js/placar.js"></script>
   <script src="js/reprodutor.js"></script>
+  <script src="js/narrador.js"></script>
+  <script src="js/efeitos.js"></script>
+  <script src="js/confete.js"></script>
   <script src="js/tela.js"></script>
   <script src="js/jogo.js"></script>
   <script src="js/principal.js"></script>
