@@ -1,7 +1,7 @@
 const Jogo = (() => {
   const estadosComDica = ["tocando", "pausado", "respondendo"];
 
-  let estado = "inicio";
+  let estado = "boasvindas";
   let indiceMusica = 0;
   let mesasBloqueadas = new Set();
   let mesaEmResposta = null;
@@ -12,6 +12,7 @@ const Jogo = (() => {
   let resultado = null;
   let alternativas = [];
   let ocupado = false;
+  let repeticoes = 0;
   let progressoSalvo = null;
   let proximaMusicaSalva = 0;
   let sequenciasPorMesa = {};
@@ -32,7 +33,7 @@ const Jogo = (() => {
   }
 
   function emPartida() {
-    return estado !== "inicio" && estado !== "encerrado";
+    return estado !== "boasvindas" && estado !== "inicio" && estado !== "encerrado";
   }
 
   function modoComJuiz() {
@@ -178,6 +179,10 @@ const Jogo = (() => {
   }
 
   const apresentacoes = {
+    boasvindas() {
+      return { titulo: "Bingo Musical", subtitulo: "Bem-vindos aos Anos Dourados!", centroDisco: "♪" };
+    },
+
     inicio() {
       return { titulo: "Bingo Musical", subtitulo: "Anos Dourados", centroDisco: "♪" };
     },
@@ -243,25 +248,26 @@ const Jogo = (() => {
 
   function rotulosDaBarraDeToque() {
     const porEstado = {
-      inicio: { principal: existeProgressoSalvo() ? "Continuar" : "Começar", voltar: "", principalAtivo: true },
-      preparando: { principal: "Tocar ▶", voltar: "", principalAtivo: true },
-      tocando: { principal: "Alguém levantou!", voltar: "", principalAtivo: true },
+      boasvindas: { principal: "", voltar: "", principalAtivo: false },
+      inicio: { principal: existeProgressoSalvo() ? "Continuar" : "Começar", voltar: "Voltar", principalAtivo: true },
+      preparando: { principal: "Tocar ▶", voltar: "Voltar", principalAtivo: true },
+      tocando: { principal: "Alguém levantou!", voltar: "Voltar", principalAtivo: true },
       pausado: {
         principal: numeroDigitado ? `Confirmar mesa ${numeroDigitado}` : "Revelar resposta",
-        voltar: trechoAcabou ? "Repetir trecho" : "Retomar música",
+        voltar: trechoAcabou ? "Ouvir de novo" : "Voltar",
         principalAtivo: Boolean(numeroDigitado) || trechoAcabou
       },
       respondendo: modoComJuiz()
         ? { principal: "Acertou", voltar: "Errou", principalAtivo: true }
-        : { principal: "Escolha uma resposta", voltar: "Desistir", principalAtivo: false },
-      cantando: { principal: "Mandou bem!", voltar: "Não rolou", principalAtivo: true },
-      errou: { principal: "Continuar", voltar: "", principalAtivo: true },
+        : { principal: "Escolha uma resposta", voltar: "Voltar", principalAtivo: false },
+      cantando: { principal: "Mandou bem!", voltar: "Voltar", principalAtivo: true },
+      errou: { principal: "Continuar", voltar: "Voltar", principalAtivo: true },
       revelado: {
         principal: ehUltimaMusica() ? "Ver resultado" : "Próxima música",
-        voltar: "Repetir trecho",
+        voltar: "Voltar",
         principalAtivo: true
       },
-      encerrado: { principal: "Novo jogo", voltar: "", principalAtivo: true }
+      encerrado: { principal: "Novo jogo", voltar: "Voltar", principalAtivo: true }
     };
     return porEstado[estado];
   }
@@ -272,15 +278,15 @@ const Jogo = (() => {
         acertou: "Mandou bem!",
         legendaAcertou: `ENTER • +${pontosDoMicrofone()}`,
         errou: "Não rolou",
-        legendaErrou: "ESC"
+        legendaErrou: "X"
       };
     }
     const perda = CONFIGURACAO.pontosPerdidosPorErro;
     return {
       acertou: "Acertou",
       legendaAcertou: "ENTER",
-      errou: "Errou",
-      legendaErrou: perda > 0 ? `ESC • perde ${perda}` : "ESC"
+      errou: modoComJuiz() ? "Errou" : "Desistir",
+      legendaErrou: perda > 0 ? `X • perde ${perda}` : "X"
     };
   }
 
@@ -312,6 +318,8 @@ const Jogo = (() => {
     Tela.mostrarAjusteMesas(estado === "inicio" && !existeProgressoSalvo(), CONFIGURACAO.quantidadeMesas);
     Tela.mostrarAjusteModo(estado === "inicio", CONFIGURACAO.rotulosModoResposta[CONFIGURACAO.modoResposta]);
     Tela.mostrarAtalhosInicio(estado === "inicio");
+    Tela.mostrarBoasVindas(estado === "boasvindas");
+    Tela.mostrarAcoesInicio(estado === "inicio", existeProgressoSalvo());
     Tela.mostrarMicrofone(estado === "respondendo", modoComJuiz() ? "C" : `${alternativas.length + 1} ou C`);
     Tela.definirRotulosResposta(rotulosDaResposta());
     Tela.mostrarResultado(estado === "revelado" || estado === "errou" ? resultado : null);
@@ -337,6 +345,7 @@ const Jogo = (() => {
     trechoAcabou = false;
     dicaVisivel = false;
     ajudaUsada = false;
+    repeticoes = 0;
     ocupado = false;
     resultado = null;
     alternativas = sortearAlternativas(musicaAtual());
@@ -364,15 +373,49 @@ const Jogo = (() => {
     }
   }
 
-  function comecarJogo() {
-    Efeitos.preparar();
-    if (!existeProgressoSalvo()) {
+  function comecarDoZero() {
+    if (existeProgressoSalvo()) {
+      Armazenamento.limpar(CONFIGURACAO.chaveProgresso);
+      progressoSalvo = null;
+      proximaMusicaSalva = 0;
       Placar.reiniciar();
       sequenciasPorMesa = {};
-      prepararMusica(0);
+      renderizar();
+      Tela.mostrarAviso("Progresso apagado. Ajuste as mesas e toque em Começar.");
       return;
     }
+    Efeitos.preparar();
+    Placar.reiniciar();
+    sequenciasPorMesa = {};
+    prepararMusica(0);
+  }
 
+  function pularParaJogo() {
+    if (estado === "boasvindas") {
+      estado = "inicio";
+      renderizar();
+    }
+  }
+
+  function moverBoasVindas(passo) {
+    if (estado === "boasvindas") {
+      Tela.moverSelecaoBoasVindas(passo);
+    }
+  }
+
+  function acionarBoasVindas() {
+    const selecao = Tela.selecaoDasBoasVindas();
+    if (selecao === 0) {
+      alternarGuia();
+    } else if (selecao === 1) {
+      Tela.alternarAjuda();
+    } else {
+      pularParaJogo();
+    }
+  }
+
+  function comecarJogo() {
+    Efeitos.preparar();
     Placar.importar(progressoSalvo.placar);
     if (progressoSalvo.proximaMusica >= totalMusicas()) {
       encerrar();
@@ -432,7 +475,18 @@ const Jogo = (() => {
     ReprodutorTrecho.tocar();
   }
 
+  function anunciarRepeticao() {
+    repeticoes += 1;
+    Tela.mostrarAviso(Narrador.repeticao(repeticoes));
+  }
+
+  function repetirRevelacao() {
+    anunciarRepeticao();
+    ReprodutorTrecho.repetirNaRevelacao();
+  }
+
   function repetirTrecho() {
+    anunciarRepeticao();
     trechoAcabou = false;
     ReprodutorTrecho.reiniciar();
     Tela.definirProgressoAnel(1);
@@ -595,6 +649,23 @@ const Jogo = (() => {
     registrarErro(true);
   }
 
+  function errarMesa() {
+    if (estado === "cantando") {
+      microfoneReprovado();
+    } else if (modoComJuiz()) {
+      registrarErro(false);
+    } else {
+      desistir();
+    }
+  }
+
+  function alternarBarra() {
+    const automatica = !CONFIGURACAO.barraAutomatica;
+    Ajustes.definirBarraAutomatica(automatica);
+    Tela.definirBarraAutomatica(automatica);
+    Tela.mostrarAviso(automatica ? "Botões escondem quando parados. B mostra sempre." : "Botões sempre visíveis.");
+  }
+
   function atualizarContagemDoMicrofone() {
     segundosDoMicrofone -= 1;
     Tela.atualizarCronometro(Math.max(segundosDoMicrofone, 0), CONFIGURACAO.duracaoMicrofoneSegundos);
@@ -687,7 +758,8 @@ const Jogo = (() => {
 
   function avancar() {
     switch (estado) {
-      case "inicio": return comecarJogo();
+      case "boasvindas": return acionarBoasVindas();
+      case "inicio": return existeProgressoSalvo() ? comecarJogo() : comecarDoZero();
       case "preparando": return tocarTrecho();
       case "tocando": return pausarParaMesa();
       case "pausado": return confirmarMesaDigitada();
@@ -699,12 +771,81 @@ const Jogo = (() => {
     }
   }
 
+  function voltarParaAbertura() {
+    limparTemporizadores();
+    ReprodutorTrecho.parar();
+    ocupado = false;
+    estado = "inicio";
+    Tela.definirProgressoAnel(1);
+    renderizar();
+  }
+
+  function interromperTrecho() {
+    ReprodutorTrecho.pausar();
+    ReprodutorTrecho.reiniciar();
+    Tela.definirProgressoAnel(1);
+    estado = "preparando";
+    renderizar();
+    Tela.definirCentroDisco("♪");
+  }
+
+  function cancelarEscolhaDaMesa() {
+    if (ocupado) {
+      return;
+    }
+    mesaEmResposta = null;
+    numeroDigitado = "";
+    estado = "pausado";
+    renderizar();
+  }
+
+  function cancelarMicrofone() {
+    clearInterval(temporizadorDoMicrofone);
+    temporizadorDoMicrofone = null;
+    Tela.definirProgressoAnel(1);
+    estado = "respondendo";
+    renderizar();
+    Tela.definirCentroDisco("♪");
+  }
+
+  function voltarParaPergunta() {
+    const ultimo = Placar.ultimo();
+    const pontuouNestaMusica = ultimo
+      && ultimo.indiceMusica === indiceMusica
+      && (ultimo.tipo === "acerto" || ultimo.tipo === "microfone");
+
+    if (pontuouNestaMusica) {
+      Placar.desfazerUltimo();
+      sequenciasPorMesa[ultimo.mesa] = Math.max((sequenciasPorMesa[ultimo.mesa] || 1) - 1, 0);
+    }
+    ReprodutorTrecho.parar();
+    resultado = null;
+    numeroDigitado = "";
+    mesaEmResposta = null;
+    ocupado = false;
+    trechoAcabou = true;
+    estado = "pausado";
+    salvarProgresso(indiceMusica);
+    renderizar();
+    Tela.definirProgressoAnel(0);
+    Tela.definirCentroDisco("0");
+  }
+
+  function irParaBoasVindas() {
+    estado = "boasvindas";
+    renderizar();
+  }
+
   function voltar() {
     switch (estado) {
-      case "inicio": return abrirMenu();
-      case "respondendo": return desistir();
-      case "cantando": return microfoneReprovado();
-      case "revelado": return ReprodutorTrecho.repetirNaRevelacao();
+      case "inicio": return irParaBoasVindas();
+      case "preparando": return voltarParaAbertura();
+      case "tocando": return interromperTrecho();
+      case "respondendo": return cancelarEscolhaDaMesa();
+      case "cantando": return cancelarMicrofone();
+      case "errou": return continuarAposInterludio();
+      case "revelado": return voltarParaPergunta();
+      case "encerrado": return voltarParaAbertura();
       case "pausado":
         if (numeroDigitado) {
           numeroDigitado = "";
@@ -795,7 +936,7 @@ const Jogo = (() => {
     if (estado === "tocando" || estado === "pausado") {
       repetirTrecho();
     } else if (estado === "revelado") {
-      ReprodutorTrecho.repetirNaRevelacao();
+      repetirRevelacao();
     }
   }
 
@@ -868,6 +1009,11 @@ const Jogo = (() => {
       { rotulo: "Como jogar", ativo: true, acao: alternarGuia },
       { rotulo: "Comandos", ativo: true, acao: () => Tela.alternarAjuda() },
       { rotulo: "Tela cheia", ativo: true, acao: () => Tela.alternarTelaCheia() },
+      {
+        rotulo: CONFIGURACAO.barraAutomatica ? "Mostrar botões sempre" : "Esconder botões quando parados",
+        ativo: true,
+        acao: alternarBarra
+      },
       { rotulo: "Parar por aqui", ativo: emPartida(), acao: pedirEncerramento },
       { rotulo: "Novo jogo", ativo: !emPartida(), acao: novoJogo },
       { rotulo: "Fechar menu", ativo: true, acao: null }
@@ -919,6 +1065,7 @@ const Jogo = (() => {
     if (existeProgressoSalvo() && progressoSalvo.quantidadeMesas) {
       Ajustes.aplicarQuantidadeMesas(progressoSalvo.quantidadeMesas);
     }
+    Tela.definirBarraAutomatica(CONFIGURACAO.barraAutomatica);
     Placar.reiniciar();
 
     ReprodutorTrecho.definirOuvintes({
@@ -931,7 +1078,10 @@ const Jogo = (() => {
     Tela.montarGradeMesas(escolherMesa);
     Tela.ligarControles({
       aoAcertar: () => (estado === "cantando" ? microfoneAprovado() : confirmarAcerto()),
-      aoErrar: () => (estado === "cantando" ? microfoneReprovado() : desistir()),
+      aoErrar: errarMesa,
+      aoPular: pularParaJogo,
+      aoContinuar: comecarJogo,
+      aoComecar: comecarDoZero,
       aoCantar: iniciarMicrofone,
       aoAlternarDica: alternarDica,
       aoPedirAjuda: pedirAjuda,
@@ -974,6 +1124,10 @@ const Jogo = (() => {
     alternarListaMusicas,
     iniciarMicrofone,
     abrirMenu,
+    errarMesa,
+    moverBoasVindas,
+    pularParaJogo,
+    alternarBarra,
     estaOcupado,
     estadoAtual,
     novoJogo

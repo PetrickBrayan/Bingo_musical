@@ -25,6 +25,10 @@ const Placar = (() => {
     return ultimo;
   }
 
+  function ultimo() {
+    return historico.length > 0 ? historico[historico.length - 1] : null;
+  }
+
   function classificacao() {
     const lista = pontosPorMesa.map((pontos, indice) => ({ mesa: indice + 1, pontos }));
     lista.sort((a, b) => b.pontos - a.pontos || a.mesa - b.mesa);
@@ -59,5 +63,5 @@ const Placar = (() => {
 
   reiniciar();
 
-  return { reiniciar, adicionar, pontosDaMesa, desfazerUltimo, classificacao, exportar, importar };
+  return { reiniciar, adicionar, pontosDaMesa, ultimo, desfazerUltimo, classificacao, exportar, importar };
 })();

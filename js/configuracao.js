@@ -12,6 +12,7 @@ const CONFIGURACAO = {
   duracaoMicrofoneSegundos: 15,
   parteParaCantarPadrao: "o refrão",
   duracaoInterludioMilissegundos: 2400,
+  barraAutomatica: false,
   modoResposta: "multipla-escolha",
   rotulosModoResposta: {
     "multipla-escolha": "Múltipla escolha",

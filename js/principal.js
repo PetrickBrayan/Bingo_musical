@@ -31,6 +31,7 @@ const comandosPorTecla = {
   "l": "listaMusicas",
   "g": "guia",
   "c": "microfone",
+  "x": "desistir",
   "j": "modoResposta",
   "n": "novoJogo"
 };
@@ -53,8 +54,8 @@ const acoesDosComandos = {
   voltar: () => Jogo.voltar(),
   cancelar: () => Jogo.voltar(),
   apagar: () => Jogo.apagarDigito(),
-  cima: () => (Jogo.estadoAtual() === "inicio" ? Jogo.alterarQuantidadeMesas(1) : Jogo.abrirMenu()),
-  baixo: () => (Jogo.estadoAtual() === "inicio" ? Jogo.alterarQuantidadeMesas(-1) : Jogo.abrirMenu()),
+  cima: () => moverOuAbrirMenu(1),
+  baixo: () => moverOuAbrirMenu(-1),
   maisMesas: () => Jogo.alterarQuantidadeMesas(1),
   menosMesas: () => Jogo.alterarQuantidadeMesas(-1),
   dica: () => Jogo.alternarDica(),
@@ -67,13 +68,41 @@ const acoesDosComandos = {
   parar: () => Jogo.pedirEncerramento(),
   comandos: () => Tela.alternarAjuda(),
   telaCheia: () => Tela.alternarTelaCheia(),
-  barra: () => Tela.alternarBarra(),
+  barra: () => Jogo.alternarBarra(),
   listaMusicas: () => Jogo.alternarListaMusicas(),
   guia: () => Jogo.alternarGuia(),
   microfone: () => Jogo.iniciarMicrofone(),
+  desistir: () => Jogo.errarMesa(),
   modoResposta: () => Jogo.alternarModoResposta(),
   novoJogo: () => Jogo.novoJogo()
 };
+
+function moverOuAbrirMenu(sentido) {
+  const estado = Jogo.estadoAtual();
+  if (estado === "boasvindas") {
+    Jogo.moverBoasVindas(-sentido);
+  } else if (estado === "inicio") {
+    Jogo.alterarQuantidadeMesas(sentido);
+  } else {
+    Jogo.abrirMenu();
+  }
+}
+
+function tratarComandoComComandos(comando) {
+  if (comando === "avancar") {
+    Tela.confirmarDispositivo();
+  } else if (comando === "cima") {
+    Tela.moverDispositivo(-1);
+  } else if (comando === "baixo") {
+    Tela.moverDispositivo(1);
+  } else if (comando === "voltar" || comando === "cancelar") {
+    Tela.voltarComandos();
+  } else if (comando === "comandos") {
+    Tela.fecharSobreposicoes();
+  } else if (comando === "telaCheia") {
+    acoesDosComandos.telaCheia();
+  }
+}
 
 function tratarComandoComConfirmacao(comando) {
   if (comando === "avancar" || comando === "sim") {
@@ -112,6 +141,8 @@ function tratarComandoComSobreposicao(comando) {
     tratarComandoComMenu(comando);
   } else if (Tela.guiaAberto()) {
     tratarComandoComGuia(comando);
+  } else if (Tela.comandosAberto()) {
+    tratarComandoComComandos(comando);
   } else if (comandosQueFecham.indexOf(comando) !== -1) {
     Tela.fecharSobreposicoes();
   } else if (comando === "telaCheia") {

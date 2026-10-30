@@ -50,6 +50,13 @@ const Narrador = (() => {
     "Precisou de uma força? Tudo bem, mas são {custo} pontos a menos."
   ];
 
+  const frasesRepeticao = [
+    "Vamos ouvir mais uma vez!",
+    "Tá difícil, né?",
+    "Vish, deu branco… esqueceu mesmo!",
+    "Já decorei o trecho de tanto tocar! Que tal revelar?"
+  ];
+
   function sortear(lista) {
     return lista[Math.floor(Math.random() * lista.length)];
   }
@@ -154,6 +161,10 @@ const Narrador = (() => {
     return ninguem();
   }
 
+  function repeticao(vezes) {
+    return frasesRepeticao[Math.min(vezes, frasesRepeticao.length) - 1];
+  }
+
   function ajuda(segundos, custo) {
     return preencher(sortear(frasesAjuda), { segundos, custo });
   }
@@ -190,5 +201,5 @@ const Narrador = (() => {
     };
   }
 
-  return { acerto, erro, desistencia, microfoneRuim, revelacao, ninguem, ajuda, preparo, final, listarMesas };
+  return { acerto, erro, desistencia, microfoneRuim, revelacao, ninguem, repeticao, ajuda, preparo, final, listarMesas };
 })();

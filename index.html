@@ -7,7 +7,14 @@
   <title>Bingo Musical - Anos Dourados</title>
   <link rel="stylesheet" href="css/estilo.css">
 </head>
-<body data-estado="inicio" data-resposta="multipla-escolha">
+<body data-estado="boasvindas" data-resposta="multipla-escolha">
+
+  <button id="botaoTelaCheia" class="botao-tela-cheia" type="button" aria-pressed="false">
+    <svg class="botao-tela-cheia__icone" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+    <span id="rotuloTelaCheia">Tela cheia</span>
+  </button>
 
   <main class="palco">
 
@@ -36,6 +43,20 @@
         <p id="subtitulo" class="subtitulo"></p>
         <p id="textoDica" class="texto-dica" hidden></p>
 
+        <div id="painelBoasVindas" class="painel-boas-vindas" hidden>
+          <p class="proposta">Uma competição de músicas entre as mesas. Ouça o trecho, levante a plaquinha e mostre que você viveu os Anos Dourados.</p>
+          <ol class="chips-proposta">
+            <li>Ouça o trecho</li>
+            <li>Levante a plaquinha</li>
+            <li>Acerte e some pontos</li>
+          </ol>
+          <div class="botoes-boas-vindas">
+            <button id="botaoBoasVindasGuia" class="botao-grande" type="button">Como jogar</button>
+            <button id="botaoBoasVindasComandos" class="botao-grande" type="button">Comandos</button>
+            <button id="botaoPularParaJogo" class="botao-grande botao-grande--principal" type="button">Pular já para o jogo</button>
+          </div>
+        </div>
+
         <div id="areaAjusteMesas" class="area-ajuste-mesas" hidden>
           <span class="rotulo-ajuste">Quantas mesas?</span>
           <button id="botaoMenosMesas" class="botao-ajuste" type="button" aria-label="Menos uma mesa">−</button>
@@ -47,6 +68,11 @@
           <span class="rotulo-ajuste">Como responder?</span>
           <button id="botaoModoResposta" class="botao-modo" type="button"></button>
           <small class="legenda-modo">J troca</small>
+        </div>
+
+        <div id="areaAcoesInicio" class="area-acoes-inicio" hidden>
+          <button id="botaoContinuar" class="botao-grande botao-grande--principal" type="button" hidden>Continuar de onde parou</button>
+          <button id="botaoComecar" class="botao-grande" type="button">Começar</button>
         </div>
 
         <div id="areaAtalhosInicio" class="area-atalhos-inicio" hidden>
@@ -91,6 +117,7 @@
 
     <footer class="rodape">
       <nav class="barra-controles" aria-label="Controles do apresentador">
+        <button id="botaoVoltarGeral" class="botao-controle" type="button" hidden>← Voltar <small>ESC</small></button>
         <button id="botaoDica" class="botao-controle" type="button" aria-pressed="false" hidden>Dica <small>D</small></button>
         <button id="botaoAjuda" class="botao-controle" type="button" hidden>+5 segundos <small>A</small></button>
         <button id="botaoMusicas" class="botao-controle" type="button">Músicas <small>L</small></button>
@@ -105,6 +132,7 @@
         <button id="botaoPrincipal" class="botao-toque botao-toque--principal" type="button"></button>
         <button id="botaoMenu" class="botao-toque botao-toque--secundario" type="button">Menu</button>
       </nav>
+      <p class="creditos">Jogo criado por <strong>Petrick Brayan</strong></p>
     </footer>
 
   </main>
@@ -254,63 +282,76 @@
   </section>
 
   <section id="ajuda" class="sobreposicao" hidden>
-    <h2>Comandos do teclado</h2>
-    <dl class="lista-ajuda">
-      <dt><kbd>ESPAÇO</kbd> <kbd>→</kbd> <kbd>PgDn</kbd> <kbd>ENTER</kbd></dt>
-      <dd>Avançar: tocar, alguém levantou, acertou, próxima música</dd>
+    <h2>Comandos</h2>
 
-      <dt><kbd>ESC</kbd> <kbd>←</kbd> <kbd>PgUp</kbd></dt>
-      <dd>Voltar: retomar a música, mesa errou</dd>
+    <div id="escolhaDispositivo">
+      <p class="pergunta-dispositivo">Onde você está jogando?</p>
+      <div class="cartoes-dispositivo">
+        <button class="cartao-dispositivo" type="button" data-dispositivo="computador"><strong>Computador</strong><span>Teclado e mouse</span></button>
+        <button class="cartao-dispositivo" type="button" data-dispositivo="tv"><strong>Smart TV</strong><span>Controle remoto</span></button>
+        <button class="cartao-dispositivo" type="button" data-dispositivo="celular"><strong>Celular ou tablet</strong><span>Toque na tela</span></button>
+      </div>
+    </div>
 
-      <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
-      <dd>Abrir o menu (na abertura: mais ou menos mesas)</dd>
+    <div id="detalheDispositivo" hidden>
+      <div class="painel-dispositivo" data-dispositivo="computador" hidden>
+        <h3>No computador</h3>
+        <dl class="lista-ajuda">
+          <dt><kbd>ESPAÇO</kbd> <kbd>ENTER</kbd> <kbd>→</kbd></dt>
+          <dd>Avançar: tocar, alguém levantou, confirmar, próxima música</dd>
+          <dt><kbd>ESC</kbd> <kbd>←</kbd></dt>
+          <dd>Voltar um passo (sem perder pontos)</dd>
+          <dt><kbd>0</kbd> a <kbd>9</kbd></dt>
+          <dd>Número da mesa; na resposta, 1 a 4 escolhe e 5 canta no microfone</dd>
+          <dt><kbd>X</kbd></dt>
+          <dd>A mesa desistiu ou errou (perde pontos)</dd>
+          <dt><kbd>D</kbd> <kbd>A</kbd> <kbd>R</kbd> <kbd>V</kbd></dt>
+          <dd>Dica, +5 segundos (−2 pontos), repetir trecho, revelar resposta</dd>
+          <dt><kbd>P</kbd> <kbd>L</kbd> <kbd>G</kbd> <kbd>H</kbd></dt>
+          <dd>Placar, lista de músicas, guia do jogo e comandos</dd>
+          <dt><kbd>U</kbd> <kbd>E</kbd></dt>
+          <dd>Desfazer a última pontuação e parar por aqui</dd>
+          <dt><kbd>F</kbd> <kbd>B</kbd> <kbd>J</kbd> <kbd>N</kbd></dt>
+          <dd>Tela cheia, esconder ou mostrar botões, modo de resposta e novo jogo</dd>
+        </dl>
+      </div>
 
-      <dt><kbd>0</kbd> a <kbd>9</kbd></dt>
-      <dd>Digitar o número da mesa (pausa a música sozinho)</dd>
+      <div class="painel-dispositivo" data-dispositivo="tv" hidden>
+        <h3>Na Smart TV</h3>
+        <dl class="lista-ajuda">
+          <dt><kbd>OK</kbd> <kbd>→</kbd></dt>
+          <dd>Avançar e confirmar</dd>
+          <dt><kbd>←</kbd> <kbd>Voltar</kbd></dt>
+          <dd>Voltar um passo e fechar telas</dd>
+          <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
+          <dd>Abrir o menu e navegar nele (na abertura, mudam o número de mesas)</dd>
+          <dt><kbd>0</kbd> a <kbd>9</kbd></dt>
+          <dd>Número da mesa e resposta (5 é o microfone)</dd>
+          <dt><kbd>Vermelho</kbd> <kbd>Verde</kbd></dt>
+          <dd>Parar por aqui e dica</dd>
+          <dt><kbd>Amarelo</kbd> <kbd>Azul</kbd></dt>
+          <dd>+5 segundos e placar</dd>
+          <dt>Controle com ponteiro</dt>
+          <dd>Aponte e clique nos botões da tela</dd>
+        </dl>
+      </div>
 
-      <dt><kbd>1</kbd> a <kbd>4</kbd></dt>
-      <dd>Na resposta da mesa: escolher a alternativa</dd>
-
-      <dt><kbd>5</kbd> ou <kbd>C</kbd></dt>
-      <dd>Na resposta da mesa: desafio do microfone</dd>
-
-      <dt><kbd>BACKSPACE</kbd></dt>
-      <dd>Apagar o último número digitado</dd>
-
-      <dt><kbd>D</kbd></dt>
-      <dd>Mostrar ou esconder a dica da música</dd>
-
-      <dt><kbd>A</kbd></dt>
-      <dd>Ajuda: mais 5 segundos (custa 2 pontos da música, uma vez por música)</dd>
-
-      <dt><kbd>V</kbd></dt>
-      <dd>Revelar a resposta sem pontuar</dd>
-
-      <dt><kbd>R</kbd></dt>
-      <dd>Repetir o trecho (ou tocar de novo na revelação)</dd>
-
-      <dt><kbd>M</kbd></dt>
-      <dd>Pausar ou continuar o som na revelação</dd>
-
-      <dt><kbd>U</kbd></dt>
-      <dd>Desfazer a última pontuação ou desconto</dd>
-
-      <dt><kbd>P</kbd> <kbd>L</kbd> <kbd>G</kbd></dt>
-      <dd>Placar, lista de músicas e guia do jogo</dd>
-
-      <dt><kbd>E</kbd></dt>
-      <dd>Parar por aqui e ver a mesa campeã</dd>
-
-      <dt><kbd>J</kbd></dt>
-      <dd>Na abertura: trocar entre múltipla escolha e juiz</dd>
-
-      <dt><kbd>F</kbd> <kbd>B</kbd></dt>
-      <dd>Tela cheia e esconder ou mostrar a barra de botões</dd>
-
-      <dt><kbd>N</kbd></dt>
-      <dd>Novo jogo (só na abertura e no final)</dd>
-    </dl>
-    <p class="dica-sobreposicao">H ou ESC fecha</p>
+      <div class="painel-dispositivo" data-dispositivo="celular" hidden>
+        <h3>No celular ou tablet</h3>
+        <dl class="lista-ajuda">
+          <dt>Mesas e respostas</dt>
+          <dd>Toque no número da mesa e depois na resposta escolhida</dd>
+          <dt>Barra de baixo</dt>
+          <dd>Voltar, o botão principal da rodada e o Menu</dd>
+          <dt>Menu</dt>
+          <dd>Dica, +5 segundos, repetir, placar, lista de músicas, guia e tela cheia</dd>
+          <dt>Microfone</dt>
+          <dd>Toque em "Não sei o nome… vou cantar!" na vez da mesa</dd>
+          <dt>Dica</dt>
+          <dd>Use o aparelho em pé. A tela se ajusta sozinha</dd>
+        </dl>
+      </div>
+    </div>
   </section>
 
   <section id="confirmacao" class="sobreposicao sobreposicao-centro" hidden>

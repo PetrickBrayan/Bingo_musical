@@ -116,6 +116,7 @@ small {
   -webkit-justify-content: space-between;
   justify-content: space-between;
   padding-bottom: calc(var(--u) * 0.9);
+  padding-right: calc(var(--u) * 14);
 }
 
 .rotulo-rodada,
@@ -391,10 +392,14 @@ body[data-estado="respondendo"] .area-alternativas {
   display: block;
 }
 
-body[data-estado="respondendo"][data-resposta="juiz"] .area-resposta,
+body[data-estado="respondendo"] .area-resposta,
 body[data-estado="cantando"] .area-resposta {
   display: -webkit-flex;
   display: flex;
+}
+
+body[data-estado="respondendo"][data-resposta="multipla-escolha"] .botao-acerto {
+  display: none;
 }
 
 .mesa-digitada {
@@ -672,12 +677,12 @@ body[data-estado="cantando"] .area-resposta {
   cursor: default;
 }
 
-body:not(.mouse-ativo) .barra-controles {
+body.barra-automatica:not(.mouse-ativo) .barra-controles {
   opacity: 0;
   pointer-events: none;
 }
 
-body:not(.mouse-ativo) {
+body.barra-automatica:not(.mouse-ativo) {
   cursor: none;
 }
 
@@ -733,7 +738,7 @@ body.modo-toque {
   bottom: 0;
   z-index: 20;
   overflow-y: auto;
-  padding: calc(var(--u) * 3) calc(var(--u) * 5);
+  padding: calc(var(--u) * 7) calc(var(--u) * 5) calc(var(--u) * 3);
   background: var(--fundo-sobreposicao);
 }
 
@@ -760,7 +765,7 @@ body.modo-toque {
 .botao-fechar {
   position: fixed;
   top: calc(var(--u) * 1.2);
-  right: calc(var(--u) * 1.5);
+  left: calc(var(--u) * 1.5);
   z-index: 25;
 }
 
@@ -1041,6 +1046,151 @@ kbd {
   white-space: nowrap;
 }
 
+.botao-tela-cheia {
+  position: fixed;
+  top: calc(var(--u) * 1.2);
+  right: calc(var(--u) * 1.5);
+  z-index: 35;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  min-height: 44px;
+  padding: calc(var(--u) * 0.5) calc(var(--u) * 1.4);
+  border-radius: 999px;
+  border: 1px solid var(--ouro);
+  background: var(--fundo-elevado);
+  color: var(--ouro);
+  font-size: calc(var(--u) * 1.5);
+}
+
+.botao-tela-cheia[aria-pressed="true"] {
+  background: var(--ouro);
+  color: var(--fundo);
+}
+
+.botao-tela-cheia__icone {
+  width: calc(var(--u) * 2);
+  height: calc(var(--u) * 2);
+  min-width: 18px;
+  min-height: 18px;
+  margin-right: calc(var(--u) * 0.7);
+}
+
+.creditos {
+  margin-top: calc(var(--u) * 0.5);
+  text-align: center;
+  font-size: calc(var(--u) * 1.3);
+  color: var(--creme-suave);
+}
+
+.creditos strong {
+  color: var(--ouro);
+}
+
+.painel-boas-vindas .proposta {
+  font-size: calc(var(--u) * 2.1);
+  color: var(--creme);
+  margin-bottom: calc(var(--u) * 1.4);
+}
+
+.chips-proposta {
+  list-style: none;
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+  margin-bottom: calc(var(--u) * 1.8);
+}
+
+.chips-proposta li {
+  margin: 0 calc(var(--u) * 0.8) calc(var(--u) * 0.8) 0;
+  padding: calc(var(--u) * 0.4) calc(var(--u) * 1.3);
+  border-radius: 999px;
+  border: 1px solid var(--destaque);
+  color: var(--destaque);
+  font-size: calc(var(--u) * 1.6);
+}
+
+.botoes-boas-vindas,
+.area-acoes-inicio {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-wrap: wrap;
+  flex-wrap: wrap;
+}
+
+.area-acoes-inicio {
+  margin: calc(var(--u) * 1.2) 0;
+}
+
+.botao-grande {
+  min-height: max(48px, calc(var(--u) * 5));
+  margin: 0 calc(var(--u) * 1) calc(var(--u) * 1) 0;
+  padding: calc(var(--u) * 0.8) calc(var(--u) * 2.4);
+  border-radius: calc(var(--u) * 1.4);
+  border: 2px solid var(--linha);
+  background: var(--fundo-elevado);
+  font-size: calc(var(--u) * 2.1);
+  font-weight: bold;
+}
+
+.botao-grande--principal {
+  background: var(--ouro);
+  border-color: var(--ouro);
+  color: var(--fundo);
+}
+
+.botao-grande.selecionado {
+  border-color: var(--creme);
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05);
+}
+
+.pergunta-dispositivo {
+  font-size: calc(var(--u) * 2.4);
+  margin-bottom: calc(var(--u) * 1.4);
+}
+
+.cartoes-dispositivo {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-gap: calc(var(--u) * 1.4);
+  max-width: calc(var(--u) * 80);
+}
+
+.cartao-dispositivo {
+  display: block;
+  min-height: calc(var(--u) * 12);
+  padding: calc(var(--u) * 1.6);
+  border-radius: calc(var(--u) * 1.4);
+  border: 2px solid var(--linha);
+  background: var(--fundo-elevado);
+  text-align: left;
+}
+
+.cartao-dispositivo strong {
+  display: block;
+  font-size: calc(var(--u) * 2.4);
+  color: var(--ouro);
+  margin-bottom: calc(var(--u) * 0.5);
+}
+
+.cartao-dispositivo span {
+  font-size: calc(var(--u) * 1.7);
+  color: var(--creme-suave);
+}
+
+.cartao-dispositivo.selecionado {
+  border-color: var(--ouro);
+  background: rgba(244, 201, 93, 0.12);
+}
+
+.painel-dispositivo h3 {
+  font-size: calc(var(--u) * 3);
+  margin-bottom: calc(var(--u) * 1);
+}
+
 .confete {
   position: fixed;
   top: 0;
@@ -1126,6 +1276,12 @@ kbd {
     display: none;
   }
 
+  body[data-estado="boasvindas"] .toca-discos {
+    width: calc(var(--u) * 13);
+    height: calc(var(--u) * 13);
+    margin-bottom: calc(var(--u) * 1);
+  }
+
   body[data-estado="inicio"] .toca-discos {
     width: calc(var(--u) * 20);
     height: calc(var(--u) * 20);
@@ -1149,12 +1305,26 @@ kbd {
   .rotulo-valor,
   .rotulo-progresso { font-size: calc(var(--u) * 2.1); letter-spacing: 0.03em; }
   .rotulo-rodada { padding: calc(var(--u) * 0.3) calc(var(--u) * 1); }
+  .cabecalho { padding-right: calc(var(--u) * 13); }
+  .botao-tela-cheia { font-size: calc(var(--u) * 2.2); padding: calc(var(--u) * 0.5) calc(var(--u) * 1.2); }
+  .creditos { font-size: calc(var(--u) * 2.2); }
+  .painel-boas-vindas .proposta { font-size: calc(var(--u) * 2.8); }
+  .chips-proposta { display: none; }
+  .chips-proposta li { font-size: calc(var(--u) * 2.4); }
+  .botoes-boas-vindas,
+  .area-acoes-inicio { -webkit-flex-direction: column; flex-direction: column; }
+  .botao-grande { font-size: calc(var(--u) * 3.4); margin-right: 0; }
+  .cartoes-dispositivo { grid-template-columns: 1fr; }
+  .cartao-dispositivo strong { font-size: calc(var(--u) * 3.6); }
+  .cartao-dispositivo span { font-size: calc(var(--u) * 2.8); }
+  .pergunta-dispositivo { font-size: calc(var(--u) * 3.6); }
+  .painel-dispositivo h3 { font-size: calc(var(--u) * 4.6); }
 
   .grade-mesas { grid-template-columns: repeat(5, 1fr); grid-gap: calc(var(--u) * 1.2); }
   .mesa { font-size: calc(var(--u) * 3.4); min-height: 48px; }
   .mesa-digitada { font-size: calc(var(--u) * 3.6); }
 
-  .alternativa { font-size: calc(var(--u) * 3.4); min-height: 56px; }
+  .alternativa { font-size: calc(var(--u) * 3); min-height: 52px; }
   .alternativa__numero { width: calc(var(--u) * 5.4); height: calc(var(--u) * 5.4); line-height: calc(var(--u) * 5.4); font-size: calc(var(--u) * 3); }
   .botao-microfone { font-size: calc(var(--u) * 3); width: 100%; }
   .botao-microfone__icone { width: calc(var(--u) * 4); height: calc(var(--u) * 4); }
@@ -1173,7 +1343,7 @@ kbd {
   .botao-toque--secundario { -webkit-flex: 0 0 24%; flex: 0 0 24%; }
   .botao-controle { font-size: calc(var(--u) * 2.6); }
 
-  .sobreposicao { padding: calc(var(--u) * 4) calc(var(--u) * 4); }
+  .sobreposicao { padding: calc(var(--u) * 8) calc(var(--u) * 4) calc(var(--u) * 4); }
   .sobreposicao h2 { font-size: calc(var(--u) * 6); }
   .lista-placar { -webkit-column-count: 2; column-count: 2; }
   .lista-placar li { font-size: calc(var(--u) * 3.4); }
@@ -1217,6 +1387,7 @@ kbd {
   #menuAcoes,
   #ajuda,
   #confirmacao,
+  .botao-tela-cheia,
   #aviso,
   .confete,
   .botoes-lista,

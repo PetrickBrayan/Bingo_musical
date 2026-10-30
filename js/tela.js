@@ -58,6 +58,18 @@ const Tela = (() => {
   const pontosGuia = pegar("pontosGuia");
   const botaoGuiaAnterior = pegar("botaoGuiaAnterior");
   const botaoGuiaProximo = pegar("botaoGuiaProximo");
+  const painelBoasVindas = pegar("painelBoasVindas");
+  const botaoBoasVindasGuia = pegar("botaoBoasVindasGuia");
+  const botaoBoasVindasComandos = pegar("botaoBoasVindasComandos");
+  const botaoPularParaJogo = pegar("botaoPularParaJogo");
+  const areaAcoesInicio = pegar("areaAcoesInicio");
+  const botaoContinuar = pegar("botaoContinuar");
+  const botaoComecar = pegar("botaoComecar");
+  const botaoVoltarGeral = pegar("botaoVoltarGeral");
+  const botaoTelaCheia = pegar("botaoTelaCheia");
+  const rotuloTelaCheia = pegar("rotuloTelaCheia");
+  const escolhaDispositivo = pegar("escolhaDispositivo");
+  const detalheDispositivo = pegar("detalheDispositivo");
   const menuAcoes = pegar("menuAcoes");
   const listaMenu = pegar("listaMenu");
   const ajuda = pegar("ajuda");
@@ -74,6 +86,13 @@ const Tela = (() => {
   let paginaDoGuia = 0;
   let itensDoMenu = [];
   let indiceDoMenu = 0;
+  let selecaoBoasVindas = 2;
+  let dispositivoSelecionado = 0;
+  let detalheDoDispositivoAberto = false;
+
+  const botoesBoasVindas = [botaoBoasVindasGuia, botaoBoasVindasComandos, botaoPularParaJogo];
+  const cartoesDispositivo = Array.prototype.slice.call(ajuda.querySelectorAll(".cartao-dispositivo"));
+  const paineisDispositivo = Array.prototype.slice.call(ajuda.querySelectorAll(".painel-dispositivo"));
 
   function criarElemento(etiqueta, classe, texto) {
     const elemento = document.createElement(etiqueta);
@@ -120,12 +139,12 @@ const Tela = (() => {
     acrescentar(gradeMesas, botoesMesas);
   }
 
-  function criarBotoesFechar(aoFechar) {
+  function criarBotoesFechar() {
     sobreposicoesComBotaoFechar.forEach((sobreposicao) => {
-      const botao = criarElemento("button", "botao-controle botao-fechar", "Fechar");
+      const botao = criarElemento("button", "botao-controle botao-fechar", "← Voltar");
       botao.type = "button";
       evitarFocoPeloMouse(botao);
-      botao.addEventListener("click", aoFechar);
+      botao.addEventListener("click", voltarDaSobreposicao);
       sobreposicao.appendChild(botao);
     });
   }
@@ -158,6 +177,13 @@ const Tela = (() => {
       [botaoVoltar, acoes.aoVoltar],
       [botaoPrincipal, acoes.aoAvancar],
       [botaoMenu, acoes.aoAbrirMenu],
+      [botaoBoasVindasGuia, acoes.aoAbrirGuia],
+      [botaoBoasVindasComandos, acoes.aoAbrirComandos],
+      [botaoPularParaJogo, acoes.aoPular],
+      [botaoContinuar, acoes.aoContinuar],
+      [botaoComecar, acoes.aoComecar],
+      [botaoVoltarGeral, acoes.aoVoltar],
+      [botaoTelaCheia, alternarTelaCheia],
       [botaoGuiaAnterior, guiaAnterior],
       [botaoGuiaProximo, guiaProxima]
     ];
@@ -166,8 +192,17 @@ const Tela = (() => {
       evitarFocoPeloMouse(ligacao[0]);
       ligacao[0].addEventListener("click", ligacao[1]);
     });
-    criarBotoesFechar(fecharSobreposicoes);
+    cartoesDispositivo.forEach((cartao, indice) => {
+      evitarFocoPeloMouse(cartao);
+      cartao.addEventListener("click", () => {
+        dispositivoSelecionado = indice;
+        detalheDoDispositivoAberto = true;
+        mostrarEtapaDosComandos();
+      });
+    });
+    criarBotoesFechar();
     montarPontosDoGuia();
+    configurarTelaCheia();
   }
 
   function definirEstado(estado) {
@@ -216,6 +251,62 @@ const Tela = (() => {
     botaoPrincipal.style.visibility = situacao.principal ? "visible" : "hidden";
     botaoVoltar.textContent = situacao.voltar;
     botaoVoltar.style.visibility = situacao.voltar ? "visible" : "hidden";
+    botaoVoltarGeral.hidden = !situacao.voltar;
+  }
+
+  function mostrarBoasVindas(visivel) {
+    painelBoasVindas.hidden = !visivel;
+    marcarSelecaoBoasVindas();
+  }
+
+  function marcarSelecaoBoasVindas() {
+    botoesBoasVindas.forEach((botao, indice) => {
+      botao.classList.toggle("selecionado", indice === selecaoBoasVindas);
+    });
+  }
+
+  function moverSelecaoBoasVindas(passo) {
+    selecaoBoasVindas = (selecaoBoasVindas + passo + botoesBoasVindas.length) % botoesBoasVindas.length;
+    marcarSelecaoBoasVindas();
+  }
+
+  function selecaoDasBoasVindas() {
+    return selecaoBoasVindas;
+  }
+
+  function mostrarAcoesInicio(visivel, comProgressoSalvo) {
+    areaAcoesInicio.hidden = !visivel;
+    botaoContinuar.hidden = !comProgressoSalvo;
+    botaoComecar.textContent = comProgressoSalvo ? "Começar do zero" : "Começar";
+    botaoComecar.classList.toggle("botao-grande--principal", !comProgressoSalvo);
+  }
+
+  function telaCheiaAtiva() {
+    return Boolean(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  function atualizarBotaoTelaCheia() {
+    const ativa = telaCheiaAtiva();
+    botaoTelaCheia.setAttribute("aria-pressed", String(ativa));
+    rotuloTelaCheia.textContent = ativa ? "Sair da tela cheia" : "Tela cheia";
+  }
+
+  function configurarTelaCheia() {
+    const elemento = document.documentElement;
+    if (!elemento.requestFullscreen && !elemento.webkitRequestFullscreen) {
+      botaoTelaCheia.hidden = true;
+      return;
+    }
+    document.addEventListener("fullscreenchange", atualizarBotaoTelaCheia);
+    document.addEventListener("webkitfullscreenchange", atualizarBotaoTelaCheia);
+    atualizarBotaoTelaCheia();
+  }
+
+  function definirBarraAutomatica(automatica) {
+    corpo.classList.toggle("barra-automatica", automatica);
+    if (!automatica) {
+      corpo.classList.remove("mouse-ativo");
+    }
   }
 
   function mostrarAjusteMesas(visivel, quantidade) {
@@ -391,8 +482,57 @@ const Tela = (() => {
     });
   }
 
+  function mostrarEtapaDosComandos() {
+    escolhaDispositivo.hidden = detalheDoDispositivoAberto;
+    detalheDispositivo.hidden = !detalheDoDispositivoAberto;
+    cartoesDispositivo.forEach((cartao, indice) => {
+      cartao.classList.toggle("selecionado", indice === dispositivoSelecionado);
+    });
+    paineisDispositivo.forEach((painel, indice) => {
+      painel.hidden = indice !== dispositivoSelecionado;
+    });
+  }
+
   function alternarAjuda() {
-    alternarSobreposicao(ajuda);
+    alternarSobreposicao(ajuda, () => {
+      detalheDoDispositivoAberto = false;
+      dispositivoSelecionado = corpo.classList.contains("modo-toque") ? 2 : 0;
+      mostrarEtapaDosComandos();
+    });
+  }
+
+  function comandosAberto() {
+    return !ajuda.hidden;
+  }
+
+  function moverDispositivo(passo) {
+    if (detalheDoDispositivoAberto) {
+      return;
+    }
+    dispositivoSelecionado = (dispositivoSelecionado + passo + cartoesDispositivo.length) % cartoesDispositivo.length;
+    mostrarEtapaDosComandos();
+  }
+
+  function confirmarDispositivo() {
+    detalheDoDispositivoAberto = !detalheDoDispositivoAberto;
+    mostrarEtapaDosComandos();
+  }
+
+  function voltarComandos() {
+    if (detalheDoDispositivoAberto) {
+      detalheDoDispositivoAberto = false;
+      mostrarEtapaDosComandos();
+      return;
+    }
+    fecharSobreposicoes();
+  }
+
+  function voltarDaSobreposicao() {
+    if (comandosAberto()) {
+      voltarComandos();
+    } else {
+      fecharSobreposicoes();
+    }
   }
 
   function abrirConfirmacao() {
@@ -491,10 +631,6 @@ const Tela = (() => {
     }
   }
 
-  function alternarBarra() {
-    corpo.classList.toggle("mouse-ativo");
-  }
-
   function ativarModoToque() {
     corpo.classList.add("modo-toque");
   }
@@ -527,6 +663,15 @@ const Tela = (() => {
   return {
     montarGradeMesas,
     ligarControles,
+    mostrarBoasVindas,
+    moverSelecaoBoasVindas,
+    selecaoDasBoasVindas,
+    mostrarAcoesInicio,
+    definirBarraAutomatica,
+    comandosAberto,
+    moverDispositivo,
+    confirmarDispositivo,
+    voltarComandos,
     definirEstado,
     definirModoResposta,
     definirCabecalho,
@@ -563,7 +708,6 @@ const Tela = (() => {
     abrirMenu,
     moverMenu,
     executarMenu,
-    alternarBarra,
     ativarModoToque,
     alternarTelaCheia,
     mostrarAviso
