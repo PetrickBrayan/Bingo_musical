@@ -16,6 +16,7 @@ const Jogo = (() => {
   let progressoSalvo = null;
   let proximaMusicaSalva = 0;
   let sequenciasPorMesa = {};
+  let ouvindoParaCantar = false;
   let segundosDoMicrofone = 0;
   let temporizadorDoMicrofone = null;
   let temporizadorDoInterludio = null;
@@ -231,6 +232,7 @@ const Jogo = (() => {
     clearTimeout(temporizadorDoInterludio);
     temporizadorDoMicrofone = null;
     temporizadorDoInterludio = null;
+    ouvindoParaCantar = false;
   }
 
   function mensagemDoInicio() {
@@ -301,6 +303,13 @@ const Jogo = (() => {
     },
 
     cantando() {
+      if (ouvindoParaCantar) {
+        return {
+          titulo: "Ouçam com atenção!",
+          subtitulo: `${Mesas.rotulo(mesaEmResposta)}, o trecho toca de novo. Quando acabar, vocês cantam ${parteParaCantar()}!`,
+          centroDisco: "♪"
+        };
+      }
       return {
         titulo: `${Mesas.rotulo(mesaEmResposta)}, é com vocês!`,
         subtitulo: `Cantem ${parteParaCantar()}! A plateia decide.`
@@ -348,7 +357,7 @@ const Jogo = (() => {
       respondendo: modoComJuiz()
         ? { principal: "Acertou", voltar: "Errou", principalAtivo: true }
         : { principal: "Escolha uma resposta", voltar: "Voltar", principalAtivo: false },
-      cantando: { principal: "Mandou bem!", voltar: "Voltar", principalAtivo: true },
+      cantando: { principal: ouvindoParaCantar ? "Já sei, cantar!" : "Mandou bem!", voltar: "Voltar", principalAtivo: true },
       cantor: { principal: "Escolha o cantor", voltar: "Pular bônus", principalAtivo: false },
       errou: { principal: "Continuar", voltar: "Voltar", principalAtivo: true },
       revelado: {
@@ -364,8 +373,8 @@ const Jogo = (() => {
   function rotulosDaResposta() {
     if (estado === "cantando") {
       return {
-        acertou: "Mandou bem!",
-        legendaAcertou: `ENTER • +${pontosDoMicrofone()}`,
+        acertou: ouvindoParaCantar ? "Já sei, cantar!" : "Mandou bem!",
+        legendaAcertou: ouvindoParaCantar ? "ENTER • pula o trecho" : `ENTER • +${pontosDoMicrofone()}`,
         errou: "Não rolou",
         legendaErrou: "X"
       };
@@ -903,8 +912,25 @@ const Jogo = (() => {
       return;
     }
     estado = "cantando";
-    segundosDoMicrofone = CONFIGURACAO.duracaoMicrofoneSegundos;
+    ouvindoParaCantar = true;
+    trechoAcabou = false;
+    ReprodutorTrecho.reiniciar();
+    Tela.definirProgressoAnel(1);
     renderizar();
+    Tela.mostrarAviso("Vamos ouvir o trecho de novo antes de cantar");
+    ReprodutorTrecho.tocar();
+  }
+
+  function comecarACantar() {
+    if (estado !== "cantando" || !ouvindoParaCantar) {
+      return;
+    }
+    ouvindoParaCantar = false;
+    ReprodutorTrecho.pausar();
+    segundosDoMicrofone = CONFIGURACAO.duracaoMicrofoneSegundos;
+    Efeitos.microfone();
+    renderizar();
+    Tela.definirCentroDisco("🎤");
     Tela.atualizarCronometro(segundosDoMicrofone, CONFIGURACAO.duracaoMicrofoneSegundos);
     clearInterval(temporizadorDoMicrofone);
     temporizadorDoMicrofone = setInterval(atualizarContagemDoMicrofone, 1000);
@@ -912,6 +938,10 @@ const Jogo = (() => {
 
   function microfoneAprovado() {
     if (estado !== "cantando") {
+      return;
+    }
+    if (ouvindoParaCantar) {
+      comecarACantar();
       return;
     }
     const mesa = mesaEmResposta;
@@ -930,6 +960,8 @@ const Jogo = (() => {
     }
     clearInterval(temporizadorDoMicrofone);
     temporizadorDoMicrofone = null;
+    ouvindoParaCantar = false;
+    ReprodutorTrecho.pausar();
     sequenciasPorMesa[mesaEmResposta] = 0;
     coringaAtivo = false;
     Placar.adicionar(mesaEmResposta, 0, indiceMusica, "microfone-falhou");
@@ -1044,6 +1076,8 @@ const Jogo = (() => {
   function cancelarMicrofone() {
     clearInterval(temporizadorDoMicrofone);
     temporizadorDoMicrofone = null;
+    ouvindoParaCantar = false;
+    ReprodutorTrecho.pausar();
     Tela.definirProgressoAnel(1);
     estado = "respondendo";
     renderizar();
@@ -1290,6 +1324,10 @@ const Jogo = (() => {
   }
 
   function aoReceberTempo(segundosRestantes, limiteSegundos) {
+    if (estado === "cantando" && ouvindoParaCantar) {
+      Tela.atualizarCronometro(segundosRestantes, limiteSegundos);
+      return;
+    }
     if (estado !== "tocando") {
       return;
     }
@@ -1307,6 +1345,10 @@ const Jogo = (() => {
   }
 
   function aoTerminarTrecho() {
+    if (estado === "cantando" && ouvindoParaCantar) {
+      comecarACantar();
+      return;
+    }
     if (estado !== "tocando") {
       return;
     }
@@ -1325,6 +1367,10 @@ const Jogo = (() => {
   }
 
   function aoBloquearNavegador() {
+    if (estado === "cantando" && ouvindoParaCantar) {
+      comecarACantar();
+      return;
+    }
     estado = "preparando";
     renderizar();
     Tela.mostrarAviso("O navegador bloqueou o som. Toque em Tocar novamente.");

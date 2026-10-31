@@ -5,7 +5,7 @@ const MUSICAS = [
   { titulo: "A Banda", interprete: "Chico Buarque", decada: "Anos 60", categoria: "MPB", duracaoSegundos: 5, pontos: 10, arquivo: "04.mp3" },
   { titulo: "Chega de Saudade", interprete: "João Gilberto", decada: "Anos 50", categoria: "Bossa Nova", duracaoSegundos: 11, pontos: 10, arquivo: "05.mp3" },
   { titulo: "Naquela Mesa", interprete: "Nelson Gonçalves", decada: "Anos 70", categoria: "Seresta", duracaoSegundos: 9, pontos: 10, arquivo: "06.mp3" },
-  { titulo: "Eu Não Sou Cachorro Não", interprete: "Waldick Soriano", decada: "Anos 70", categoria: "Seresta", duracaoSegundos: 20, pontos: 10, arquivo: "07.mp3" },
+  { titulo: "Whisky a Go-Go", interprete: "Roberto Carlos", decada: "Anos 60", categoria: "Jovem Guarda", duracaoSegundos: 20, pontos: 10, arquivo: "07.mp3" },
   { titulo: "Azul da Cor do Mar", interprete: "Tim Maia", decada: "Anos 70", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "08.mp3", especial: "relampago" },
   { titulo: "Como Nossos Pais", interprete: "Elis Regina", decada: "Anos 70", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "09.mp3" },
   { titulo: "O Mar Serenou", interprete: "Clara Nunes", decada: "Anos 70", categoria: "Samba", duracaoSegundos: 20, pontos: 10, arquivo: "10.mp3" },
@@ -15,10 +15,16 @@ const MUSICAS = [
   { titulo: "Estrada da Vida", interprete: "Milionário e José Rico", decada: "Anos 70", categoria: "Sertanejo", duracaoSegundos: 20, pontos: 10, arquivo: "14.mp3" },
   { titulo: "Mania de Você", interprete: "Rita Lee", decada: "Anos 80", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "15.mp3" },
   { titulo: "Festa do Interior", interprete: "Gal Costa", decada: "Anos 80", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "16.mp3" },
-  { titulo: "Quero que Vá Tudo pro Inferno", interprete: "Roberto Carlos", decada: "Anos 60", categoria: "Jovem Guarda", duracaoSegundos: 20, pontos: 20, arquivo: "17.mp3" },
-  { titulo: "Fio de Cabelo", interprete: "Chitãozinho e Xororó", decada: "Anos 80", categoria: "Sertanejo", duracaoSegundos: 20, pontos: 20, arquivo: "18.mp3" },
-  { titulo: "Detalhes", interprete: "Roberto Carlos", decada: "Anos 70", categoria: "Romântica", duracaoSegundos: 20, pontos: 20, arquivo: "19.mp3" },
-  { titulo: "Emoções", interprete: "Roberto Carlos", decada: "Anos 80", categoria: "Romântica", duracaoSegundos: 20, pontos: 20, arquivo: "20.mp3" }
+  { titulo: "Estúpido Cupido", interprete: "Celly Campello", decada: "Anos 50", categoria: "Jovem Guarda", duracaoSegundos: 20, pontos: 10, arquivo: "17.mp3" },
+  { titulo: "Gita", interprete: "Raul Seixas", decada: "Anos 70", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "18.mp3" },
+  { titulo: "Banho de Lua", interprete: "Celly Campello", decada: "Anos 60", categoria: "Jovem Guarda", duracaoSegundos: 20, pontos: 10, arquivo: "19.mp3" },
+  { titulo: "Borbulhas de Amor", interprete: "Fagner", decada: "Anos 70", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "20.mp3" },
+  { titulo: "O Que É, O Que É?", interprete: "Gonzaguinha", decada: "Anos 80", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "21.mp3" },
+  { titulo: "Espumas ao Vento", interprete: "Fagner", decada: "Anos 70", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "22.mp3" },
+  { titulo: "Quero que Vá Tudo pro Inferno", interprete: "Roberto Carlos", decada: "Anos 60", categoria: "Jovem Guarda", duracaoSegundos: 20, pontos: 20, arquivo: "23.mp3" },
+  { titulo: "Fio de Cabelo", interprete: "Chitãozinho e Xororó", decada: "Anos 80", categoria: "Sertanejo", duracaoSegundos: 20, pontos: 20, arquivo: "24.mp3" },
+  { titulo: "Detalhes", interprete: "Roberto Carlos", decada: "Anos 70", categoria: "Romântica", duracaoSegundos: 20, pontos: 20, arquivo: "25.mp3" },
+  { titulo: "Emoções", interprete: "Roberto Carlos", decada: "Anos 80", categoria: "Romântica", duracaoSegundos: 20, pontos: 20, arquivo: "26.mp3" }
 ];
 
 const MUSICAS_DESEMPATE = [

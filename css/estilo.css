@@ -2016,3 +2016,273 @@ select {
     break-after: page;
   }
 }
+
+.emblema-epoca {
+  position: absolute;
+  right: -3%;
+  bottom: 1%;
+  z-index: 4;
+  width: calc(var(--u) * 7.6);
+  height: calc(var(--u) * 7.6);
+  border-radius: 50%;
+  background: var(--fundo-elevado);
+  border: calc(var(--u) * 0.2) solid var(--ouro);
+  display: -webkit-flex;
+  display: flex;
+  -webkit-flex-direction: column;
+  flex-direction: column;
+  -webkit-align-items: center;
+  align-items: center;
+  -webkit-justify-content: center;
+  justify-content: center;
+  text-align: center;
+  box-shadow: 0 0 calc(var(--u) * 1.4) rgba(0, 0, 0, 0.5);
+}
+
+.emblema-epoca[hidden] {
+  display: none;
+}
+
+.emblema-epoca__icone {
+  font-size: calc(var(--u) * 3.2);
+  line-height: 1;
+}
+
+.emblema-epoca__nome {
+  font-size: calc(var(--u) * 1.05);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ouro);
+  margin-top: calc(var(--u) * 0.2);
+}
+
+body[data-decada="anos-60"] .disco {
+  top: 20%;
+  left: 5%;
+  width: 90%;
+  height: 60%;
+  border-radius: calc(var(--u) * 2.6);
+  background:
+    radial-gradient(circle at 84% 78%, #d9b26a 0 6%, #3a2412 7% 9%, transparent 10%),
+    linear-gradient(160deg, #8a5a2e, #4a2d14 70%);
+  box-shadow: 0 0 calc(var(--u) * 3) rgba(0, 0, 0, 0.6), inset 0 0 0 calc(var(--u) * 0.45) #2e1c0d;
+  -webkit-animation: none;
+  animation: none;
+}
+
+body[data-decada="anos-60"] .disco::before {
+  content: "";
+  position: absolute;
+  left: 5%;
+  top: 12%;
+  width: 46%;
+  height: 76%;
+  border-radius: calc(var(--u) * 1.2);
+  background: radial-gradient(circle, #120a04 0 26%, transparent 30%) 0 0 / calc(var(--u) * 1) calc(var(--u) * 1), #6e4a26;
+  box-shadow: inset 0 0 0 calc(var(--u) * 0.25) #2e1c0d;
+}
+
+body[data-decada="anos-60"] .disco::after {
+  top: 14%;
+  left: 56%;
+  width: 38%;
+  height: 32%;
+  border-radius: calc(var(--u) * 0.7);
+  background:
+    linear-gradient(90deg, transparent 40%, #c62828 40% 60%, transparent 60%) 5% 0 / 12% 100% no-repeat,
+    repeating-linear-gradient(90deg, rgba(60, 36, 18, 0.6) 0 1px, transparent 1px 9px),
+    #f0dcae;
+  box-shadow: inset 0 0 0 calc(var(--u) * 0.2) #2e1c0d;
+  -webkit-animation: sintonizar 5s ease-in-out infinite alternate paused;
+  animation: sintonizar 5s ease-in-out infinite alternate paused;
+}
+
+body[data-decada="anos-60"][data-estado="tocando"] .disco::after,
+body[data-decada="anos-60"][data-estado="revelado"] .disco::after {
+  -webkit-animation-play-state: running;
+  animation-play-state: running;
+}
+
+body[data-decada="anos-60"] .miolo-disco {
+  top: 56%;
+  left: 62%;
+  width: 28%;
+  height: 28%;
+  margin: 0;
+  background: radial-gradient(circle, #f1d28b 0 55%, #b8892a 100%);
+  font-size: calc(var(--u) * 3.4);
+}
+
+body[data-decada="anos-60"] .toca-discos::before {
+  content: "";
+  position: absolute;
+  right: 12%;
+  top: 6%;
+  width: calc(var(--u) * 0.22);
+  height: 16%;
+  background: #d8d2c4;
+  -webkit-transform-origin: 50% 100%;
+  transform-origin: 50% 100%;
+  -webkit-transform: rotate(28deg);
+  transform: rotate(28deg);
+}
+
+body[data-decada="anos-60"] .toca-discos::after {
+  content: "";
+  position: absolute;
+  left: 4%;
+  top: 8%;
+  width: 14%;
+  height: 14%;
+  border-radius: 50%;
+  border: calc(var(--u) * 0.2) solid rgba(233, 184, 114, 0.7);
+  opacity: 0;
+}
+
+body[data-decada="anos-60"][data-estado="tocando"] .toca-discos::after {
+  -webkit-animation: ondas 1.4s ease-out infinite;
+  animation: ondas 1.4s ease-out infinite;
+}
+
+body[data-decada="anos-70"] .disco {
+  background:
+    repeating-radial-gradient(circle at center, #1a0905 0, #1a0905 2px, #2d130a 3px, #2d130a 5px),
+    #1a0905;
+  -webkit-animation-duration: 2.4s;
+  animation-duration: 2.4s;
+}
+
+body[data-decada="anos-70"] .miolo-disco {
+  background: radial-gradient(circle, #1a0905 0 6%, #ffd166 7% 24%, #ff5d8f 25% 56%, #ffb347 57%);
+  color: #2b1006;
+}
+
+body[data-decada="anos-70"] .toca-discos::after {
+  content: "";
+  position: absolute;
+  top: -3%;
+  right: -2%;
+  width: calc(var(--u) * 0.9);
+  height: 64%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #e6dfd0, #8a8576);
+  -webkit-transform-origin: 50% 6%;
+  transform-origin: 50% 6%;
+  -webkit-transform: rotate(14deg);
+  transform: rotate(14deg);
+  -webkit-transition: -webkit-transform 0.9s ease;
+  transition: transform 0.9s ease;
+  z-index: 3;
+  box-shadow: 0 calc(var(--u) * 0.2) calc(var(--u) * 0.8) rgba(0, 0, 0, 0.5);
+}
+
+body[data-decada="anos-70"][data-estado="tocando"] .toca-discos::after,
+body[data-decada="anos-70"][data-estado="revelado"] .toca-discos::after {
+  -webkit-transform: rotate(27deg);
+  transform: rotate(27deg);
+}
+
+body[data-decada="anos-80"] .disco {
+  top: 14%;
+  left: 7%;
+  width: 86%;
+  height: 68%;
+  border-radius: calc(var(--u) * 3) / calc(var(--u) * 3.6);
+  background:
+    repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.22) 0 2px, transparent 2px 5px),
+    linear-gradient(90deg, #fff 0 14%, #ff0 14% 28%, #0ff 28% 43%, #0f0 43% 57%, #f0f 57% 71%, #f00 71% 86%, #00f 86% 100%);
+  box-shadow: 0 0 0 calc(var(--u) * 1.1) #2a2a33, 0 0 0 calc(var(--u) * 1.4) #55555f, 0 0 calc(var(--u) * 3) rgba(0, 0, 0, 0.7);
+  -webkit-animation: none;
+  animation: none;
+}
+
+body[data-decada="anos-80"] .disco::after {
+  border-radius: calc(var(--u) * 3) / calc(var(--u) * 3.6);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.28) 0 18%, transparent 38%);
+}
+
+body[data-decada="anos-80"][data-estado="tocando"] .disco {
+  -webkit-animation: tremerTv 0.18s steps(2) infinite;
+  animation: tremerTv 0.18s steps(2) infinite;
+}
+
+body[data-decada="anos-80"] .miolo-disco {
+  top: 48%;
+  width: 36%;
+  height: 26%;
+  margin: -13% 0 0 -18%;
+  border-radius: calc(var(--u) * 1.2);
+  background: rgba(0, 0, 0, 0.78);
+  color: var(--ouro);
+  box-shadow: 0 0 0 calc(var(--u) * 0.25) rgba(255, 255, 255, 0.5);
+}
+
+body[data-decada="anos-80"] .toca-discos::before,
+body[data-decada="anos-80"] .toca-discos::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: calc(var(--u) * 0.24);
+  height: 17%;
+  background: #cfcfd6;
+  -webkit-transform-origin: 50% 100%;
+  transform-origin: 50% 100%;
+}
+
+body[data-decada="anos-80"] .toca-discos::before {
+  left: 42%;
+  -webkit-transform: rotate(-26deg);
+  transform: rotate(-26deg);
+}
+
+body[data-decada="anos-80"] .toca-discos::after {
+  left: 56%;
+  -webkit-transform: rotate(26deg);
+  transform: rotate(26deg);
+}
+
+body[data-decada="anos-60"].entrando .toca-discos {
+  -webkit-animation: ligarRadio 0.9s steps(6);
+  animation: ligarRadio 0.9s steps(6);
+}
+
+body[data-decada="anos-70"].entrando .toca-discos {
+  -webkit-animation: soltarAgulha 0.9s cubic-bezier(0.2, 1.2, 0.4, 1);
+  animation: soltarAgulha 0.9s cubic-bezier(0.2, 1.2, 0.4, 1);
+}
+
+body[data-decada="anos-80"].entrando .toca-discos {
+  -webkit-animation: ligarTv 0.8s ease-out;
+  animation: ligarTv 0.8s ease-out;
+}
+
+@-webkit-keyframes sintonizar { from { background-position: 5% 0, 0 0, 0 0; } to { background-position: 95% 0, 0 0, 0 0; } }
+@keyframes sintonizar { from { background-position: 5% 0, 0 0, 0 0; } to { background-position: 95% 0, 0 0, 0 0; } }
+@-webkit-keyframes ondas { 0% { opacity: 0.9; -webkit-transform: scale(0.4); transform: scale(0.4); } 100% { opacity: 0; -webkit-transform: scale(2.2); transform: scale(2.2); } }
+@keyframes ondas { 0% { opacity: 0.9; -webkit-transform: scale(0.4); transform: scale(0.4); } 100% { opacity: 0; -webkit-transform: scale(2.2); transform: scale(2.2); } }
+@-webkit-keyframes tremerTv { 0% { opacity: 1; } 100% { opacity: 0.93; } }
+@keyframes tremerTv { 0% { opacity: 1; } 100% { opacity: 0.93; } }
+@-webkit-keyframes ligarRadio { 0% { opacity: 0; } 20% { opacity: 1; } 40% { opacity: 0.2; } 60% { opacity: 1; } 80% { opacity: 0.5; } 100% { opacity: 1; } }
+@keyframes ligarRadio { 0% { opacity: 0; } 20% { opacity: 1; } 40% { opacity: 0.2; } 60% { opacity: 1; } 80% { opacity: 0.5; } 100% { opacity: 1; } }
+@-webkit-keyframes soltarAgulha { from { opacity: 0; -webkit-transform: translateY(-14%) rotate(-12deg); transform: translateY(-14%) rotate(-12deg); } to { opacity: 1; -webkit-transform: none; transform: none; } }
+@keyframes soltarAgulha { from { opacity: 0; -webkit-transform: translateY(-14%) rotate(-12deg); transform: translateY(-14%) rotate(-12deg); } to { opacity: 1; -webkit-transform: none; transform: none; } }
+@-webkit-keyframes ligarTv { 0% { opacity: 0; -webkit-transform: scale(1, 0.02); transform: scale(1, 0.02); } 55% { opacity: 1; -webkit-transform: scale(1, 0.05); transform: scale(1, 0.05); } 100% { -webkit-transform: none; transform: none; } }
+@keyframes ligarTv { 0% { opacity: 0; -webkit-transform: scale(1, 0.02); transform: scale(1, 0.02); } 55% { opacity: 1; -webkit-transform: scale(1, 0.05); transform: scale(1, 0.05); } 100% { -webkit-transform: none; transform: none; } }
+
+@media (prefers-reduced-motion: reduce) {
+  body[data-decada] .toca-discos,
+  body[data-decada] .toca-discos::after,
+  body[data-decada] .disco,
+  body[data-decada] .disco::after {
+    -webkit-animation: none !important;
+    animation: none !important;
+  }
+}
+
+@media (max-aspect-ratio: 1/1) {
+  .emblema-epoca {
+    width: calc(var(--u) * 6);
+    height: calc(var(--u) * 6);
+  }
+  .emblema-epoca__icone { font-size: calc(var(--u) * 2.5); }
+}

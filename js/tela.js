@@ -77,6 +77,15 @@ const Tela = (() => {
   const botaoConfirmarParada = pegar("botaoConfirmarParada");
   const botaoContinuarJogando = pegar("botaoContinuarJogando");
   const aviso = pegar("aviso");
+  const emblemaEpoca = pegar("emblemaEpoca");
+  const iconeEpoca = pegar("iconeEpoca");
+  const nomeEpoca = pegar("nomeEpoca");
+  const epocas = {
+    "anos-50": { icone: "🎶", nome: "Jukebox" },
+    "anos-60": { icone: "📻", nome: "Rádio" },
+    "anos-70": { icone: "💿", nome: "Vinil" },
+    "anos-80": { icone: "📺", nome: "TV" }
+  };
   const rotuloEspecial = pegar("rotuloEspecial");
   const anuncioEspecial = pegar("anuncioEspecial");
   const tituloAnuncio = pegar("tituloAnuncio");
@@ -243,7 +252,12 @@ const Tela = (() => {
   }
 
   function definirCabecalho(categoria, progresso, fracaoConcluida, decada) {
-    corpo.dataset.decada = decada ? normalizarParaIdentificador(decada) : "";
+    const chaveDaDecada = decada ? normalizarParaIdentificador(decada) : "";
+    corpo.dataset.decada = chaveDaDecada;
+    const epoca = epocas[chaveDaDecada];
+    emblemaEpoca.hidden = !epoca;
+    iconeEpoca.textContent = epoca ? epoca.icone : "";
+    nomeEpoca.textContent = epoca ? epoca.nome : "";
     rotuloRodada.textContent = categoria;
     rotuloRodada.hidden = !categoria;
     rotuloProgresso.textContent = progresso;
@@ -569,6 +583,11 @@ const Tela = (() => {
     return linha;
   }
 
+  function rotuloDaDecada(decada) {
+    const epoca = epocas[normalizarParaIdentificador(decada || "")];
+    return epoca ? epoca.icone + " " + decada : decada;
+  }
+
   function criarLinhaTabelaMusica(linha) {
     const linhaTabela = document.createElement("tr");
     if (linha.situacao === "atual") {
@@ -579,7 +598,7 @@ const Tela = (() => {
       linha.titulo,
       linha.interprete,
       linha.categoria,
-      linha.decada,
+      rotuloDaDecada(linha.decada),
       linha.duracao + "s",
       linha.pontos,
       linha.especial,
