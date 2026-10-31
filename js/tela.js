@@ -77,9 +77,33 @@ const Tela = (() => {
   const botaoConfirmarParada = pegar("botaoConfirmarParada");
   const botaoContinuarJogando = pegar("botaoContinuarJogando");
   const aviso = pegar("aviso");
+  const rotuloEspecial = pegar("rotuloEspecial");
+  const anuncioEspecial = pegar("anuncioEspecial");
+  const tituloAnuncio = pegar("tituloAnuncio");
+  const detalheAnuncio = pegar("detalheAnuncio");
+  const botaoCoringa = pegar("botaoCoringa");
+  const rotuloCoringa = pegar("rotuloCoringa");
+  const legendaCoringa = pegar("legendaCoringa");
+  const miniPlacar = pegar("miniPlacar");
+  const trofeus = pegar("trofeus");
+  const areaFinal = pegar("areaFinal");
+  const botaoDesempate = pegar("botaoDesempate");
+  const botaoCertificado = pegar("botaoCertificado");
+  const botaoIntervaloFinal = pegar("botaoIntervaloFinal");
+  const botaoTextoMenor = pegar("botaoTextoMenor");
+  const botaoTextoMaior = pegar("botaoTextoMaior");
+  const botaoContraste = pegar("botaoContraste");
+  const preparacao = pegar("preparacao");
+  const editorMesas = pegar("editorMesas");
+  const editorMusicas = pegar("editorMusicas");
+  const checklist = pegar("checklist");
+  const intervalo = pegar("intervalo");
+  const certificado = pegar("certificado");
 
-  const sobreposicoes = [placar, listaDeMusicas, guia, menuAcoes, ajuda, confirmacao];
-  const sobreposicoesComBotaoFechar = [placar, listaDeMusicas, guia, ajuda];
+  const sobreposicoes = [placar, listaDeMusicas, guia, menuAcoes, ajuda, confirmacao, preparacao, editorMesas, editorMusicas, checklist, intervalo, certificado];
+  const sobreposicoesComBotaoFechar = [placar, listaDeMusicas, guia, ajuda, preparacao, editorMesas, editorMusicas, checklist, intervalo, certificado];
+  let temporizadorAnuncio = null;
+  let temporizadorEntrada = null;
 
   let botoesMesas = [];
   let temporizadorAviso = null;
@@ -184,6 +208,11 @@ const Tela = (() => {
       [botaoComecar, acoes.aoComecar],
       [botaoVoltarGeral, acoes.aoVoltar],
       [botaoTelaCheia, alternarTelaCheia],
+      [botaoCoringa, acoes.aoAlternarCoringa],
+      [botaoDesempate, acoes.aoIniciarDesempate],
+      [botaoTextoMenor, () => alterarEscala(-0.1)],
+      [botaoTextoMaior, () => alterarEscala(0.1)],
+      [botaoContraste, alternarContraste],
       [botaoGuiaAnterior, guiaAnterior],
       [botaoGuiaProximo, guiaProxima]
     ];
@@ -213,7 +242,8 @@ const Tela = (() => {
     corpo.dataset.resposta = modo;
   }
 
-  function definirCabecalho(categoria, progresso, fracaoConcluida) {
+  function definirCabecalho(categoria, progresso, fracaoConcluida, decada) {
+    corpo.dataset.decada = decada ? normalizarParaIdentificador(decada) : "";
     rotuloRodada.textContent = categoria;
     rotuloRodada.hidden = !categoria;
     rotuloProgresso.textContent = progresso;
@@ -288,7 +318,7 @@ const Tela = (() => {
   function atualizarBotaoTelaCheia() {
     const ativa = telaCheiaAtiva();
     botaoTelaCheia.setAttribute("aria-pressed", String(ativa));
-    rotuloTelaCheia.textContent = ativa ? "Sair da tela cheia" : "Tela cheia";
+    botaoTelaCheia.title = ativa ? "Sair da tela cheia" : "Entrar em tela cheia";
   }
 
   function configurarTelaCheia() {
@@ -398,14 +428,137 @@ const Tela = (() => {
 
   function mostrarPodio(classificacao) {
     const premiadas = classificacao.filter((item) => item.posicao <= 3 && item.pontos > 0);
-    limpar(podio);
-    premiadas.forEach((item) => {
-      const linha = criarElemento("li", item.posicao === 1 ? "campea" : "", "");
-      linha.appendChild(criarElemento("span", "podio__posicao", item.posicao + "º"));
-      linha.appendChild(criarElemento("span", "podio__mesa", "Mesa " + item.mesa));
-      linha.appendChild(criarElemento("span", "podio__pontos", item.pontos + " pts"));
-      podio.appendChild(linha);
+    const ordemVisual = premiadas.slice().sort((a, b) => {
+      const peso = (item) => (item.posicao === 1 ? 1 : item.posicao === 2 ? 0 : 2);
+      return peso(a) - peso(b) || a.mesa - b.mesa;
     });
+    limpar(podio);
+    ordemVisual.forEach((item) => {
+      const coluna = criarElemento("li", "podio__coluna", "");
+      coluna.dataset.lugar = String(item.posicao);
+      coluna.style.setProperty("--cor-coluna", Mesas.cor(item.mesa));
+      coluna.appendChild(criarElemento("div", "podio__nome", Mesas.rotulo(item.mesa)));
+      coluna.appendChild(criarElemento("div", "podio__pontos", item.pontos + " pts"));
+      coluna.appendChild(criarElemento("div", "podio__bloco", item.posicao + "º"));
+      podio.appendChild(coluna);
+    });
+  }
+
+  function mostrarTrofeus(lista) {
+    limpar(trofeus);
+    lista.forEach((item) => {
+      const cartao = criarElemento("li", "trofeu", "");
+      cartao.appendChild(criarElemento("div", "trofeu__titulo", "🏆 " + item.titulo));
+      cartao.appendChild(criarElemento("div", "trofeu__mesa", item.mesas.map((mesa) => Mesas.rotulo(mesa)).join(" • ")));
+      cartao.appendChild(criarElemento("div", "trofeu__detalhe", item.detalhe));
+      trofeus.appendChild(cartao);
+    });
+    trofeus.hidden = lista.length === 0;
+  }
+
+  function mostrarAreaFinal(situacao) {
+    areaFinal.hidden = !situacao.visivel;
+    botaoDesempate.hidden = !situacao.desempate;
+    botaoCertificado.hidden = !situacao.certificado;
+    botaoIntervaloFinal.hidden = true;
+  }
+
+  function mostrarMiniPlacar(itens) {
+    limpar(miniPlacar);
+    itens.forEach((item) => {
+      const elemento = criarElemento("span", "mini-placar__item", item.posicao + "º " + Mesas.apelido(item.mesa) + " ");
+      elemento.style.setProperty("--cor-item", Mesas.cor(item.mesa));
+      elemento.appendChild(criarElemento("strong", "", String(item.pontos)));
+      miniPlacar.appendChild(elemento);
+    });
+    miniPlacar.hidden = itens.length === 0;
+  }
+
+  function mostrarCoringa(visivel, ativo, multiplicador) {
+    botaoCoringa.hidden = !visivel;
+    botaoCoringa.setAttribute("aria-pressed", String(ativo));
+    rotuloCoringa.textContent = ativo ? "Coringa ativado" : "Usar coringa";
+    legendaCoringa.textContent = ativo ? "Vale ×" + multiplicador + ", para o bem e para o mal. K desfaz" : "Dobra o ganho e a perda. Só uma vez por jogo. K";
+  }
+
+  function definirEspecial(tipo) {
+    const rotulos = { dobro: "Vale o dobro", relampago: "Relâmpago" };
+    rotuloEspecial.textContent = rotulos[tipo] || "";
+    rotuloEspecial.dataset.tipo = tipo || "";
+    rotuloEspecial.hidden = !tipo;
+  }
+
+  function anunciarEspecial(textoTitulo, textoDetalhe, tipo) {
+    tituloAnuncio.textContent = textoTitulo;
+    detalheAnuncio.textContent = textoDetalhe;
+    anuncioEspecial.dataset.tipo = tipo;
+    anuncioEspecial.hidden = true;
+    void anuncioEspecial.offsetWidth;
+    anuncioEspecial.hidden = false;
+    clearTimeout(temporizadorAnuncio);
+    temporizadorAnuncio = setTimeout(() => {
+      anuncioEspecial.hidden = true;
+    }, CONFIGURACAO.duracaoAnuncioMilissegundos);
+  }
+
+  function definirCorDaMesa(cor) {
+    if (cor) {
+      corpo.style.setProperty("--cor-mesa", cor);
+    } else {
+      corpo.style.removeProperty("--cor-mesa");
+    }
+  }
+
+  function definirTensao(ativa) {
+    corpo.dataset.tensao = ativa ? "sim" : "nao";
+  }
+
+  function animarEntrada() {
+    corpo.classList.remove("entrando");
+    void corpo.offsetWidth;
+    corpo.classList.add("entrando");
+    clearTimeout(temporizadorEntrada);
+    temporizadorEntrada = setTimeout(() => corpo.classList.remove("entrando"), 900);
+  }
+
+  function aplicarEscala() {
+    corpo.style.setProperty("--escala", String(CONFIGURACAO.escalaTexto));
+  }
+
+  function aplicarContraste() {
+    corpo.classList.toggle("alto-contraste", CONFIGURACAO.altoContraste);
+    botaoContraste.setAttribute("aria-pressed", String(CONFIGURACAO.altoContraste));
+  }
+
+  function alterarEscala(passo) {
+    Ajustes.definirEscalaTexto(CONFIGURACAO.escalaTexto + passo);
+    aplicarEscala();
+    mostrarAviso("Letras em " + Math.round(CONFIGURACAO.escalaTexto * 100) + "%");
+  }
+
+  function alternarContraste() {
+    Ajustes.definirAltoContraste(!CONFIGURACAO.altoContraste);
+    aplicarContraste();
+  }
+
+  function aplicarFerramentas() {
+    aplicarEscala();
+    aplicarContraste();
+  }
+
+  function abrirSobreposicao(identificador) {
+    const alvo = pegar(identificador);
+    const pai = alvo && alvo.dataset.pai ? pegar(alvo.dataset.pai) : null;
+    fecharSobreposicoes();
+    if (alvo) {
+      alvo.hidden = false;
+    }
+    return pai;
+  }
+
+  function sobreposicaoAbertaPorId(identificador) {
+    const alvo = pegar(identificador);
+    return Boolean(alvo) && !alvo.hidden;
   }
 
   function criarLinhaPlacar(item) {
@@ -429,6 +582,7 @@ const Tela = (() => {
       linha.decada,
       linha.duracao + "s",
       linha.pontos,
+      linha.especial,
       linha.rotuloSituacao
     ].forEach((valor) => linhaTabela.appendChild(criarElemento("td", "", String(valor))));
     return linhaTabela;
@@ -530,8 +684,14 @@ const Tela = (() => {
   function voltarDaSobreposicao() {
     if (comandosAberto()) {
       voltarComandos();
-    } else {
-      fecharSobreposicoes();
+      return;
+    }
+    const aberta = sobreposicoes.filter((item) => !item.hidden)[0];
+    const pai = aberta && aberta.dataset.pai ? aberta.dataset.pai : "";
+    fecharSobreposicoes();
+    if (pai) {
+      pegar(pai).hidden = false;
+      document.dispatchEvent(new CustomEvent("sobreposicaoreaberta", { detail: pai }));
     }
   }
 
@@ -693,6 +853,19 @@ const Tela = (() => {
     montarAlternativas,
     marcarResultadoAlternativa,
     mostrarPodio,
+    mostrarTrofeus,
+    mostrarAreaFinal,
+    mostrarMiniPlacar,
+    mostrarCoringa,
+    definirEspecial,
+    anunciarEspecial,
+    definirCorDaMesa,
+    definirTensao,
+    animarEntrada,
+    aplicarFerramentas,
+    abrirSobreposicao,
+    sobreposicaoAbertaPorId,
+    voltarDaSobreposicao,
     sobreposicaoAberta,
     confirmacaoAberta,
     menuAberto,

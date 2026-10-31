@@ -4,23 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#1a0b10">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icones/icone-192.png">
   <title>Bingo Musical - Anos Dourados</title>
   <link rel="stylesheet" href="css/estilo.css">
 </head>
 <body data-estado="boasvindas" data-resposta="multipla-escolha">
 
-  <button id="botaoTelaCheia" class="botao-tela-cheia" type="button" aria-pressed="false">
-    <svg class="botao-tela-cheia__icone" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
-    </svg>
-    <span id="rotuloTelaCheia">Tela cheia</span>
-  </button>
+  <div class="ferramentas-topo">
+    <button id="botaoTextoMenor" class="botao-ferramenta" type="button" aria-label="Letras menores" title="Letras menores">A−</button>
+    <button id="botaoTextoMaior" class="botao-ferramenta" type="button" aria-label="Letras maiores" title="Letras maiores">A+</button>
+    <button id="botaoContraste" class="botao-ferramenta" type="button" aria-pressed="false" aria-label="Alto contraste" title="Alto contraste">◐</button>
+    <button id="botaoTelaCheia" class="botao-tela-cheia" type="button" aria-pressed="false" title="Tela cheia">
+      <svg class="botao-tela-cheia__icone" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+      <span id="rotuloTelaCheia">Tela cheia</span>
+    </button>
+  </div>
+
+  <div id="anuncioEspecial" class="anuncio-especial" data-tipo="dobro" hidden>
+    <p id="tituloAnuncio" class="anuncio-especial__titulo"></p>
+    <p id="detalheAnuncio" class="anuncio-especial__detalhe"></p>
+  </div>
 
   <main class="palco">
 
     <header class="cabecalho">
       <span id="rotuloRodada" class="rotulo-rodada" hidden></span>
       <span id="rotuloValor" class="rotulo-valor" hidden></span>
+      <span id="rotuloEspecial" class="rotulo-especial" hidden></span>
       <span id="rotuloProgresso" class="rotulo-progresso"></span>
       <div class="trilha-progresso" aria-hidden="true">
         <div id="barraProgresso" class="trilha-progresso__barra"></div>
@@ -78,6 +91,7 @@
         <div id="areaAtalhosInicio" class="area-atalhos-inicio" hidden>
           <button id="botaoAbrirGuia" class="botao-atalho" type="button">Como jogar <small>G</small></button>
           <button id="botaoAbrirLista" class="botao-atalho" type="button">Lista de músicas <small>L</small></button>
+          <button id="botaoPreparar" class="botao-atalho botao-atalho--destaque" type="button">Preparar evento <span id="seloPreparacao" class="selo-alerta" hidden></span></button>
         </div>
 
         <div class="area-mesas">
@@ -96,6 +110,11 @@
           <small id="legendaMicrofone">5</small>
         </button>
 
+        <button id="botaoCoringa" class="botao-coringa" type="button" aria-pressed="false" hidden>
+          <span id="rotuloCoringa">Usar coringa: vale o dobro</span>
+          <small id="legendaCoringa">K</small>
+        </button>
+
         <div class="area-resposta">
           <button id="botaoAcertou" class="botao-resposta botao-acerto" type="button"><span id="rotuloAcertou">Acertou</span> <small id="legendaAcertou">ENTER</small></button>
           <button id="botaoErrou" class="botao-resposta botao-erro" type="button"><span id="rotuloErrou">Errou</span> <small id="legendaErrou">ESC</small></button>
@@ -111,11 +130,19 @@
         </div>
 
         <ol id="podio" class="podio"></ol>
+        <ul id="trofeus" class="trofeus"></ul>
+
+        <div id="areaFinal" class="area-final" hidden>
+          <button id="botaoDesempate" class="botao-grande botao-grande--principal" type="button" hidden>Desempate!</button>
+          <button id="botaoCertificado" class="botao-grande" type="button">Certificado</button>
+          <button id="botaoIntervaloFinal" class="botao-grande" type="button" hidden>Intervalo</button>
+        </div>
       </div>
 
     </section>
 
     <footer class="rodape">
+      <p id="miniPlacar" class="mini-placar" hidden></p>
       <nav class="barra-controles" aria-label="Controles do apresentador">
         <button id="botaoVoltarGeral" class="botao-controle" type="button" hidden>← Voltar <small>ESC</small></button>
         <button id="botaoDica" class="botao-controle" type="button" aria-pressed="false" hidden>Dica <small>D</small></button>
@@ -137,6 +164,76 @@
 
   </main>
 
+  <section id="preparacao" class="sobreposicao sobreposicao-centro" hidden>
+    <h2>Preparar o evento</h2>
+    <p class="pergunta-dispositivo">Faça isto uma vez, antes de os convidados chegarem.</p>
+    <div class="cartoes-dispositivo cartoes-preparacao">
+      <button id="botaoCartaoMesas" class="cartao-dispositivo" type="button"><strong>Nomes das mesas</strong><span>Dê identidade e cor a cada mesa</span></button>
+      <button id="botaoCartaoMusicas" class="cartao-dispositivo" type="button"><strong>Editar músicas</strong><span>Ordem, pontos, dica e especiais</span></button>
+      <button id="botaoCartaoChecklist" class="cartao-dispositivo" type="button"><strong>Testar tudo</strong><span>Som, tela cheia e cada áudio</span></button>
+      <button id="botaoCartaoOffline" class="cartao-dispositivo" type="button"><strong>Usar sem internet</strong><span id="situacaoOffline">Verificando…</span></button>
+    </div>
+  </section>
+
+  <section id="editorMesas" class="sobreposicao" data-pai="preparacao" hidden>
+    <h2>Nomes das mesas</h2>
+    <p class="aviso-lista">O nome é opcional. Toque na bolinha para trocar a cor.</p>
+    <div class="botoes-lista">
+      <button id="botaoSugerirNomes" class="botao-controle botao-controle--destaque" type="button">Sugerir nomes divertidos</button>
+      <button id="botaoLimparNomes" class="botao-controle" type="button">Limpar nomes</button>
+    </div>
+    <div id="listaEditorMesas" class="grade-editor-mesas"></div>
+  </section>
+
+  <section id="editorMusicas" class="sobreposicao" data-pai="preparacao" hidden>
+    <h2>Editar músicas</h2>
+    <p class="aviso-lista">Salvar muda a ordem do jogo e apaga um jogo salvo, se houver.</p>
+    <div class="botoes-lista">
+      <button id="botaoSalvarMusicas" class="botao-controle botao-controle--destaque" type="button">Salvar</button>
+      <button id="botaoAdicionarMusica" class="botao-controle" type="button">Adicionar música</button>
+      <button id="botaoRestaurarMusicas" class="botao-controle" type="button">Restaurar padrão</button>
+    </div>
+    <div class="rolagem-tabela">
+      <table class="tabela-editor">
+        <thead>
+          <tr><th>Nº</th><th>Música</th><th>Cantor</th><th>Década</th><th>Categoria</th><th>Trecho (s)</th><th>Pontos</th><th>Especial</th><th>Dica</th><th>Cantar</th><th>Arquivo</th><th>Ordem</th></tr>
+        </thead>
+        <tbody id="corpoEditorMusicas"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="checklist" class="sobreposicao" data-pai="preparacao" hidden>
+    <h2>Testar tudo</h2>
+    <p id="resumoChecklist" class="resumo-checklist">Rodando o teste…</p>
+    <div class="botoes-lista">
+      <button id="botaoTestarSom" class="botao-controle" type="button">Tocar som de teste</button>
+      <button id="botaoTestarTelaCheia" class="botao-controle" type="button">Testar tela cheia</button>
+      <button id="botaoRetestar" class="botao-controle botao-controle--destaque" type="button">Testar os áudios de novo</button>
+    </div>
+    <ul id="itensChecklist" class="itens-checklist"></ul>
+  </section>
+
+  <section id="intervalo" class="sobreposicao sobreposicao-centro" hidden>
+    <h2>Intervalo</h2>
+    <p class="voltamos-ja">Voltamos já!</p>
+    <p id="relogioIntervalo" class="relogio-intervalo">05:00</p>
+    <div class="botoes-lista">
+      <button id="botaoMenosMinuto" class="botao-controle" type="button">−1 min</button>
+      <button id="botaoMaisMinuto" class="botao-controle" type="button">+1 min</button>
+    </div>
+    <p class="pergunta-dispositivo">Classificação até agora</p>
+    <ol id="listaIntervalo" class="lista-placar lista-intervalo"></ol>
+  </section>
+
+  <section id="certificado" class="sobreposicao" hidden>
+    <h2>Certificado</h2>
+    <div class="botoes-lista">
+      <button id="botaoImprimirCertificado" class="botao-controle botao-controle--destaque" type="button">Imprimir certificado</button>
+    </div>
+    <div id="certificados" class="certificados"></div>
+  </section>
+
   <section id="placar" class="sobreposicao" hidden>
     <h2>Placar das Mesas</h2>
     <ol id="listaPlacar" class="lista-placar"></ol>
@@ -157,6 +254,7 @@
             <th>Década</th>
             <th>Trecho</th>
             <th>Pontos</th>
+            <th>Especial</th>
             <th>Situação</th>
           </tr>
         </thead>
@@ -372,13 +470,18 @@
   <script src="js/configuracao.js"></script>
   <script src="js/musicas.js"></script>
   <script src="js/armazenamento.js"></script>
+  <script src="js/catalogo.js"></script>
   <script src="js/ajustes.js"></script>
+  <script src="js/mesas.js"></script>
   <script src="js/placar.js"></script>
   <script src="js/reprodutor.js"></script>
   <script src="js/narrador.js"></script>
+  <script src="js/trofeus.js"></script>
   <script src="js/efeitos.js"></script>
   <script src="js/confete.js"></script>
+  <script src="js/offline.js"></script>
   <script src="js/tela.js"></script>
+  <script src="js/preparacao.js"></script>
   <script src="js/jogo.js"></script>
   <script src="js/principal.js"></script>
 </body>

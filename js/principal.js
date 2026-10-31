@@ -33,7 +33,10 @@ const comandosPorTecla = {
   "c": "microfone",
   "x": "desistir",
   "j": "modoResposta",
-  "n": "novoJogo"
+  "n": "novoJogo",
+  "k": "coringa",
+  "t": "preparar",
+  "i": "intervalo"
 };
 
 const comandosPorCodigoDeTecla = {
@@ -74,7 +77,10 @@ const acoesDosComandos = {
   microfone: () => Jogo.iniciarMicrofone(),
   desistir: () => Jogo.errarMesa(),
   modoResposta: () => Jogo.alternarModoResposta(),
-  novoJogo: () => Jogo.novoJogo()
+  novoJogo: () => Jogo.novoJogo(),
+  coringa: () => Jogo.alternarCoringa(),
+  preparar: () => Preparacao.alternar(),
+  intervalo: () => Preparacao.abrirIntervalo()
 };
 
 function moverOuAbrirMenu(sentido) {
@@ -143,6 +149,10 @@ function tratarComandoComSobreposicao(comando) {
     tratarComandoComGuia(comando);
   } else if (Tela.comandosAberto()) {
     tratarComandoComComandos(comando);
+  } else if (Tela.sobreposicaoAbertaPorId("intervalo") && comando === "intervalo") {
+    Tela.voltarDaSobreposicao();
+  } else if (["voltar", "cancelar"].indexOf(comando) !== -1) {
+    Tela.voltarDaSobreposicao();
   } else if (comandosQueFecham.indexOf(comando) !== -1) {
     Tela.fecharSobreposicoes();
   } else if (comando === "telaCheia") {
@@ -165,7 +175,18 @@ function descobrirComando(evento) {
   return comandosPorTecla[tecla] || comandosPorCodigoDeTecla[evento.keyCode];
 }
 
+function focoEmCampo(evento) {
+  const alvo = evento.target;
+  return Boolean(alvo) && ["INPUT", "SELECT", "TEXTAREA"].indexOf(alvo.tagName) !== -1;
+}
+
 function tratarTecla(evento) {
+  if (focoEmCampo(evento)) {
+    if (evento.key === "Escape" || (evento.key === "Enter" && evento.target.tagName !== "TEXTAREA")) {
+      evento.target.blur();
+    }
+    return;
+  }
   const comTeclaModificadora = evento.ctrlKey || evento.metaKey || evento.altKey;
   if (comTeclaModificadora || evento.repeat || Jogo.estaOcupado()) {
     return;

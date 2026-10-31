@@ -21,7 +21,10 @@ const Ajustes = (() => {
     Armazenamento.salvar(CONFIGURACAO.chaveAjustes, {
       quantidadeMesas: CONFIGURACAO.quantidadeMesas,
       modoResposta: CONFIGURACAO.modoResposta,
-      barraAutomatica: CONFIGURACAO.barraAutomatica
+      barraAutomatica: CONFIGURACAO.barraAutomatica,
+      escalaTexto: CONFIGURACAO.escalaTexto,
+      altoContraste: CONFIGURACAO.altoContraste,
+      placarNoCanto: CONFIGURACAO.placarNoCanto
     });
   }
 
@@ -40,14 +43,40 @@ const Ajustes = (() => {
     salvar();
   }
 
+  function definirEscalaTexto(valor) {
+    const numero = Number(valor);
+    if (!Number.isFinite(numero)) {
+      return;
+    }
+    CONFIGURACAO.escalaTexto = Math.round(Math.min(Math.max(numero, CONFIGURACAO.escalaMinima), CONFIGURACAO.escalaMaxima) * 100) / 100;
+    salvar();
+  }
+
+  function definirAltoContraste(valor) {
+    CONFIGURACAO.altoContraste = Boolean(valor);
+    salvar();
+  }
+
+  function definirPlacarNoCanto(valor) {
+    CONFIGURACAO.placarNoCanto = Boolean(valor);
+    salvar();
+  }
+
   function carregar() {
     const ajustesSalvos = Armazenamento.carregar(CONFIGURACAO.chaveAjustes);
     if (ajustesSalvos) {
       aplicarQuantidadeMesas(ajustesSalvos.quantidadeMesas);
       aplicarModoResposta(ajustesSalvos.modoResposta);
       CONFIGURACAO.barraAutomatica = Boolean(ajustesSalvos.barraAutomatica);
+      if (typeof ajustesSalvos.escalaTexto === "number") {
+        CONFIGURACAO.escalaTexto = Math.min(Math.max(ajustesSalvos.escalaTexto, CONFIGURACAO.escalaMinima), CONFIGURACAO.escalaMaxima);
+      }
+      CONFIGURACAO.altoContraste = Boolean(ajustesSalvos.altoContraste);
+      if (typeof ajustesSalvos.placarNoCanto === "boolean") {
+        CONFIGURACAO.placarNoCanto = ajustesSalvos.placarNoCanto;
+      }
     }
   }
 
-  return { carregar, aplicarQuantidadeMesas, definirQuantidadeMesas, definirModoResposta, definirBarraAutomatica };
+  return { carregar, aplicarQuantidadeMesas, definirQuantidadeMesas, definirModoResposta, definirBarraAutomatica, definirEscalaTexto, definirAltoContraste, definirPlacarNoCanto };
 })();

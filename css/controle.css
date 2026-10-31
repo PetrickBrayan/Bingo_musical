@@ -1,0 +1,342 @@
+.cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  border-bottom: 2px solid var(--cor-borda);
+  background: var(--cor-fundo-elevado);
+}
+
+.cabecalho__titulo {
+  margin: 0;
+  font-family: var(--fonte-titulo);
+  font-size: 1.6rem;
+}
+
+.cabecalho__resumo {
+  margin: 0.2rem 0 0;
+  color: var(--cor-texto-suave);
+}
+
+.cabecalho__acoes {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.painel {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "rodada mesas"
+    "rodada lista";
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+}
+
+.bloco {
+  padding: 1.25rem;
+  border: 2px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-fundo-elevado);
+}
+
+.bloco--rodada { grid-area: rodada; }
+.bloco--mesas { grid-area: mesas; }
+.bloco--lista { grid-area: lista; }
+
+.bloco__titulo {
+  margin: 0 0 0.5rem;
+  font-family: var(--fonte-titulo);
+  font-size: 1.3rem;
+}
+
+.bloco__destaque {
+  margin-left: 0.5rem;
+  color: var(--cor-dourado);
+}
+
+.bloco__apoio {
+  margin: 0 0 0.75rem;
+  color: var(--cor-texto-suave);
+}
+
+.rodada__fase {
+  margin: 0 0 1rem;
+  color: var(--cor-texto-suave);
+  font-size: 1.1rem;
+}
+
+.aviso {
+  margin: 0 0 1rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--cor-perigo);
+  border-radius: var(--raio);
+  color: var(--cor-perigo);
+}
+
+.aviso[hidden] {
+  display: none;
+}
+
+.rodada__musica {
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  border-radius: var(--raio);
+  background: var(--cor-fundo);
+}
+
+.rodada__rotulo {
+  margin: 0;
+  color: var(--cor-dourado);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.rodada__titulo {
+  margin: 0.25rem 0;
+  font-family: var(--fonte-titulo);
+  font-size: 1.8rem;
+  line-height: 1.15;
+}
+
+.rodada__detalhes {
+  margin: 0;
+  color: var(--cor-texto-suave);
+}
+
+.rodada__cronometro {
+  margin: 0 0 1rem;
+  color: var(--cor-dourado);
+  font-family: var(--fonte-titulo);
+  font-size: 4.5rem;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.rodada__julgamento {
+  margin-bottom: 1rem;
+  padding: 1rem 1.25rem;
+  border: 2px solid var(--cor-dourado);
+  border-radius: var(--raio);
+  background: var(--cor-fundo-destaque);
+}
+
+.rodada__julgamento[hidden] {
+  display: none;
+}
+
+.julgamento__pergunta {
+  margin: 0 0 0.75rem;
+  font-size: 1.4rem;
+}
+
+.julgamento__botoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.rodada__acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.rodada__acoes .botao--principal {
+  flex: 1 1 100%;
+}
+
+.rodada__volume {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--cor-texto-suave);
+}
+
+.rodada__volume input {
+  flex: 1;
+  accent-color: var(--cor-dourado);
+}
+
+.grade-mesas {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.mesa {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.25rem;
+  border: 2px solid var(--cor-borda);
+  border-radius: 12px;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.mesa:hover:not(:disabled) {
+  border-color: var(--cor-dourado);
+  background: var(--cor-fundo-destaque);
+}
+
+.mesa:disabled {
+  cursor: default;
+}
+
+.mesa__numero {
+  font-family: var(--fonte-titulo);
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.mesa__pontos {
+  color: var(--cor-texto-suave);
+  font-size: 0.8rem;
+}
+
+.mesa--respondendo {
+  border-color: var(--cor-dourado);
+  background: var(--cor-dourado);
+  color: #2a1008;
+}
+
+.mesa--respondendo .mesa__pontos {
+  color: #2a1008;
+}
+
+.mesa--eliminada {
+  opacity: 0.35;
+  text-decoration: line-through;
+}
+
+.ajuste {
+  margin-top: 1rem;
+}
+
+.ajuste__titulo {
+  color: var(--cor-texto-suave);
+  cursor: pointer;
+}
+
+.ajuste__corpo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.75rem;
+}
+
+.ajuste__campo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ajuste__campo select {
+  min-height: 3rem;
+  padding: 0 0.75rem;
+  border: 2px solid var(--cor-borda);
+  border-radius: var(--raio);
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font: inherit;
+}
+
+.lista-musicas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 22rem;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.musica__botao {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 2px solid transparent;
+  border-radius: 10px;
+  background: var(--cor-fundo);
+  color: var(--cor-texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.musica__botao:hover:not(:disabled) {
+  border-color: var(--cor-dourado);
+}
+
+.musica__botao:disabled {
+  cursor: default;
+}
+
+.musica__numero {
+  color: var(--cor-dourado);
+  font-weight: 700;
+}
+
+.musica__titulo {
+  display: block;
+  font-weight: 700;
+}
+
+.musica__detalhes {
+  display: block;
+  color: var(--cor-texto-suave);
+  font-size: 0.85rem;
+}
+
+.musica__audio {
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.musica[data-audio="ok"] .musica__audio { color: var(--cor-sucesso); }
+.musica[data-audio="falta"] .musica__audio { color: var(--cor-perigo); }
+.musica[data-audio="verificando"] .musica__audio { color: var(--cor-texto-suave); }
+
+.musica--atual .musica__botao {
+  border-color: var(--cor-dourado);
+  background: var(--cor-fundo-destaque);
+}
+
+.musica--tocada .musica__botao {
+  opacity: 0.55;
+}
+
+.atalhos {
+  padding: 0 1.5rem 1.5rem;
+  color: var(--cor-texto-suave);
+  font-size: 0.9rem;
+}
+
+.atalhos p {
+  margin: 0;
+}
+
+@media (max-width: 60rem) {
+  .painel {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "rodada"
+      "mesas"
+      "lista";
+  }
+}

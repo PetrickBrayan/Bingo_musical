@@ -1,9 +1,9 @@
 const Narrador = (() => {
   const titulosAcerto = [
-    "Acertou, mesa {mesa}!",
-    "É isso aí, mesa {mesa}!",
-    "Mesa {mesa} mandou bem!",
-    "Que ouvido, mesa {mesa}!"
+    "Acertou, {mesa}!",
+    "É isso aí, {mesa}!",
+    "{mesa} mandou bem!",
+    "Que ouvido, {mesa}!"
   ];
   const comentariosAcerto = [
     "Parabéns! As outras mesas estão fingindo que também sabiam.",
@@ -13,9 +13,9 @@ const Narrador = (() => {
     "Cantou de cor, sem nem piscar."
   ];
   const titulosErro = [
-    "Ih… errou, mesa {mesa}!",
-    "Não era essa, mesa {mesa}!",
-    "Quase, mesa {mesa}! Quer dizer, nem tanto."
+    "Ih… errou, {mesa}!",
+    "Não era essa, {mesa}!",
+    "Quase, {mesa}! Quer dizer, nem tanto."
   ];
   const comentariosErro = [
     "Calma, foi só um escorregão.",
@@ -57,6 +57,24 @@ const Narrador = (() => {
     "Já decorei o trecho de tanto tocar! Que tal revelar?"
   ];
 
+  const frasesCoringa = [
+    "Coringa na mesa! Se acertar, vale o dobro. Se errar, perde o dobro. Coragem!",
+    "Apostou alto! Coringa ativado: tudo em dobro, o bom e o ruim.",
+    "Quem tem coringa não tem medo. Mas deveria ter um pouquinho."
+  ];
+  const comentariosCantorBom = [
+    "Sabe tudo, hein? Ponto extra na conta!",
+    "Título e cantor! Isso é ouvido de quem viveu a época."
+  ];
+  const comentariosCantorRuim = [
+    "Título sim, cantor não. Quase um expert.",
+    "O cantor ficou chateado de ser esquecido."
+  ];
+
+  function maiuscula(texto) {
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+  }
+
   function sortear(lista) {
     return lista[Math.floor(Math.random() * lista.length)];
   }
@@ -72,15 +90,34 @@ const Narrador = (() => {
     return numeros.slice(0, -1).join(", ") + " e " + numeros[numeros.length - 1];
   }
 
+  function detalheDosPontos(ocorrencia) {
+    let texto = `+${ocorrencia.pontos} pontos ${Mesas.paraMesa(ocorrencia.mesa)}`;
+    if (ocorrencia.bonus > 0) {
+      texto += `, mais ${ocorrencia.bonus} do bônus do cantor`;
+    } else if (ocorrencia.cantorAcertou === false) {
+      texto += ", sem bônus do cantor";
+    }
+    if (ocorrencia.coringa) {
+      texto += " (coringa)";
+    }
+    return texto;
+  }
+
   function comentarioDoAcerto(ocorrencia) {
+    if (ocorrencia.cantorAcertou === true) {
+      return sortear(comentariosCantorBom);
+    }
+    if (ocorrencia.cantorAcertou === false && ocorrencia.sequencia < 2) {
+      return sortear(comentariosCantorRuim);
+    }
     if (ocorrencia.sequencia >= 3) {
       return `${ocorrencia.sequencia} acertos seguidos! Alguém chama os bombeiros: está pegando fogo!`;
     }
     if (ocorrencia.sequencia === 2) {
-      return `Dois seguidos! A mesa ${ocorrencia.mesa} está embalada.`;
+      return `Dois seguidos! ${maiuscula(Mesas.apelido(ocorrencia.mesa))} está embalada.`;
     }
     if (ocorrencia.virouLider) {
-      return `Mesa ${ocorrencia.mesa} assumiu a liderança! Quem vai tomar o posto?`;
+      return `${maiuscula(Mesas.apelido(ocorrencia.mesa))} assumiu a liderança! Quem vai tomar o posto?`;
     }
     if (ocorrencia.empatouNaPonta) {
       return "Empate na ponta! A disputa está pegando fogo.";
@@ -95,8 +132,8 @@ const Narrador = (() => {
     return {
       tipo: "acerto",
       icone: "✓",
-      titulo: preencher(sortear(titulosAcerto), ocorrencia),
-      detalhe: `+${ocorrencia.pontos} pontos para a mesa ${ocorrencia.mesa}`,
+      titulo: maiuscula(preencher(sortear(titulosAcerto), { mesa: Mesas.apelido(ocorrencia.mesa) })),
+      detalhe: detalheDosPontos(ocorrencia),
       comentario: comentarioDoAcerto(ocorrencia)
     };
   }
@@ -105,8 +142,8 @@ const Narrador = (() => {
     return {
       tipo: "microfone",
       icone: "♪",
-      titulo: `Mandou bem, mesa ${ocorrencia.mesa}!`,
-      detalhe: `+${ocorrencia.pontos} pontos pela cantoria`,
+      titulo: `Mandou bem, ${Mesas.apelido(ocorrencia.mesa)}!`,
+      detalhe: `+${ocorrencia.pontos} pontos pela cantoria${ocorrencia.coringa ? " (coringa)" : ""}`,
       comentario: sortear(comentariosMicrofoneBom)
     };
   }
@@ -115,7 +152,7 @@ const Narrador = (() => {
     return {
       tipo: "microfone",
       icone: "♪",
-      titulo: `Não rolou, mesa ${ocorrencia.mesa}`,
+      titulo: `Não rolou, ${Mesas.apelido(ocorrencia.mesa)}`,
       detalhe: "Sem perder pontos, mas fora desta música",
       comentario: sortear(comentariosMicrofoneRuim)
     };
@@ -125,8 +162,8 @@ const Narrador = (() => {
     return {
       tipo: "erro",
       icone: "✕",
-      titulo: preencher(sortear(titulosErro), ocorrencia),
-      detalhe: ocorrencia.pontos > 0 ? `−${ocorrencia.pontos} pontos para a mesa ${ocorrencia.mesa}` : "Fica fora desta música",
+      titulo: maiuscula(preencher(sortear(titulosErro), { mesa: Mesas.apelido(ocorrencia.mesa) })),
+      detalhe: ocorrencia.pontos > 0 ? `−${ocorrencia.pontos} pontos ${Mesas.paraMesa(ocorrencia.mesa)}${ocorrencia.coringa ? " (coringa)" : ""}` : "Fica fora desta música",
       comentario: sortear(comentariosErro)
     };
   }
@@ -135,8 +172,8 @@ const Narrador = (() => {
     return {
       tipo: "desistiu",
       icone: "…",
-      titulo: `Mesa ${ocorrencia.mesa} desistiu!`,
-      detalhe: ocorrencia.pontos > 0 ? `−${ocorrencia.pontos} pontos pela amarelada` : "Fica fora desta música",
+      titulo: `${maiuscula(Mesas.apelido(ocorrencia.mesa))} desistiu!`,
+      detalhe: ocorrencia.pontos > 0 ? `−${ocorrencia.pontos} pontos pela amarelada${ocorrencia.coringa ? " (coringa)" : ""}` : "Fica fora desta música",
       comentario: sortear(comentariosDesistencia)
     };
   }
@@ -165,6 +202,17 @@ const Narrador = (() => {
     return frasesRepeticao[Math.min(vezes, frasesRepeticao.length) - 1];
   }
 
+  function coringa() {
+    return sortear(frasesCoringa);
+  }
+
+  function desempate(mesas) {
+    return {
+      titulo: "Morte súbita!",
+      subtitulo: `${maiuscula(Mesas.listar(mesas))} empataram. Quem acertar primeiro leva!`
+    };
+  }
+
   function ajuda(segundos, custo) {
     return preencher(sortear(frasesAjuda), { segundos, custo });
   }
@@ -180,9 +228,9 @@ const Narrador = (() => {
       return "Ninguém pontuou ainda. Quem vai quebrar o gelo?";
     }
     if (situacao.lideres.length === 1) {
-      return `Mesa ${situacao.lideres[0]} lidera com ${situacao.pontos}. Quem vai tirar ela de lá?`;
+      return `${maiuscula(Mesas.apelido(situacao.lideres[0]))} lidera com ${situacao.pontos}. Quem vai tirar de lá?`;
     }
-    return `Empate na ponta entre as mesas ${listarMesas(situacao.lideres)}. Desempatem!`;
+    return `Empate na ponta entre ${Mesas.listar(situacao.lideres)}. Desempatem!`;
   }
 
   function final(lideres, pontos) {
@@ -191,15 +239,15 @@ const Narrador = (() => {
     }
     if (lideres.length === 1) {
       return {
-        titulo: `Mesa ${lideres[0]} é a campeã!`,
+        titulo: `${Mesas.rotulo(lideres[0])} é a campeã!`,
         subtitulo: `${pontos} pontos. Parabéns, vocês mandaram muito bem!`
       };
     }
     return {
       titulo: "Temos um empate!",
-      subtitulo: `Mesas ${listarMesas(lideres)} com ${pontos} pontos cada. Parabéns a todas!`
+      subtitulo: `${maiuscula(Mesas.listar(lideres))} com ${pontos} pontos cada.`
     };
   }
 
-  return { acerto, erro, desistencia, microfoneRuim, revelacao, ninguem, repeticao, ajuda, preparo, final, listarMesas };
+  return { acerto, erro, desistencia, microfoneRuim, revelacao, ninguem, repeticao, coringa, desempate, maiuscula, ajuda, preparo, final, listarMesas };
 })();

@@ -19,13 +19,35 @@ const Jogo = (() => {
   let segundosDoMicrofone = 0;
   let temporizadorDoMicrofone = null;
   let temporizadorDoInterludio = null;
+  let modoDesempate = false;
+  let mesasDoDesempate = [];
+  let desempateRealizado = false;
+  let vencedorDoDesempate = false;
+  let coringasUsados = new Set();
+  let coringaAtivo = false;
+  let ocorrenciaPendente = null;
+  let alternativasCantor = [];
+  let emTensao = false;
+  let ultimoSegundoAvisado = null;
 
-  function totalMusicas() {
+  function listaAtual() {
+    return modoDesempate ? MUSICAS_DESEMPATE : MUSICAS;
+  }
+
+  function totalDaPartida() {
     return MUSICAS.length;
   }
 
+  function totalMusicas() {
+    return listaAtual().length;
+  }
+
   function musicaAtual() {
-    return MUSICAS[indiceMusica];
+    return listaAtual()[indiceMusica];
+  }
+
+  function especialDaMusica() {
+    return modoDesempate ? "" : (musicaAtual().especial || "");
   }
 
   function ehUltimaMusica() {
@@ -41,7 +63,32 @@ const Jogo = (() => {
   }
 
   function pontosDaMusica(indice) {
-    return MUSICAS[indice].pontos || CONFIGURACAO.pontosPadrao;
+    const musica = listaAtual()[indice];
+    const base = musica.pontos || CONFIGURACAO.pontosPadrao;
+    const dobrada = !modoDesempate && (musica.especial === "dobro" || musica.especial === "relampago");
+    return dobrada ? base * CONFIGURACAO.multiplicadorEspecial : base;
+  }
+
+  function pontosDaMusicaDoCatalogo(indice) {
+    const musica = MUSICAS[indice];
+    const base = musica.pontos || CONFIGURACAO.pontosPadrao;
+    const dobrada = musica.especial === "dobro" || musica.especial === "relampago";
+    return dobrada ? base * CONFIGURACAO.multiplicadorEspecial : base;
+  }
+
+  function multiplicador() {
+    return coringaAtivo ? CONFIGURACAO.multiplicadorCoringa : 1;
+  }
+
+  function coringaDisponivel(mesa) {
+    return !modoDesempate && Boolean(mesa) && !coringasUsados.has(mesa);
+  }
+
+  function consumirCoringa(mesa) {
+    if (coringaAtivo) {
+      coringasUsados.add(mesa);
+      coringaAtivo = false;
+    }
   }
 
   function valeMaisQueOPadrao(indice) {
@@ -49,7 +96,7 @@ const Jogo = (() => {
   }
 
   function custoDaAjuda() {
-    return ajudaUsada ? CONFIGURACAO.pontosPerdidosPorAjuda : 0;
+    return ajudaUsada && !modoDesempate ? CONFIGURACAO.pontosPerdidosPorAjuda : 0;
   }
 
   function valorAtual() {
@@ -79,11 +126,14 @@ const Jogo = (() => {
   }
 
   function salvarProgresso(proximaMusica) {
-    proximaMusicaSalva = proximaMusica;
+    const proximaReal = modoDesempate ? totalDaPartida() : proximaMusica;
+    proximaMusicaSalva = proximaReal;
     progressoSalvo = {
-      proximaMusica,
+      proximaMusica: proximaReal,
       quantidadeMesas: CONFIGURACAO.quantidadeMesas,
-      placar: Placar.exportar()
+      placar: Placar.exportar(),
+      coringasUsados: Array.from(coringasUsados),
+      desempateRealizado
     };
     Armazenamento.salvar(CONFIGURACAO.chaveProgresso, progressoSalvo);
   }
@@ -99,6 +149,9 @@ const Jogo = (() => {
   }
 
   function calcularPontosPerdidos(mesa) {
+    if (modoDesempate) {
+      return 0;
+    }
     const perda = CONFIGURACAO.pontosPerdidosPorErro;
     if (CONFIGURACAO.permitirPontosNegativos) {
       return perda;
@@ -145,6 +198,18 @@ const Jogo = (() => {
     return Array.from(new Set(candidatos)).slice(0, quantidadeNecessaria);
   }
 
+  function sortearCantores(musica) {
+    const quantidadeNecessaria = CONFIGURACAO.quantidadeAlternativas - 1;
+    const erradas = embaralhar(Array.from(new Set(
+      MUSICAS.map((outra) => outra.interprete).filter((nome) => nome !== musica.interprete)
+    ))).slice(0, quantidadeNecessaria);
+    if (erradas.length < quantidadeNecessaria) {
+      return [];
+    }
+    const corretas = [{ texto: musica.interprete, correta: true }];
+    return embaralhar(corretas.concat(erradas.map((texto) => ({ texto, correta: false }))));
+  }
+
   function sortearAlternativas(musica) {
     const corretas = [{ texto: musica.titulo, correta: true }];
     const erradas = escolherTitulosErrados(musica).map((texto) => ({ texto, correta: false }));
@@ -172,10 +237,10 @@ const Jogo = (() => {
     if (!existeProgressoSalvo()) {
       return "";
     }
-    if (progressoSalvo.proximaMusica >= totalMusicas()) {
+    if (progressoSalvo.proximaMusica >= totalDaPartida()) {
       return "Jogo anterior concluído. Continuar mostra o resultado final.";
     }
-    return `Jogo salvo: parou na música ${progressoSalvo.proximaMusica + 1} de ${totalMusicas()}, com ${CONFIGURACAO.quantidadeMesas} mesas.`;
+    return `Jogo salvo: parou na música ${progressoSalvo.proximaMusica + 1} de ${totalDaPartida()}, com ${CONFIGURACAO.quantidadeMesas} mesas.`;
   }
 
   const apresentacoes = {
@@ -195,11 +260,15 @@ const Jogo = (() => {
         lideres: lideranca.lideres,
         pontos: lideranca.pontos
       });
+      if (modoDesempate) {
+        return { titulo: "Morte súbita!", subtitulo: Narrador.desempate(mesasDoDesempate).subtitulo, centroDisco: "♪" };
+      }
       const penalidade = CONFIGURACAO.pontosPerdidosPorErro > 0
         ? ` Quem errar perde ${CONFIGURACAO.pontosPerdidosPorErro}.`
         : "";
+      const titulosEspeciais = { dobro: "Vale o dobro!", relampago: "Música relâmpago!" };
       return {
-        titulo: valeMaisQueOPadrao(indiceMusica) ? "Valendo mais!" : "Prepare-se!",
+        titulo: titulosEspeciais[especialDaMusica()] || (valeMaisQueOPadrao(indiceMusica) ? "Valendo mais!" : "Prepare-se!"),
         subtitulo: frase + penalidade,
         centroDisco: "♪"
       };
@@ -217,15 +286,23 @@ const Jogo = (() => {
     },
 
     respondendo() {
+      const base = modoComJuiz() ? "Qual é a música?" : "Qual é a música? Diga ou toque no número";
       return {
-        titulo: `Mesa ${mesaEmResposta}`,
-        subtitulo: modoComJuiz() ? "Qual é a música?" : "Qual é a música? Diga ou toque no número"
+        titulo: Mesas.rotulo(mesaEmResposta),
+        subtitulo: coringaAtivo ? `${base} • Coringa: vale o dobro` : base
+      };
+    },
+
+    cantor() {
+      return {
+        titulo: "Agora o bônus!",
+        subtitulo: `Quem canta essa música? Vale +${CONFIGURACAO.pontosBonusCantor * (ocorrenciaPendente && ocorrenciaPendente.coringa ? CONFIGURACAO.multiplicadorCoringa : 1)}`
       };
     },
 
     cantando() {
       return {
-        titulo: `Mesa ${mesaEmResposta}, é com vocês!`,
+        titulo: `${Mesas.rotulo(mesaEmResposta)}, é com vocês!`,
         subtitulo: `Cantem ${parteParaCantar()}! A plateia decide.`
       };
     },
@@ -241,10 +318,21 @@ const Jogo = (() => {
 
     encerrado() {
       const lideranca = situacaoDaLideranca();
+      if (desempatePossivel()) {
+        return {
+          titulo: "Empate na ponta!",
+          subtitulo: `${Narrador.maiuscula(Mesas.listar(lideranca.lideres))} com ${lideranca.pontos} pontos. Vamos desempatar?`,
+          centroDisco: "★"
+        };
+      }
       const final = Narrador.final(lideranca.lideres, lideranca.pontos);
       return { titulo: final.titulo, subtitulo: final.subtitulo, centroDisco: "★" };
     }
   };
+
+  function desempatePossivel() {
+    return estado === "encerrado" && !desempateRealizado && lideresComPontos().length > 1;
+  }
 
   function rotulosDaBarraDeToque() {
     const porEstado = {
@@ -261,13 +349,14 @@ const Jogo = (() => {
         ? { principal: "Acertou", voltar: "Errou", principalAtivo: true }
         : { principal: "Escolha uma resposta", voltar: "Voltar", principalAtivo: false },
       cantando: { principal: "Mandou bem!", voltar: "Voltar", principalAtivo: true },
+      cantor: { principal: "Escolha o cantor", voltar: "Pular bônus", principalAtivo: false },
       errou: { principal: "Continuar", voltar: "Voltar", principalAtivo: true },
       revelado: {
         principal: ehUltimaMusica() ? "Ver resultado" : "Próxima música",
         voltar: "Voltar",
         principalAtivo: true
       },
-      encerrado: { principal: "Novo jogo", voltar: "Voltar", principalAtivo: true }
+      encerrado: { principal: desempatePossivel() ? "Desempate!" : "Novo jogo", voltar: "Voltar", principalAtivo: true }
     };
     return porEstado[estado];
   }
@@ -293,7 +382,9 @@ const Jogo = (() => {
   function renderizar() {
     const comDica = estadosComDica.includes(estado);
     const apresentacao = apresentacoes[estado]();
-    const concluidas = emPartida() ? indiceMusica : (estado === "encerrado" ? totalMusicas() : 0);
+    const concluidas = emPartida() && !modoDesempate ? indiceMusica : (estado === "encerrado" || modoDesempate ? totalDaPartida() : 0);
+    const progressoTexto = modoDesempate ? `Desempate ${indiceMusica + 1} de ${totalMusicas()}` : `Música ${indiceMusica + 1} de ${totalMusicas()}`;
+    const especial = especialDaMusica();
     const textoDeApoio = estado === "inicio" ? mensagemDoInicio() : "";
     const textoDaDica = comDica && dicaVisivel ? montarTextoDaDica(musicaAtual()) : textoDeApoio;
 
@@ -301,9 +392,13 @@ const Jogo = (() => {
     Tela.definirModoResposta(CONFIGURACAO.modoResposta);
     Tela.definirCabecalho(
       emPartida() ? musicaAtual().categoria : "",
-      emPartida() ? `Música ${indiceMusica + 1} de ${totalMusicas()}` : "",
-      concluidas / totalMusicas()
+      emPartida() ? progressoTexto : "",
+      concluidas / totalDaPartida(),
+      emPartida() ? musicaAtual().decada : ""
     );
+    Tela.definirEspecial(emPartida() && especial ? especial : "");
+    Tela.definirCorDaMesa(mesaEmResposta ? Mesas.cor(mesaEmResposta) : "");
+    Tela.definirTensao(estado === "tocando" && emTensao);
     Tela.definirValor(emPartida() ? textoDoValor() : "", ajudaUsada);
     Tela.definirTextos(apresentacao.titulo, apresentacao.subtitulo);
     Tela.definirTextoDica(textoDaDica);
@@ -321,6 +416,8 @@ const Jogo = (() => {
     Tela.mostrarBoasVindas(estado === "boasvindas");
     Tela.mostrarAcoesInicio(estado === "inicio", existeProgressoSalvo());
     Tela.mostrarMicrofone(estado === "respondendo", modoComJuiz() ? "C" : `${alternativas.length + 1} ou C`);
+    Tela.mostrarCoringa(estado === "respondendo" && coringaDisponivel(mesaEmResposta), coringaAtivo, CONFIGURACAO.multiplicadorCoringa);
+    Tela.mostrarMiniPlacar(CONFIGURACAO.placarNoCanto && emPartida() ? placarDoCanto() : []);
     Tela.definirRotulosResposta(rotulosDaResposta());
     Tela.mostrarResultado(estado === "revelado" || estado === "errou" ? resultado : null);
 
@@ -332,7 +429,22 @@ const Jogo = (() => {
     }
     if (estado === "encerrado") {
       Tela.mostrarPodio(Placar.classificacao());
+      Tela.mostrarTrofeus(Trofeus.calcular(Placar.exportar().historico, CONFIGURACAO.quantidadeMesas));
+    } else {
+      Tela.mostrarPodio([]);
+      Tela.mostrarTrofeus([]);
     }
+    Tela.mostrarAreaFinal({
+      visivel: estado === "encerrado",
+      desempate: desempatePossivel(),
+      certificado: lideresComPontos().length > 0 && !desempatePossivel()
+    });
+  }
+
+  function placarDoCanto() {
+    return Placar.classificacao()
+      .filter((item) => item.posicao <= 3 && item.pontos > 0)
+      .slice(0, 3);
   }
 
   function prepararMusica(indice) {
@@ -345,16 +457,41 @@ const Jogo = (() => {
     trechoAcabou = false;
     dicaVisivel = false;
     ajudaUsada = false;
+    coringaAtivo = false;
+    ocorrenciaPendente = null;
+    emTensao = false;
     repeticoes = 0;
     ocupado = false;
     resultado = null;
     alternativas = sortearAlternativas(musicaAtual());
 
-    ReprodutorTrecho.carregar(musicaAtual());
-    ReprodutorTrecho.precarregar(MUSICAS[indice + 1]);
+    if (modoDesempate) {
+      for (let mesa = 1; mesa <= CONFIGURACAO.quantidadeMesas; mesa++) {
+        if (mesasDoDesempate.indexOf(mesa) === -1) {
+          mesasBloqueadas.add(mesa);
+        }
+      }
+    }
+
+    const musica = musicaAtual();
+    const duracaoRelampago = Math.min(musica.duracaoSegundos || CONFIGURACAO.duracaoPadraoTrechoSegundos, CONFIGURACAO.duracaoRelampagoSegundos);
+    ReprodutorTrecho.carregar(especialDaMusica() === "relampago" ? Object.assign({}, musica, { duracaoSegundos: duracaoRelampago }) : musica);
+    ReprodutorTrecho.precarregar(listaAtual()[indice + 1]);
     Tela.definirProgressoAnel(1);
     salvarProgresso(indice);
     renderizar();
+    Tela.animarEntrada();
+    anunciarEspecial();
+  }
+
+  function anunciarEspecial() {
+    if (modoDesempate) {
+      Tela.anunciarEspecial("Morte súbita!", Narrador.desempate(mesasDoDesempate).subtitulo, "dobro");
+    } else if (especialDaMusica() === "dobro") {
+      Tela.anunciarEspecial("Vale o dobro!", `Esta música vale ${pontosDaMusica(indiceMusica)} pontos`, "dobro");
+    } else if (especialDaMusica() === "relampago") {
+      Tela.anunciarEspecial("Relâmpago!", `Trecho curtinho e vale ${pontosDaMusica(indiceMusica)} pontos`, "relampago");
+    }
   }
 
   function encerrar() {
@@ -363,11 +500,12 @@ const Jogo = (() => {
     dicaVisivel = false;
     resultado = null;
     ReprodutorTrecho.parar();
-    salvarProgresso(totalMusicas());
+    modoDesempate = false;
+    salvarProgresso(totalDaPartida());
     Tela.definirProgressoAnel(1);
     renderizar();
 
-    if (lideresComPontos().length > 0) {
+    if (lideresComPontos().length > 0 && !desempatePossivel()) {
       Efeitos.vitoria();
       Confete.disparar(260);
     }
@@ -378,16 +516,24 @@ const Jogo = (() => {
       Armazenamento.limpar(CONFIGURACAO.chaveProgresso);
       progressoSalvo = null;
       proximaMusicaSalva = 0;
-      Placar.reiniciar();
-      sequenciasPorMesa = {};
+      reiniciarRegrasDoJogo();
       renderizar();
       Tela.mostrarAviso("Progresso apagado. Ajuste as mesas e toque em Começar.");
       return;
     }
     Efeitos.preparar();
+    reiniciarRegrasDoJogo();
+    prepararMusica(0);
+  }
+
+  function reiniciarRegrasDoJogo() {
     Placar.reiniciar();
     sequenciasPorMesa = {};
-    prepararMusica(0);
+    coringasUsados = new Set();
+    coringaAtivo = false;
+    modoDesempate = false;
+    desempateRealizado = false;
+    vencedorDoDesempate = false;
   }
 
   function pularParaJogo() {
@@ -417,7 +563,9 @@ const Jogo = (() => {
   function comecarJogo() {
     Efeitos.preparar();
     Placar.importar(progressoSalvo.placar);
-    if (progressoSalvo.proximaMusica >= totalMusicas()) {
+    coringasUsados = new Set(Array.isArray(progressoSalvo.coringasUsados) ? progressoSalvo.coringasUsados : []);
+    desempateRealizado = Boolean(progressoSalvo.desempateRealizado);
+    if (progressoSalvo.proximaMusica >= totalDaPartida()) {
       encerrar();
       return;
     }
@@ -433,8 +581,7 @@ const Jogo = (() => {
     Armazenamento.limpar(CONFIGURACAO.chaveProgresso);
     progressoSalvo = null;
     proximaMusicaSalva = 0;
-    sequenciasPorMesa = {};
-    Placar.reiniciar();
+    reiniciarRegrasDoJogo();
     estado = "inicio";
     resultado = null;
     Tela.definirProgressoAnel(1);
@@ -442,12 +589,23 @@ const Jogo = (() => {
     Tela.mostrarAviso("Novo jogo: progresso anterior apagado");
   }
 
+  function aplicarNovoCatalogo() {
+    Armazenamento.limpar(CONFIGURACAO.chaveProgresso);
+    progressoSalvo = null;
+    proximaMusicaSalva = 0;
+    reiniciarRegrasDoJogo();
+    if (!emPartida()) {
+      estado = estado === "boasvindas" ? "boasvindas" : "inicio";
+    }
+    renderizar();
+  }
+
   function alterarQuantidadeMesas(variacao) {
     if (estado !== "inicio" || existeProgressoSalvo()) {
       return;
     }
     Ajustes.definirQuantidadeMesas(CONFIGURACAO.quantidadeMesas + variacao);
-    Placar.reiniciar();
+    reiniciarRegrasDoJogo();
     Tela.montarGradeMesas(escolherMesa);
     renderizar();
   }
@@ -528,12 +686,13 @@ const Jogo = (() => {
 
     numeroDigitado = "";
     if (mesasBloqueadas.has(numero)) {
-      Tela.mostrarAviso(`Mesa ${numero} já ficou fora desta música`);
+      Tela.mostrarAviso(`${Narrador.maiuscula(Mesas.apelido(numero))} já ficou fora desta música`);
       renderizar();
       return;
     }
 
     mesaEmResposta = numero;
+    coringaAtivo = false;
     estado = "respondendo";
     if (!modoComJuiz()) {
       Tela.montarAlternativas(alternativas.map((alternativa) => alternativa.texto), escolherAlternativa);
@@ -554,24 +713,83 @@ const Jogo = (() => {
       return;
     }
     const mesa = mesaEmResposta;
-    const pontos = valorAtual();
+    const usouCoringa = coringaAtivo;
+    const pontos = valorAtual() * multiplicador();
     const lideresAntes = lideresComPontos();
 
     sequenciasPorMesa[mesa] = (sequenciasPorMesa[mesa] || 0) + 1;
-    Placar.adicionar(mesa, pontos, indiceMusica, "acerto");
+    Placar.adicionar(mesa, pontos, indiceMusica, modoDesempate ? "desempate" : "acerto", usouCoringa);
+    consumirCoringa(mesa);
+    vencedorDoDesempate = modoDesempate;
     const lideresDepois = lideresComPontos();
     const estaNaPonta = lideresDepois.indexOf(mesa) !== -1;
     const jaEstavaNaPonta = lideresAntes.indexOf(mesa) !== -1;
 
-    revelar({
+    const ocorrencia = {
       tipo: "acerto",
       mesa,
       pontos,
+      coringa: usouCoringa,
       sequencia: sequenciasPorMesa[mesa],
       virouLider: estaNaPonta && !jaEstavaNaPonta && lideresDepois.length === 1,
       empatouNaPonta: estaNaPonta && !jaEstavaNaPonta && lideresDepois.length > 1,
       ajudou: ajudaUsada
-    });
+    };
+
+    if (modoComJuiz() || modoDesempate) {
+      revelar(ocorrencia);
+      return;
+    }
+    alternativasCantor = sortearCantores(musicaAtual());
+    if (alternativasCantor.length === 0) {
+      revelar(ocorrencia);
+      return;
+    }
+    ocorrenciaPendente = ocorrencia;
+    estado = "cantor";
+    Tela.montarAlternativas(alternativasCantor.map((alternativa) => alternativa.texto), escolherCantor);
+    renderizar();
+  }
+
+  function escolherCantor(indice) {
+    const alternativa = alternativasCantor[indice];
+    if (estado !== "cantor" || ocupado || !alternativa) {
+      return;
+    }
+    ocupado = true;
+    Tela.marcarResultadoAlternativa(indice, alternativa.correta);
+    setTimeout(() => {
+      ocupado = false;
+      finalizarCantor(alternativa.correta);
+    }, CONFIGURACAO.atrasoAposRespostaMilissegundos);
+  }
+
+  function finalizarCantor(acertouCantor) {
+    if (estado !== "cantor" || !ocorrenciaPendente) {
+      return;
+    }
+    const ocorrencia = ocorrenciaPendente;
+    ocorrenciaPendente = null;
+    if (acertouCantor === true) {
+      const bonus = CONFIGURACAO.pontosBonusCantor * (ocorrencia.coringa ? CONFIGURACAO.multiplicadorCoringa : 1);
+      Placar.adicionar(ocorrencia.mesa, bonus, indiceMusica, "bonus", ocorrencia.coringa);
+      ocorrencia.bonus = bonus;
+      ocorrencia.cantorAcertou = true;
+    } else if (acertouCantor === false) {
+      ocorrencia.cantorAcertou = false;
+    }
+    revelar(ocorrencia);
+  }
+
+  function alternarCoringa() {
+    if (estado !== "respondendo" || !coringaDisponivel(mesaEmResposta)) {
+      return;
+    }
+    coringaAtivo = !coringaAtivo;
+    if (coringaAtivo) {
+      Tela.mostrarAviso(Narrador.coringa());
+    }
+    renderizar();
   }
 
   function iniciarInterludio(novoResultado) {
@@ -613,16 +831,18 @@ const Jogo = (() => {
     }
 
     const mesa = mesaEmResposta;
-    const pontosPerdidos = calcularPontosPerdidos(mesa);
+    const usouCoringa = coringaAtivo;
+    const pontosPerdidos = calcularPontosPerdidos(mesa) * multiplicador();
     sequenciasPorMesa[mesa] = 0;
 
     if (pontosPerdidos > 0) {
-      Placar.adicionar(mesa, -pontosPerdidos, indiceMusica, "erro");
-      salvarProgresso(proximaMusicaSalva);
+      Placar.adicionar(mesa, -pontosPerdidos, indiceMusica, "erro", usouCoringa);
     }
+    consumirCoringa(mesa);
+    salvarProgresso(proximaMusicaSalva);
     Efeitos.erro();
 
-    const dados = { mesa, pontos: pontosPerdidos };
+    const dados = { mesa, pontos: pontosPerdidos, coringa: usouCoringa };
     tirarMesaDaDisputa(mesa, desistiu ? Narrador.desistencia(dados) : Narrador.erro(dados));
   }
 
@@ -695,10 +915,13 @@ const Jogo = (() => {
       return;
     }
     const mesa = mesaEmResposta;
-    const pontos = pontosDoMicrofone();
+    const usouCoringa = coringaAtivo;
+    const pontos = pontosDoMicrofone() * multiplicador();
     sequenciasPorMesa[mesa] = 0;
-    Placar.adicionar(mesa, pontos, indiceMusica, "microfone");
-    revelar({ tipo: "microfone", mesa, pontos });
+    Placar.adicionar(mesa, pontos, indiceMusica, modoDesempate ? "desempate" : "microfone", usouCoringa);
+    consumirCoringa(mesa);
+    vencedorDoDesempate = modoDesempate;
+    revelar({ tipo: "microfone", mesa, pontos, coringa: usouCoringa });
   }
 
   function microfoneReprovado() {
@@ -708,6 +931,8 @@ const Jogo = (() => {
     clearInterval(temporizadorDoMicrofone);
     temporizadorDoMicrofone = null;
     sequenciasPorMesa[mesaEmResposta] = 0;
+    coringaAtivo = false;
+    Placar.adicionar(mesaEmResposta, 0, indiceMusica, "microfone-falhou");
     Tela.definirProgressoAnel(1);
     tirarMesaDaDisputa(mesaEmResposta, Narrador.microfoneRuim({ mesa: mesaEmResposta }));
   }
@@ -732,7 +957,8 @@ const Jogo = (() => {
         categoria: musica.categoria,
         decada: musica.decada,
         duracao: musica.duracaoSegundos || CONFIGURACAO.duracaoPadraoTrechoSegundos,
-        pontos: pontosDaMusica(indice),
+        pontos: pontosDaMusicaDoCatalogo(indice),
+        especial: Catalogo.especiais[musica.especial || ""] || "Normal",
         situacao: situacao.situacao,
         rotuloSituacao: situacao.rotulo
       };
@@ -749,11 +975,25 @@ const Jogo = (() => {
   }
 
   function irParaProximaMusica() {
-    if (ehUltimaMusica()) {
+    if (modoDesempate && (vencedorDoDesempate || ehUltimaMusica())) {
+      encerrar();
+    } else if (ehUltimaMusica()) {
       encerrar();
     } else {
       prepararMusica(indiceMusica + 1);
     }
+  }
+
+  function iniciarDesempate() {
+    if (!desempatePossivel()) {
+      return;
+    }
+    mesasDoDesempate = lideresComPontos();
+    modoDesempate = true;
+    desempateRealizado = true;
+    vencedorDoDesempate = false;
+    Efeitos.preparar();
+    prepararMusica(0);
   }
 
   function avancar() {
@@ -767,12 +1007,13 @@ const Jogo = (() => {
       case "cantando": return microfoneAprovado();
       case "errou": return continuarAposInterludio();
       case "revelado": return irParaProximaMusica();
-      case "encerrado": return novoJogo();
+      case "encerrado": return desempatePossivel() ? iniciarDesempate() : novoJogo();
     }
   }
 
   function voltarParaAbertura() {
     limparTemporizadores();
+    modoDesempate = false;
     ReprodutorTrecho.parar();
     ocupado = false;
     estado = "inicio";
@@ -794,6 +1035,7 @@ const Jogo = (() => {
       return;
     }
     mesaEmResposta = null;
+    coringaAtivo = false;
     numeroDigitado = "";
     estado = "pausado";
     renderizar();
@@ -809,14 +1051,18 @@ const Jogo = (() => {
   }
 
   function voltarParaPergunta() {
-    const ultimo = Placar.ultimo();
-    const pontuouNestaMusica = ultimo
-      && ultimo.indiceMusica === indiceMusica
-      && (ultimo.tipo === "acerto" || ultimo.tipo === "microfone");
-
-    if (pontuouNestaMusica) {
+    const tiposDaRevelacao = ["bonus", "acerto", "microfone", "desempate"];
+    let ultimo = Placar.ultimo();
+    while (ultimo && ultimo.indiceMusica === indiceMusica && tiposDaRevelacao.indexOf(ultimo.tipo) !== -1) {
       Placar.desfazerUltimo();
-      sequenciasPorMesa[ultimo.mesa] = Math.max((sequenciasPorMesa[ultimo.mesa] || 1) - 1, 0);
+      if (ultimo.coringa) {
+        coringasUsados.delete(ultimo.mesa);
+      }
+      if (ultimo.tipo !== "bonus") {
+        sequenciasPorMesa[ultimo.mesa] = Math.max((sequenciasPorMesa[ultimo.mesa] || 1) - 1, 0);
+        vencedorDoDesempate = false;
+      }
+      ultimo = Placar.ultimo();
     }
     ReprodutorTrecho.parar();
     resultado = null;
@@ -843,6 +1089,7 @@ const Jogo = (() => {
       case "tocando": return interromperTrecho();
       case "respondendo": return cancelarEscolhaDaMesa();
       case "cantando": return cancelarMicrofone();
+      case "cantor": return finalizarCantor(null);
       case "errou": return continuarAposInterludio();
       case "revelado": return voltarParaPergunta();
       case "encerrado": return voltarParaAbertura();
@@ -859,6 +1106,10 @@ const Jogo = (() => {
   }
 
   function digitar(digito) {
+    if (estado === "cantor") {
+      escolherCantor(Number(digito) - 1);
+      return;
+    }
     if (estado === "respondendo" && !modoComJuiz()) {
       const posicao = Number(digito);
       if (posicao === alternativas.length + 1) {
@@ -960,6 +1211,9 @@ const Jogo = (() => {
   }
 
   function descreverDesfeita(desfeita) {
+    if (desfeita.pontos === 0) {
+      return `Desfeito: tentativa de microfone da mesa ${desfeita.mesa}`;
+    }
     if (desfeita.pontos < 0) {
       return `Desfeito: mesa ${desfeita.mesa} recupera ${-desfeita.pontos} pontos`;
     }
@@ -976,6 +1230,9 @@ const Jogo = (() => {
     salvarProgresso(proximaMusicaSalva);
     Tela.mostrarAviso(descreverDesfeita(desfeita));
 
+    if (desfeita.coringa) {
+      coringasUsados.delete(desfeita.mesa);
+    }
     const ehDestaMusica = desfeita.indiceMusica === indiceMusica;
     if (desfeita.tipo === "erro" && ehDestaMusica) {
       mesasBloqueadas.delete(desfeita.mesa);
@@ -1009,6 +1266,9 @@ const Jogo = (() => {
       { rotulo: "Como jogar", ativo: true, acao: alternarGuia },
       { rotulo: "Comandos", ativo: true, acao: () => Tela.alternarAjuda() },
       { rotulo: "Tela cheia", ativo: true, acao: () => Tela.alternarTelaCheia() },
+      { rotulo: "Intervalo (voltamos já)", ativo: !["tocando", "respondendo", "cantando", "cantor"].includes(estado), acao: () => Preparacao.abrirIntervalo() },
+      { rotulo: "Preparar evento (nomes, músicas, teste)", ativo: !emPartida(), acao: () => Preparacao.alternar() },
+      { rotulo: `Placar no canto: ${CONFIGURACAO.placarNoCanto ? "ligado" : "desligado"}`, ativo: true, acao: () => { Ajustes.definirPlacarNoCanto(!CONFIGURACAO.placarNoCanto); renderizar(); } },
       {
         rotulo: CONFIGURACAO.barraAutomatica ? "Mostrar botões sempre" : "Esconder botões quando parados",
         ativo: true,
@@ -1030,8 +1290,19 @@ const Jogo = (() => {
   }
 
   function aoReceberTempo(segundosRestantes, limiteSegundos) {
-    if (estado === "tocando") {
-      Tela.atualizarCronometro(segundosRestantes, limiteSegundos);
+    if (estado !== "tocando") {
+      return;
+    }
+    Tela.atualizarCronometro(segundosRestantes, limiteSegundos);
+    const segundoInteiro = Math.ceil(segundosRestantes);
+    const entrouEmTensao = segundosRestantes > 0 && segundosRestantes <= 5 && limiteSegundos > 6;
+    if (entrouEmTensao !== emTensao) {
+      emTensao = entrouEmTensao;
+      Tela.definirTensao(emTensao);
+    }
+    if (emTensao && segundoInteiro <= 3 && segundoInteiro !== ultimoSegundoAvisado) {
+      ultimoSegundoAvisado = segundoInteiro;
+      Efeitos.tique();
     }
   }
 
@@ -1040,6 +1311,8 @@ const Jogo = (() => {
       return;
     }
     trechoAcabou = true;
+    emTensao = false;
+    ultimoSegundoAvisado = null;
     estado = "pausado";
     numeroDigitado = "";
     Tela.definirCentroDisco("0");
@@ -1098,8 +1371,11 @@ const Jogo = (() => {
       aoContinuarJogando: () => Tela.fecharSobreposicoes(),
       aoVoltar: voltar,
       aoAvancar: avancar,
-      aoAbrirMenu: abrirMenu
+      aoAbrirMenu: abrirMenu,
+      aoAlternarCoringa: alternarCoringa,
+      aoIniciarDesempate: iniciarDesempate
     });
+    Tela.aplicarFerramentas();
     renderizar();
   }
 
@@ -1128,6 +1404,12 @@ const Jogo = (() => {
     moverBoasVindas,
     pularParaJogo,
     alternarBarra,
+    alternarCoringa,
+    iniciarDesempate,
+    renderizar,
+    aplicarNovoCatalogo,
+    estadoDaPartida: () => estado,
+    reiniciarPartida: reiniciarRegrasDoJogo,
     estaOcupado,
     estadoAtual,
     novoJogo

@@ -7,9 +7,9 @@ const Placar = (() => {
     historico = [];
   }
 
-  function adicionar(mesa, pontos, indiceMusica, tipo) {
+  function adicionar(mesa, pontos, indiceMusica, tipo, coringa) {
     pontosPorMesa[mesa - 1] += pontos;
-    historico.push({ mesa, pontos, indiceMusica, tipo });
+    historico.push({ mesa, pontos, indiceMusica, tipo, coringa: Boolean(coringa) });
   }
 
   function pontosDaMesa(mesa) {
