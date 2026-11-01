@@ -7,12 +7,12 @@ const MUSICAS = [
   { titulo: "Naquela Mesa", interprete: "Nelson Gonçalves", decada: "Anos 70", categoria: "Seresta", duracaoSegundos: 9, pontos: 10, arquivo: "06.mp3", especial: "relampago" },
   { titulo: "Whisky a Go-Go", interprete: "Roupa Nova", decada: "Anos 80", categoria: "Pop Rock", duracaoSegundos: 20, pontos: 10, arquivo: "07.mp3" },
   { titulo: "O Que É, O Que É?", interprete: "Gonzaguinha", decada: "Anos 80", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "08.mp3" },
-  { titulo: "Não Quero Dinheiro (Só Quero Amar)", interprete: "Tim Maia", decada: "Anos 70", categoria: "Soul / Funk Brasileiro", duracaoSegundos: 20, pontos: 10, arquivo: "09.mp3" },
-  { titulo: "Festa de Arromba", interprete: "Erasmo Carlos", decada: "Anos 60", categoria: "Dançante", duracaoSegundos: 20, pontos: 10, arquivo: "10.mp3" }, // Segue por aqui...
+  { titulo: "Não Quero Dinheiro (Só Quero Amar)", interprete: "Tim Maia", decada: "Anos 70", categoria: "Soul", duracaoSegundos: 20, pontos: 10, arquivo: "09.mp3" },
+  { titulo: "Festa de Arromba", interprete: "Erasmo Carlos", decada: "Anos 60", categoria: "Dançante", duracaoSegundos: 20, pontos: 10, arquivo: "10.mp3" }, 
   { titulo: "País Tropical", interprete: "Wilson Simonal", decada: "Anos 60", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "11.mp3", especial: "surpresa" },
   { titulo: "O Bom", interprete: "Eduardo Araújo", decada: "Anos 60", categoria: "Jovem Guarda", duracaoSegundos: 20, pontos: 10, arquivo: "12.mp3" },
   { titulo: "Taj Mahal", interprete: "Jorge Ben Jor", decada: "Anos 70", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "13.mp3" },
-  { titulo: "Mas Que Nada", interprete: "Jorge Ben", decada: "Anos 60", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "14.mp3", especial: "relampago" }, // Primavera removida deste ponto
+  { titulo: "Mas Que Nada", interprete: "Jorge Ben", decada: "Anos 60", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "14.mp3", especial: "relampago" }, 
   { titulo: "Azul da Cor do Mar", interprete: "Tim Maia", decada: "Anos 70", categoria: "Soul / Funk Brasileiro", duracaoSegundos: 20, pontos: 10, arquivo: "15.mp3" },
   { titulo: "Meu Sangue Ferve por Você", interprete: "Sidney Magal", decada: "Anos 70", categoria: "Brega / Pop", duracaoSegundos: 20, pontos: 10, arquivo: "16.mp3" },
   { titulo: "Como Nossos Pais", interprete: "Elis Regina", decada: "Anos 70", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "17.mp3", especial: "surpresa" },
