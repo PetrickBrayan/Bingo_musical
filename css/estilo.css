@@ -118,7 +118,7 @@ small {
   -webkit-justify-content: space-between;
   justify-content: space-between;
   padding-bottom: calc(var(--u) * 0.9);
-  padding-right: calc(var(--u) * 27);
+  padding-right: calc(var(--u) * 38);
 }
 
 .rotulo-rodada,
@@ -1301,7 +1301,7 @@ kbd {
   .rotulo-valor,
   .rotulo-progresso { font-size: calc(var(--u) * 2.1); letter-spacing: 0.03em; }
   .rotulo-rodada { padding: calc(var(--u) * 0.3) calc(var(--u) * 1); }
-  .cabecalho { padding-right: calc(var(--u) * 22); }
+  .cabecalho { padding-right: calc(var(--u) * 30); }
   #rotuloTelaCheia { display: none; }
   .botao-tela-cheia__icone { margin-right: 0; }
   .botao-tela-cheia { min-width: 44px; padding: calc(var(--u) * 0.5); -webkit-justify-content: center; justify-content: center; }
@@ -2084,4 +2084,96 @@ body[data-decada="anos-80"].entrando .toca-discos {
     height: calc(var(--u) * 6);
   }
   .emblema-epoca__icone { font-size: calc(var(--u) * 2.5); }
+}
+
+.cena {
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+}
+
+.cena > .toca-discos,
+.cena > .conteudo {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+body[data-estado="respondendo"] .titulo,
+body[data-estado="cantando"] .titulo,
+body[data-estado="cantor"] .titulo,
+body[data-estado="errou"] .titulo {
+  font-size: calc(var(--u) * 3.2);
+  line-height: 1.15;
+  margin-bottom: calc(var(--u) * 0.4);
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+}
+
+body[data-estado="respondendo"] .subtitulo,
+body[data-estado="cantor"] .subtitulo {
+  font-size: calc(var(--u) * 1.8);
+  margin-bottom: calc(var(--u) * 0.6);
+}
+
+body[data-estado="respondendo"] .alternativa,
+body[data-estado="cantor"] .alternativa {
+  min-height: max(40px, calc(var(--u) * 4.2));
+  margin-bottom: calc(var(--u) * 0.5);
+  font-size: calc(var(--u) * 2);
+}
+
+body[data-estado="respondendo"] .area-alternativas,
+body[data-estado="cantor"] .area-alternativas {
+  margin: calc(var(--u) * 0.5) 0;
+}
+
+body[data-estado="respondendo"] .botao-microfone,
+body[data-estado="respondendo"] .botao-coringa {
+  margin-top: calc(var(--u) * 0.4);
+  margin-bottom: calc(var(--u) * 0.4);
+}
+
+body[data-estado="respondendo"] .area-resposta {
+  margin: calc(var(--u) * 0.6) 0;
+}
+
+body[data-estado="respondendo"] .botao-resposta {
+  min-height: max(40px, calc(var(--u) * 4.2));
+  padding-top: calc(var(--u) * 0.5);
+  padding-bottom: calc(var(--u) * 0.5);
+  font-size: calc(var(--u) * 2);
+}
+
+@media (max-height: 800px) and (min-width: 901px) {
+  body[data-estado="respondendo"] .titulo,
+  body[data-estado="cantor"] .titulo {
+    font-size: calc(var(--u) * 2.6);
+  }
+
+  body[data-estado="respondendo"] .subtitulo,
+  body[data-estado="cantor"] .subtitulo {
+    display: none;
+  }
+
+  body[data-estado="respondendo"] .alternativa,
+  body[data-estado="cantor"] .alternativa {
+    min-height: max(36px, calc(var(--u) * 3.4));
+    margin-bottom: calc(var(--u) * 0.35);
+    font-size: calc(var(--u) * 1.8);
+  }
+
+  body[data-estado="respondendo"] .botao-microfone,
+  body[data-estado="respondendo"] .botao-coringa,
+  body[data-estado="respondendo"] .botao-resposta {
+    min-height: max(36px, calc(var(--u) * 3.4));
+    font-size: calc(var(--u) * 1.7);
+    padding-top: calc(var(--u) * 0.3);
+    padding-bottom: calc(var(--u) * 0.3);
+  }
+}
+
+@media (max-width: 600px) {
+  .cabecalho {
+    padding-right: 0;
+    padding-top: 52px;
+  }
 }
