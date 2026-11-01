@@ -396,29 +396,72 @@ const Preparacao = (() => {
     }, 1000);
   }
 
-  function dataPorExtenso() {
-    return new Date().toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" });
-  }
+  let certificadosGerados = [];
 
   function abrirCertificado() {
     const classificacao = Placar.classificacao();
-    const lideres = classificacao.filter((item) => item.posicao === 1 && item.pontos > 0);
-    if (lideres.length === 0) {
+    const campeas = classificacao.filter((item) => item.posicao === 1 && item.pontos > 0);
+    if (campeas.length === 0) {
       Tela.mostrarAviso("Ainda não há mesa campeã");
       return;
     }
+    const trofeus = Trofeus.calcular(Placar.exportar().historico, CONFIGURACAO.quantidadeMesas);
+    const momento = new Date();
+    certificadosGerados = campeas.map((item) => {
+      const dados = {
+        mesa: Mesas.rotulo(item.mesa),
+        numeroMesa: item.mesa,
+        pontos: item.pontos,
+        posicao: 1,
+        totalMesas: CONFIGURACAO.quantidadeMesas,
+        trofeus: trofeus.filter((trofeu) => trofeu.mesas.indexOf(item.mesa) !== -1).map((trofeu) => trofeu.titulo),
+        momento
+      };
+      return { dados, jpeg: Certificado.jpegEmBytes(Certificado.gerarCanvas(dados)) };
+    });
     limpar(certificados);
-    lideres.forEach((item) => {
-      const cartao = criar("article", "certificado");
-      cartao.appendChild(criar("p", "certificado__faixa", "Bingo Musical • Anos Dourados"));
-      cartao.appendChild(criar("h3", "certificado__titulo", "Certificado de Mesa Campeã"));
-      cartao.appendChild(criar("p", "certificado__texto", "Com muito talento, ouvido afinado e boa memória, a"));
-      cartao.appendChild(criar("p", "certificado__mesa", Mesas.rotulo(item.mesa)));
-      cartao.appendChild(criar("p", "certificado__texto", `conquistou o 1º lugar com ${item.pontos} pontos.`));
-      cartao.appendChild(criar("p", "certificado__rodape", `${dataPorExtenso()} • Jogo criado por Petrick Brayan`));
-      certificados.appendChild(cartao);
+    certificadosGerados.forEach((certificado) => {
+      const imagem = criar("img", "certificado-imagem");
+      imagem.alt = `Certificado de mesa campeã: ${certificado.dados.mesa}`;
+      imagem.src = certificado.jpeg.dataUrl;
+      certificados.appendChild(imagem);
     });
     Tela.abrirSobreposicao("certificado");
+  }
+
+  function suportaDownload() {
+    return "download" in document.createElement("a");
+  }
+
+  function entregarArquivo(blob, nome) {
+    if (suportaDownload()) {
+      Certificado.baixarArquivo(blob, nome);
+    } else {
+      window.open(URL.createObjectURL(blob), "_blank");
+    }
+  }
+
+  function baixarPdf() {
+    if (certificadosGerados.length === 0) {
+      return;
+    }
+    const blob = Certificado.montarPdf(certificadosGerados.map((certificado) => certificado.jpeg));
+    entregarArquivo(blob, Certificado.nomeDoArquivo(certificadosGerados[0].dados, "pdf"));
+    Tela.mostrarAviso("PDF do certificado gerado");
+  }
+
+  function baixarImagem() {
+    certificadosGerados.forEach((certificado) => {
+      entregarArquivo(Certificado.dataUrlEmBlob(certificado.jpeg.dataUrl), Certificado.nomeDoArquivo(certificado.dados, "jpg"));
+    });
+  }
+
+  function imprimirCertificado() {
+    try {
+      window.print();
+    } catch (erro) {
+      baixarPdf();
+    }
   }
 
   function iniciar() {
@@ -449,7 +492,9 @@ const Preparacao = (() => {
     aoClicar("botaoRetestar", abrirChecklist);
     aoClicar("botaoMenosMinuto", () => ajustarMinuto(-1));
     aoClicar("botaoMaisMinuto", () => ajustarMinuto(1));
-    aoClicar("botaoImprimirCertificado", () => window.print());
+    aoClicar("botaoImprimirCertificado", imprimirCertificado);
+    aoClicar("botaoBaixarPdf", baixarPdf);
+    aoClicar("botaoBaixarImagem", baixarImagem);
     aoClicar("botaoCertificado", abrirCertificado);
     aoClicar("botaoIntervaloFinal", abrirIntervalo);
     Offline.registrar(atualizarOffline);

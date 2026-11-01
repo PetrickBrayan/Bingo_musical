@@ -24,6 +24,7 @@ const Ajustes = (() => {
       barraAutomatica: CONFIGURACAO.barraAutomatica,
       escalaTexto: CONFIGURACAO.escalaTexto,
       altoContraste: CONFIGURACAO.altoContraste,
+      tema: CONFIGURACAO.tema,
       placarNoCanto: CONFIGURACAO.placarNoCanto
     });
   }
@@ -57,6 +58,11 @@ const Ajustes = (() => {
     salvar();
   }
 
+  function definirTema(valor) {
+    CONFIGURACAO.tema = valor === "claro" ? "claro" : "escuro";
+    salvar();
+  }
+
   function definirPlacarNoCanto(valor) {
     CONFIGURACAO.placarNoCanto = Boolean(valor);
     salvar();
@@ -72,11 +78,12 @@ const Ajustes = (() => {
         CONFIGURACAO.escalaTexto = Math.min(Math.max(ajustesSalvos.escalaTexto, CONFIGURACAO.escalaMinima), CONFIGURACAO.escalaMaxima);
       }
       CONFIGURACAO.altoContraste = Boolean(ajustesSalvos.altoContraste);
+      CONFIGURACAO.tema = ajustesSalvos.tema === "claro" ? "claro" : "escuro";
       if (typeof ajustesSalvos.placarNoCanto === "boolean") {
         CONFIGURACAO.placarNoCanto = ajustesSalvos.placarNoCanto;
       }
     }
   }
 
-  return { carregar, aplicarQuantidadeMesas, definirQuantidadeMesas, definirModoResposta, definirBarraAutomatica, definirEscalaTexto, definirAltoContraste, definirPlacarNoCanto };
+  return { carregar, aplicarQuantidadeMesas, definirQuantidadeMesas, definirModoResposta, definirBarraAutomatica, definirEscalaTexto, definirAltoContraste, definirPlacarNoCanto, definirTema };
 })();

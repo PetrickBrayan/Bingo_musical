@@ -17,6 +17,7 @@ const CONFIGURACAO = {
   multiplicadorEspecial: 2,
   duracaoRelampagoSegundos: 7,
   pontosBonusCantor: 3,
+  pontosPerdidosCantor: 2,
   pontosDesempate: 1,
   deficitMinimoVirada: 15,
   ganhoMinimoAzarao: 4,
@@ -26,6 +27,7 @@ const CONFIGURACAO = {
   escalaMinima: 0.8,
   escalaMaxima: 1.6,
   altoContraste: false,
+  tema: "escuro",
   placarNoCanto: true,
   modoResposta: "multipla-escolha",
   rotulosModoResposta: {
@@ -41,3 +43,10 @@ const CONFIGURACAO = {
   pastaAudios: "audios/",
   duracaoAvisoMilissegundos: 3500
 };
+
+const DESAFIOS_SURPRESA = [
+  { chave: "triplo", nome: "Vale triplo", texto: "Esta música vale o TRIPLO dos pontos!", multiplicador: 3, semPerda: false },
+  { chave: "sem-castigo", nome: "Sem castigo", texto: "Rodada sem castigo: ninguém perde pontos por errar!", multiplicador: 1, semPerda: true },
+  { chave: "danca", nome: "Hora da dança", texto: "Todo mundo de pé e dançando! Quem acertar leva o dobro.", multiplicador: 2, semPerda: false },
+  { chave: "silencio", nome: "Silêncio total", texto: "Só vale levantar a plaquinha, sem falar nada! Vale o dobro.", multiplicador: 2, semPerda: false }
+];

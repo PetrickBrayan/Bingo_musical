@@ -78,13 +78,16 @@ const Tela = (() => {
   const botaoContinuarJogando = pegar("botaoContinuarJogando");
   const aviso = pegar("aviso");
   const emblemaEpoca = pegar("emblemaEpoca");
-  const iconeEpoca = pegar("iconeEpoca");
+  const usoEmblema = pegar("usoEmblema");
+  const aparelho = pegar("aparelho");
+  const usoAparelho = pegar("usoAparelho");
+  const botaoTema = pegar("botaoTema");
   const nomeEpoca = pegar("nomeEpoca");
   const epocas = {
-    "anos-50": { icone: "🎶", nome: "Jukebox" },
-    "anos-60": { icone: "📻", nome: "Rádio" },
-    "anos-70": { icone: "💿", nome: "Vinil" },
-    "anos-80": { icone: "📺", nome: "TV" }
+    "anos-50": { icone: "🎶", nome: "Jukebox", simbolo: "#aparelho-anos-50" },
+    "anos-60": { icone: "📻", nome: "Rádio", simbolo: "#aparelho-anos-60" },
+    "anos-70": { icone: "💿", nome: "Vinil", simbolo: "#aparelho-anos-70" },
+    "anos-80": { icone: "📺", nome: "TV", simbolo: "#aparelho-anos-80" }
   };
   const rotuloEspecial = pegar("rotuloEspecial");
   const anuncioEspecial = pegar("anuncioEspecial");
@@ -222,6 +225,7 @@ const Tela = (() => {
       [botaoTextoMenor, () => alterarEscala(-0.1)],
       [botaoTextoMaior, () => alterarEscala(0.1)],
       [botaoContraste, alternarContraste],
+      [botaoTema, alternarTema],
       [botaoGuiaAnterior, guiaAnterior],
       [botaoGuiaProximo, guiaProxima]
     ];
@@ -251,13 +255,24 @@ const Tela = (() => {
     corpo.dataset.resposta = modo;
   }
 
+  function definirSimbolo(uso, simbolo) {
+    uso.setAttribute("href", simbolo);
+    uso.setAttributeNS("http://www.w3.org/1999/xlink", "xlink:href", simbolo);
+  }
+
   function definirCabecalho(categoria, progresso, fracaoConcluida, decada) {
     const chaveDaDecada = decada ? normalizarParaIdentificador(decada) : "";
     corpo.dataset.decada = chaveDaDecada;
     const epoca = epocas[chaveDaDecada];
     emblemaEpoca.hidden = !epoca;
-    iconeEpoca.textContent = epoca ? epoca.icone : "";
     nomeEpoca.textContent = epoca ? epoca.nome : "";
+    definirSimbolo(usoEmblema, epoca ? epoca.simbolo : "");
+    definirSimbolo(usoAparelho, epoca ? epoca.simbolo : "");
+    if (epoca) {
+      aparelho.removeAttribute("hidden");
+    } else {
+      aparelho.setAttribute("hidden", "");
+    }
     rotuloRodada.textContent = categoria;
     rotuloRodada.hidden = !categoria;
     rotuloProgresso.textContent = progresso;
@@ -430,10 +445,12 @@ const Tela = (() => {
     });
   }
 
-  function marcarResultadoAlternativa(indice, acertou) {
+  function marcarResultadoAlternativa(indice, acertou, indiceCorreto) {
     Array.prototype.forEach.call(areaAlternativas.children, (botao, posicao) => {
       if (posicao === indice) {
         botao.classList.add(acertou ? "certa" : "errada");
+      } else if (!acertou && posicao === indiceCorreto) {
+        botao.classList.add("certa");
       } else {
         botao.classList.add("apagada");
       }
@@ -495,9 +512,9 @@ const Tela = (() => {
     legendaCoringa.textContent = ativo ? "Vale ×" + multiplicador + ", para o bem e para o mal. K desfaz" : "Dobra o ganho e a perda. Só uma vez por jogo. K";
   }
 
-  function definirEspecial(tipo) {
-    const rotulos = { dobro: "Vale o dobro", relampago: "Relâmpago" };
-    rotuloEspecial.textContent = rotulos[tipo] || "";
+  function definirEspecial(tipo, rotuloPersonalizado) {
+    const rotulos = { dobro: "Vale o dobro", relampago: "Relâmpago", surpresa: "Desafio do nada" };
+    rotuloEspecial.textContent = rotuloPersonalizado || rotulos[tipo] || "";
     rotuloEspecial.dataset.tipo = tipo || "";
     rotuloEspecial.hidden = !tipo;
   }
@@ -555,7 +572,20 @@ const Tela = (() => {
     aplicarContraste();
   }
 
+  function aplicarTema() {
+    corpo.dataset.tema = CONFIGURACAO.tema;
+    botaoTema.textContent = CONFIGURACAO.tema === "claro" ? "☾" : "☀";
+    botaoTema.title = CONFIGURACAO.tema === "claro" ? "Mudar para o tema escuro" : "Mudar para o tema claro";
+  }
+
+  function alternarTema() {
+    Ajustes.definirTema(CONFIGURACAO.tema === "claro" ? "escuro" : "claro");
+    aplicarTema();
+    mostrarAviso(CONFIGURACAO.tema === "claro" ? "Tema claro" : "Tema escuro");
+  }
+
   function aplicarFerramentas() {
+    aplicarTema();
     aplicarEscala();
     aplicarContraste();
   }
@@ -882,6 +912,7 @@ const Tela = (() => {
     definirTensao,
     animarEntrada,
     aplicarFerramentas,
+    alternarTema,
     abrirSobreposicao,
     sobreposicaoAbertaPorId,
     voltarDaSobreposicao,

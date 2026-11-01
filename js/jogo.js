@@ -17,6 +17,7 @@ const Jogo = (() => {
   let proximaMusicaSalva = 0;
   let sequenciasPorMesa = {};
   let ouvindoParaCantar = false;
+  let desafioAtual = null;
   let segundosDoMicrofone = 0;
   let temporizadorDoMicrofone = null;
   let temporizadorDoInterludio = null;
@@ -66,8 +67,15 @@ const Jogo = (() => {
   function pontosDaMusica(indice) {
     const musica = listaAtual()[indice];
     const base = musica.pontos || CONFIGURACAO.pontosPadrao;
+    if (!modoDesempate && musica.especial === "surpresa") {
+      return base * (desafioAtual ? desafioAtual.multiplicador : 1);
+    }
     const dobrada = !modoDesempate && (musica.especial === "dobro" || musica.especial === "relampago");
     return dobrada ? base * CONFIGURACAO.multiplicadorEspecial : base;
+  }
+
+  function sortearDesafio() {
+    return DESAFIOS_SURPRESA[Math.floor(Math.random() * DESAFIOS_SURPRESA.length)];
   }
 
   function pontosDaMusicaDoCatalogo(indice) {
@@ -150,7 +158,7 @@ const Jogo = (() => {
   }
 
   function calcularPontosPerdidos(mesa) {
-    if (modoDesempate) {
+    if (modoDesempate || (desafioAtual && desafioAtual.semPerda)) {
       return 0;
     }
     const perda = CONFIGURACAO.pontosPerdidosPorErro;
@@ -268,7 +276,7 @@ const Jogo = (() => {
       const penalidade = CONFIGURACAO.pontosPerdidosPorErro > 0
         ? ` Quem errar perde ${CONFIGURACAO.pontosPerdidosPorErro}.`
         : "";
-      const titulosEspeciais = { dobro: "Vale o dobro!", relampago: "Música relâmpago!" };
+      const titulosEspeciais = { dobro: "Vale o dobro!", relampago: "Música relâmpago!", surpresa: "Desafio do nada!" };
       return {
         titulo: titulosEspeciais[especialDaMusica()] || (valeMaisQueOPadrao(indiceMusica) ? "Valendo mais!" : "Prepare-se!"),
         subtitulo: frase + penalidade,
@@ -298,7 +306,7 @@ const Jogo = (() => {
     cantor() {
       return {
         titulo: "Agora o bônus!",
-        subtitulo: `Quem canta essa música? Vale +${CONFIGURACAO.pontosBonusCantor * (ocorrenciaPendente && ocorrenciaPendente.coringa ? CONFIGURACAO.multiplicadorCoringa : 1)}`
+        subtitulo: `Quem canta essa música? Acertou: +${CONFIGURACAO.pontosBonusCantor * fatorDoCantor()}. Errou: −${CONFIGURACAO.pontosPerdidosCantor * fatorDoCantor()}.`
       };
     },
 
@@ -405,7 +413,7 @@ const Jogo = (() => {
       concluidas / totalDaPartida(),
       emPartida() ? musicaAtual().decada : ""
     );
-    Tela.definirEspecial(emPartida() && especial ? especial : "");
+    Tela.definirEspecial(emPartida() && especial ? especial : "", desafioAtual ? desafioAtual.nome : "");
     Tela.definirCorDaMesa(mesaEmResposta ? Mesas.cor(mesaEmResposta) : "");
     Tela.definirTensao(estado === "tocando" && emTensao);
     Tela.definirValor(emPartida() ? textoDoValor() : "", ajudaUsada);
@@ -469,6 +477,7 @@ const Jogo = (() => {
     coringaAtivo = false;
     ocorrenciaPendente = null;
     emTensao = false;
+    desafioAtual = !modoDesempate && listaAtual()[indice].especial === "surpresa" ? sortearDesafio() : null;
     repeticoes = 0;
     ocupado = false;
     resultado = null;
@@ -498,6 +507,8 @@ const Jogo = (() => {
       Tela.anunciarEspecial("Morte súbita!", Narrador.desempate(mesasDoDesempate).subtitulo, "dobro");
     } else if (especialDaMusica() === "dobro") {
       Tela.anunciarEspecial("Vale o dobro!", `Esta música vale ${pontosDaMusica(indiceMusica)} pontos`, "dobro");
+    } else if (especialDaMusica() === "surpresa" && desafioAtual) {
+      Tela.anunciarEspecial("Desafio do nada!", desafioAtual.texto, "surpresa");
     } else if (especialDaMusica() === "relampago") {
       Tela.anunciarEspecial("Relâmpago!", `Trecho curtinho e vale ${pontosDaMusica(indiceMusica)} pontos`, "relampago");
     }
@@ -766,7 +777,7 @@ const Jogo = (() => {
       return;
     }
     ocupado = true;
-    Tela.marcarResultadoAlternativa(indice, alternativa.correta);
+    Tela.marcarResultadoAlternativa(indice, alternativa.correta, alternativasCantor.findIndex((item) => item.correta));
     setTimeout(() => {
       ocupado = false;
       finalizarCantor(alternativa.correta);
@@ -785,9 +796,19 @@ const Jogo = (() => {
       ocorrencia.bonus = bonus;
       ocorrencia.cantorAcertou = true;
     } else if (acertouCantor === false) {
+      const penalidade = desafioAtual && desafioAtual.semPerda ? 0 : CONFIGURACAO.pontosPerdidosCantor * (ocorrencia.coringa ? CONFIGURACAO.multiplicadorCoringa : 1);
       ocorrencia.cantorAcertou = false;
+      ocorrencia.cantorCerto = musicaAtual().interprete;
+      if (penalidade > 0) {
+        Placar.adicionar(ocorrencia.mesa, -penalidade, indiceMusica, "penalidade-cantor", ocorrencia.coringa);
+        ocorrencia.penalidadeCantor = penalidade;
+      }
     }
     revelar(ocorrencia);
+  }
+
+  function fatorDoCantor() {
+    return ocorrenciaPendente && ocorrenciaPendente.coringa ? CONFIGURACAO.multiplicadorCoringa : 1;
   }
 
   function alternarCoringa() {
@@ -1085,14 +1106,14 @@ const Jogo = (() => {
   }
 
   function voltarParaPergunta() {
-    const tiposDaRevelacao = ["bonus", "acerto", "microfone", "desempate"];
+    const tiposDaRevelacao = ["penalidade-cantor", "bonus", "acerto", "microfone", "desempate"];
     let ultimo = Placar.ultimo();
     while (ultimo && ultimo.indiceMusica === indiceMusica && tiposDaRevelacao.indexOf(ultimo.tipo) !== -1) {
       Placar.desfazerUltimo();
       if (ultimo.coringa) {
         coringasUsados.delete(ultimo.mesa);
       }
-      if (ultimo.tipo !== "bonus") {
+      if (ultimo.tipo !== "bonus" && ultimo.tipo !== "penalidade-cantor") {
         sequenciasPorMesa[ultimo.mesa] = Math.max((sequenciasPorMesa[ultimo.mesa] || 1) - 1, 0);
         vencedorDoDesempate = false;
       }

@@ -68,7 +68,8 @@ const Narrador = (() => {
   ];
   const comentariosCantorRuim = [
     "Título sim, cantor não. Quase um expert.",
-    "O cantor ficou chateado de ser esquecido."
+    "O cantor ficou chateado de ser esquecido.",
+    "Errou o cantor, mas o título valeu. Anote o nome para a próxima!"
   ];
 
   function maiuscula(texto) {
@@ -95,7 +96,9 @@ const Narrador = (() => {
     if (ocorrencia.bonus > 0) {
       texto += `, mais ${ocorrencia.bonus} do bônus do cantor`;
     } else if (ocorrencia.cantorAcertou === false) {
-      texto += ", sem bônus do cantor";
+      texto += ocorrencia.penalidadeCantor > 0
+        ? `, menos ${ocorrencia.penalidadeCantor} por errar o cantor. O cantor era ${ocorrencia.cantorCerto}`
+        : ", sem bônus do cantor";
     }
     if (ocorrencia.coringa) {
       texto += " (coringa)";
