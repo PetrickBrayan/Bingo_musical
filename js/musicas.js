@@ -9,13 +9,13 @@ const MUSICAS = [
   { titulo: "O Que É, O Que É?", interprete: "Gonzaguinha", decada: "Anos 80", categoria: "MPB", duracaoSegundos: 8, pontos: 10, arquivo: "08.mp3" },
   { titulo: "Não Quero Dinheiro (Só Quero Amar)", interprete: "Tim Maia", decada: "Anos 70", categoria: "Soul", duracaoSegundos: 6, pontos: 10, arquivo: "09.mp3" },
   { titulo: "Emoções", interprete: "Roberto Carlos", decada: "Anos 80", categoria: "Romântica", duracaoSegundos: 19, pontos: 20, arquivo: "10.mp3" },
-  { titulo: "Festa de Arromba", interprete: "Erasmo Carlos", decada: "Anos 60", categoria: "Dançante", duracaoSegundos: 20, pontos: 10, arquivo: "11.mp3" }, 
-  { titulo: "País Tropical", interprete: "Wilson Simonal", decada: "Anos 60", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "12.mp3", especial: "surpresa" },
-  { titulo: "O Bom", interprete: "Eduardo Araújo", decada: "Anos 60", categoria: "Jovem Guarda", duracaoSegundos: 20, pontos: 10, arquivo: "13.mp3" },
+  { titulo: "Gostoso Demais", interprete: "Dominguinhos", decada: "Anos 80", categoria: "Forró", duracaoSegundos: 18, pontos: 10, arquivo: "11.mp3" },  
+  { titulo: "Meu Sangue Ferve por Você", interprete: "Sidney Magal", decada: "Anos 70", categoria: "Brega / Pop", duracaoSegundos: 10, pontos: 10, arquivo: "12.mp3" },
+  { titulo: "Estrada da Vida", interprete: "Milionário e José Rico", decada: "Anos 70", categoria: "Sertanejo", duracaoSegundos: 18, pontos: 10, arquivo: "13.mp3" },
   { titulo: "Taj Mahal", interprete: "Jorge Ben Jor", decada: "Anos 70", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "14.mp3" },
   { titulo: "Mas Que Nada", interprete: "Jorge Ben", decada: "Anos 60", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "15.mp3", especial: "relampago" }, 
   { titulo: "Azul da Cor do Mar", interprete: "Tim Maia", decada: "Anos 70", categoria: "Soul / Funk Brasileiro", duracaoSegundos: 20, pontos: 10, arquivo: "16.mp3" },
-  { titulo: "Meu Sangue Ferve por Você", interprete: "Sidney Magal", decada: "Anos 70", categoria: "Brega / Pop", duracaoSegundos: 20, pontos: 10, arquivo: "17.mp3" },
+  {titulo: "País Tropical", interprete: "Wilson Simonal", decada: "Anos 60", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "17.mp3", especial: "surpresa" },
   { titulo: "Como Nossos Pais", interprete: "Elis Regina", decada: "Anos 70", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "18.mp3", especial: "surpresa" },
   { titulo: "Dancing Days", interprete: "As Frenéticas", decada: "Anos 70", categoria: "Disco / Dançante", duracaoSegundos: 20, pontos: 10, arquivo: "19.mp3", especial: "relampago" },
   { titulo: "O Mar Serenou", interprete: "Clara Nunes", decada: "Anos 70", categoria: "Samba", duracaoSegundos: 20, pontos: 10, arquivo: "20.mp3" },
@@ -26,7 +26,7 @@ const MUSICAS = [
   { titulo: "Você Não Soube Me Amar", interprete: "Blitz", decada: "Anos 80", categoria: "Rock Nacional", duracaoSegundos: 20, pontos: 10, arquivo: "25.mp3", especial: "surpresa" },
   { titulo: "Manhãs de Setembro", interprete: "Vanusa", decada: "Anos 70", categoria: "Romântica", duracaoSegundos: 20, pontos: 10, arquivo: "26.mp3", especial: "relampago" },
   { titulo: "Bete Balanço", interprete: "Barão Vermelho", decada: "Anos 80", categoria: "Rock Nacional", duracaoSegundos: 20, pontos: 10, arquivo: "27.mp3" },
-  { titulo: "Estrada da Vida", interprete: "Milionário e José Rico", decada: "Anos 70", categoria: "Sertanejo", duracaoSegundos: 20, pontos: 10, arquivo: "28.mp3" },
+  { titulo: "O Bom", interprete: "Eduardo Araújo", decada: "Anos 60", categoria: "Jovem Guarda", duracaoSegundos: 20, pontos: 10, arquivo: "28.mp3" },
   { titulo: "Baila Comigo", interprete: "Rita Lee", decada: "Anos 80", categoria: "Pop Rock", duracaoSegundos: 20, pontos: 10, arquivo: "29.mp3", especial: "dobro" },
   { titulo: "Mania de Você", interprete: "Rita Lee", decada: "Anos 70", categoria: "Pop Rock", duracaoSegundos: 20, pontos: 10, arquivo: "30.mp3" },
   { titulo: "Olha pro Céu", interprete: "Luiz Gonzaga", decada: "Anos 50", categoria: "Forró", duracaoSegundos: 20, pontos: 10, arquivo: "31.mp3" },
@@ -41,7 +41,7 @@ const MUSICAS = [
   { titulo: "Borbulhas de Amor", interprete: "Fagner", decada: "Anos 90", categoria: "MPB", duracaoSegundos: 20, pontos: 10, arquivo: "40.mp3", especial: "relampago" },
   { titulo: "Eva", interprete: "Rádio Táxi", decada: "Anos 80", categoria: "Pop Rock", duracaoSegundos: 20, pontos: 10, arquivo: "41.mp3" },
   { titulo: "Procurando Tu", interprete: "Trio Nordestino", decada: "Anos 70", categoria: "Forró", duracaoSegundos: 20, pontos: 10, arquivo: "42.mp3" }, 
-  { titulo: "Gostoso Demais", interprete: "Dominguinhos", decada: "Anos 80", categoria: "Forró", duracaoSegundos: 20, pontos: 10, arquivo: "43.mp3" }, 
+  { titulo: "Festa de Arromba", interprete: "Erasmo Carlos", decada: "Anos 60", categoria: "Dançante", duracaoSegundos: 20, pontos: 10, arquivo: "43.mp3" },
   { titulo: "Sá Marina", interprete: "Wilson Simonal", decada: "Anos 60", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "44.mp3", especial: "dobro" },
   { titulo: "Espumas ao Vento", interprete: "Fagner", decada: "Anos 90", categoria: "Forró", duracaoSegundos: 20, pontos: 10, arquivo: "45.mp3", especial: "surpresa" },
   { titulo: "Preta Pretinha", interprete: "Novos Baianos", decada: "Anos 70", categoria: "MPB / Regional", duracaoSegundos: 20, pontos: 10, arquivo: "46.mp3", especial: "relampago" },
@@ -49,7 +49,7 @@ const MUSICAS = [
   { titulo: "Tempos Modernos", interprete: "Lulu Santos", decada: "Anos 80", categoria: "Pop Rock", duracaoSegundos: 20, pontos: 10, arquivo: "48.mp3" }, 
   { titulo: "Fio de Cabelo", interprete: "Chitãozinho e Xororó", decada: "Anos 80", categoria: "Sertanejo", duracaoSegundos: 20, pontos: 20, arquivo: "49.mp3" },
   { titulo: "Detalhes", interprete: "Roberto Carlos", decada: "Anos 70", categoria: "Romântica", duracaoSegundos: 20, pontos: 20, arquivo: "50.mp3" },
-  
+
 ];
 
 const MUSICAS_DESEMPATE = [
