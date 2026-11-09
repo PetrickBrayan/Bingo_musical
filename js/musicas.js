@@ -26,7 +26,7 @@ const MUSICAS = [
   { titulo: "Mas Que Nada", interprete: "Jorge Ben", decada: "Anos 60", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "25.mp3", especial: "relampago" }, 
   { titulo: "Sandra Rosa Madalena", interprete: "Sidney Magal", decada: "Anos 70", categoria: "Brega / Pop", duracaoSegundos: 20, pontos: 10, arquivo: "26.mp3" },
   { titulo: "Você Não Soube Me Amar", interprete: "Blitz", decada: "Anos 80", categoria: "Rock Nacional", duracaoSegundos: 20, pontos: 10, arquivo: "27.mp3", especial: "surpresa" },
-  { titulo: "Taj Mahal", interprete: "Jorge Ben Jor", decada: "Anos 70", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "28.mp3" , especial: relampago },
+  { titulo: "Taj Mahal", interprete: "Jorge Ben Jor", decada: "Anos 70", categoria: "Samba-Rock", duracaoSegundos: 20, pontos: 10, arquivo: "28.mp3" , especial: "relampago" },
   { titulo: "Bete Balanço", interprete: "Barão Vermelho", decada: "Anos 80", categoria: "Rock Nacional", duracaoSegundos: 20, pontos: 10, arquivo: "29.mp3" },
   { titulo: "O Bom", interprete: "Eduardo Araújo", decada: "sAnos 60", categoria: "Jovem Guarda", duracaoSegundos: 20, pontos: 10, arquivo: "30.mp3" },
   { titulo: "Baila Comigo", interprete: "Rita Lee", decada: "Anos 80", categoria: "Pop Rock", duracaoSegundos: 20, pontos: 10, arquivo: "31.mp3", especial: "dobro" },
