@@ -10,6 +10,7 @@ const Preparacao = (() => {
   const relogioIntervalo = pegar("relogioIntervalo");
   const listaIntervalo = pegar("listaIntervalo");
   const certificados = pegar("certificados");
+  const relatorios = pegar("relatorios");
 
   let rascunho = [];
   let resultadosAudio = [];
@@ -429,6 +430,69 @@ const Preparacao = (() => {
     Tela.abrirSobreposicao("certificado");
   }
 
+  let paginasDoRelatorio = [];
+  let momentoDoRelatorio = new Date();
+
+  function abrirRelatorio() {
+    const historico = Placar.exportar().historico;
+    if (historico.length === 0) {
+      Tela.mostrarAviso("Ainda não há dados para o relatório");
+      return;
+    }
+    momentoDoRelatorio = new Date();
+    const trofeus = Trofeus.calcular(historico, CONFIGURACAO.quantidadeMesas).map((trofeu) => ({
+      titulo: trofeu.titulo,
+      detalhe: trofeu.detalhe,
+      nomes: trofeu.mesas.map((mesa) => Mesas.rotulo(mesa)).join(", ")
+    }));
+    const telas = Relatorio.gerarPaginas({
+      historico,
+      classificacao: Placar.classificacao(),
+      trofeus,
+      musicas: MUSICAS,
+      nomeDaMesa: (mesa) => Mesas.rotulo(mesa),
+      momento: momentoDoRelatorio
+    });
+    paginasDoRelatorio = telas.map((tela) => Certificado.jpegEmBytes(tela));
+    limpar(relatorios);
+    paginasDoRelatorio.forEach((pagina, indice) => {
+      const imagem = criar("img", "certificado-imagem");
+      imagem.alt = `Relatório da partida, página ${indice + 1} de ${paginasDoRelatorio.length}`;
+      imagem.src = pagina.dataUrl;
+      relatorios.appendChild(imagem);
+    });
+    Tela.abrirSobreposicao("relatorio");
+  }
+
+  function nomeDoRelatorio(extensao, indice) {
+    const dois = (valor) => String(valor).padStart(2, "0");
+    const m = momentoDoRelatorio;
+    const sufixo = indice === undefined ? "" : `-pagina-${indice + 1}`;
+    return `relatorio-bingo-musical-${m.getFullYear()}${dois(m.getMonth() + 1)}${dois(m.getDate())}-${dois(m.getHours())}${dois(m.getMinutes())}${sufixo}.${extensao}`;
+  }
+
+  function baixarRelatorioPdf() {
+    if (paginasDoRelatorio.length === 0) {
+      return;
+    }
+    entregarArquivo(Certificado.montarPdf(paginasDoRelatorio), nomeDoRelatorio("pdf"));
+    Tela.mostrarAviso("PDF do relatório gerado");
+  }
+
+  function baixarRelatorioImagens() {
+    paginasDoRelatorio.forEach((pagina, indice) => {
+      entregarArquivo(Certificado.dataUrlEmBlob(pagina.dataUrl), nomeDoRelatorio("jpg", indice));
+    });
+  }
+
+  function imprimirRelatorio() {
+    try {
+      window.print();
+    } catch (erro) {
+      baixarRelatorioPdf();
+    }
+  }
+
   function suportaDownload() {
     return "download" in document.createElement("a");
   }
@@ -437,7 +501,7 @@ const Preparacao = (() => {
     if (suportaDownload()) {
       Certificado.baixarArquivo(blob, nome);
     } else {
-      window.open(URL.createObjectURL(blob), "_blank");
+      window.open(URL.createObjectURL(blob), "_blank", "noopener");
     }
   }
 
@@ -496,6 +560,10 @@ const Preparacao = (() => {
     aoClicar("botaoBaixarPdf", baixarPdf);
     aoClicar("botaoBaixarImagem", baixarImagem);
     aoClicar("botaoCertificado", abrirCertificado);
+    aoClicar("botaoRelatorio", abrirRelatorio);
+    aoClicar("botaoImprimirRelatorio", imprimirRelatorio);
+    aoClicar("botaoBaixarRelatorioPdf", baixarRelatorioPdf);
+    aoClicar("botaoBaixarRelatorioImagem", baixarRelatorioImagens);
     aoClicar("botaoIntervaloFinal", abrirIntervalo);
     Offline.registrar(atualizarOffline);
     testarAudios(true);
@@ -503,5 +571,5 @@ const Preparacao = (() => {
 
   iniciar();
 
-  return { alternar, abrirIntervalo, abrirCertificado, testarAudios };
+  return { alternar, abrirIntervalo, abrirCertificado, abrirRelatorio, testarAudios };
 })();

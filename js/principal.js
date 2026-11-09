@@ -37,7 +37,8 @@ const comandosPorTecla = {
   "k": "coringa",
   "t": "preparar",
   "i": "intervalo",
-  "o": "tema"
+  "o": "tema",
+  "w": "volume"
 };
 
 const comandosPorCodigoDeTecla = {
@@ -82,7 +83,8 @@ const acoesDosComandos = {
   coringa: () => Jogo.alternarCoringa(),
   preparar: () => Preparacao.alternar(),
   intervalo: () => Preparacao.abrirIntervalo(),
-  tema: () => Tela.alternarTema()
+  tema: () => Tela.alternarTema(),
+  volume: () => Tela.alternarVolume()
 };
 
 function moverOuAbrirMenu(sentido) {

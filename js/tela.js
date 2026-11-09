@@ -67,6 +67,7 @@ const Tela = (() => {
   const botaoComecar = pegar("botaoComecar");
   const botaoVoltarGeral = pegar("botaoVoltarGeral");
   const botaoTelaCheia = pegar("botaoTelaCheia");
+  const botaoVolume = pegar("botaoVolume");
   const rotuloTelaCheia = pegar("rotuloTelaCheia");
   const escolhaDispositivo = pegar("escolhaDispositivo");
   const detalheDispositivo = pegar("detalheDispositivo");
@@ -101,6 +102,7 @@ const Tela = (() => {
   const areaFinal = pegar("areaFinal");
   const botaoDesempate = pegar("botaoDesempate");
   const botaoCertificado = pegar("botaoCertificado");
+  const botaoRelatorio = pegar("botaoRelatorio");
   const botaoIntervaloFinal = pegar("botaoIntervaloFinal");
   const botaoTextoMenor = pegar("botaoTextoMenor");
   const botaoTextoMaior = pegar("botaoTextoMaior");
@@ -111,9 +113,10 @@ const Tela = (() => {
   const checklist = pegar("checklist");
   const intervalo = pegar("intervalo");
   const certificado = pegar("certificado");
+  const relatorio = pegar("relatorio");
 
-  const sobreposicoes = [placar, listaDeMusicas, guia, menuAcoes, ajuda, confirmacao, preparacao, editorMesas, editorMusicas, checklist, intervalo, certificado];
-  const sobreposicoesComBotaoFechar = [placar, listaDeMusicas, guia, ajuda, preparacao, editorMesas, editorMusicas, checklist, intervalo, certificado];
+  const sobreposicoes = [placar, listaDeMusicas, guia, menuAcoes, ajuda, confirmacao, preparacao, editorMesas, editorMusicas, checklist, intervalo, certificado, relatorio];
+  const sobreposicoesComBotaoFechar = [placar, listaDeMusicas, guia, ajuda, preparacao, editorMesas, editorMusicas, checklist, intervalo, certificado, relatorio];
   let temporizadorAnuncio = null;
   let temporizadorEntrada = null;
 
@@ -226,6 +229,7 @@ const Tela = (() => {
       [botaoTextoMaior, () => alterarEscala(0.1)],
       [botaoContraste, alternarContraste],
       [botaoTema, alternarTema],
+      [botaoVolume, alternarVolume],
       [botaoGuiaAnterior, guiaAnterior],
       [botaoGuiaProximo, guiaProxima]
     ];
@@ -245,10 +249,18 @@ const Tela = (() => {
     criarBotoesFechar();
     montarPontosDoGuia();
     configurarTelaCheia();
+    configurarVolume();
   }
 
   function definirEstado(estado) {
+    const mudou = corpo.dataset.estado !== estado;
     corpo.dataset.estado = estado;
+    if (mudou) {
+      const cena = document.querySelector(".cena");
+      if (cena) {
+        cena.scrollTop = 0;
+      }
+    }
   }
 
   function definirModoResposta(modo) {
@@ -346,8 +358,13 @@ const Tela = (() => {
 
   function atualizarBotaoTelaCheia() {
     const ativa = telaCheiaAtiva();
-    botaoTelaCheia.setAttribute("aria-pressed", String(ativa));
-    botaoTelaCheia.title = ativa ? "Sair da tela cheia" : "Entrar em tela cheia";
+    const simulada = corpo.classList.contains("tela-cheia-simulada");
+    botaoTelaCheia.setAttribute("aria-pressed", String(ativa || simulada));
+    botaoTelaCheia.title = ativa || simulada ? "Sair da tela cheia" : "Entrar em tela cheia";
+  }
+
+  function configurarVolume() {
+    botaoVolume.hidden = !ReprodutorTrecho.podeAmplificar();
   }
 
   function configurarTelaCheia() {
@@ -491,6 +508,7 @@ const Tela = (() => {
     areaFinal.hidden = !situacao.visivel;
     botaoDesempate.hidden = !situacao.desempate;
     botaoCertificado.hidden = !situacao.certificado;
+    botaoRelatorio.hidden = !situacao.relatorio;
     botaoIntervaloFinal.hidden = true;
   }
 
@@ -513,7 +531,7 @@ const Tela = (() => {
   }
 
   function definirEspecial(tipo, rotuloPersonalizado) {
-    const rotulos = { dobro: "Vale o dobro", relampago: "Relâmpago", surpresa: "Desafio do nada" };
+    const rotulos = { dobro: "Vale o dobro", relampago: "Relâmpago", surpresa: "Desafio do nada", karaoke: "Karaokê" };
     rotuloEspecial.textContent = rotuloPersonalizado || rotulos[tipo] || "";
     rotuloEspecial.dataset.tipo = tipo || "";
     rotuloEspecial.hidden = !tipo;
@@ -852,12 +870,46 @@ const Tela = (() => {
 
     if (ativa && sair) {
       sair.call(document);
-    } else if (pedir) {
-      const promessa = pedir.call(elemento);
-      if (promessa && promessa.catch) {
-        promessa.catch(() => {});
-      }
+      return;
     }
+    if (corpo.classList.contains("tela-cheia-simulada")) {
+      corpo.classList.remove("tela-cheia-simulada");
+      atualizarBotaoTelaCheia();
+      return;
+    }
+    if (!pedir) {
+      avisarTelaCheiaBloqueada();
+      return;
+    }
+    const promessa = pedir.call(elemento);
+    if (promessa && promessa.catch) {
+      promessa.catch(avisarTelaCheiaBloqueada);
+    }
+    setTimeout(() => {
+      if (!telaCheiaAtiva() && !corpo.classList.contains("tela-cheia-simulada")) {
+        avisarTelaCheiaBloqueada();
+      }
+    }, 700);
+  }
+
+  function avisarTelaCheiaBloqueada() {
+    if (telaCheiaAtiva()) {
+      return;
+    }
+    corpo.classList.add("tela-cheia-simulada");
+    atualizarBotaoTelaCheia();
+    mostrarAviso("O navegador não liberou a tela cheia (comum com extensão de volume). Aperte F11, que funciona junto com a extensão.");
+  }
+
+  function alternarVolume() {
+    const percentual = ReprodutorTrecho.alternarVolume();
+    if (percentual === null) {
+      mostrarAviso("O volume extra só funciona com o jogo aberto pelo site (não pelo arquivo).");
+      return;
+    }
+    botaoVolume.setAttribute("aria-label", "Volume do som em " + percentual + " por cento. Tocar para mudar");
+    botaoVolume.textContent = percentual === 100 ? "🔊" : "🔊 " + percentual + "%";
+    mostrarAviso(percentual === 100 ? "Volume normal (100%)" : "Volume extra em " + percentual + "%");
   }
 
   function mostrarAviso(texto) {
@@ -913,6 +965,7 @@ const Tela = (() => {
     animarEntrada,
     aplicarFerramentas,
     alternarTema,
+    alternarVolume,
     abrirSobreposicao,
     sobreposicaoAbertaPorId,
     voltarDaSobreposicao,

@@ -2,7 +2,7 @@ const Catalogo = (() => {
   const padrao = JSON.parse(JSON.stringify(MUSICAS));
   const decadas = ["Anos 50", "Anos 60", "Anos 70", "Anos 80"];
   const categorias = ["Jovem Guarda", "Seresta", "Samba", "MPB", "Sertanejo", "Romântica", "Bossa Nova"];
-  const especiais = { "": "Normal", "dobro": "Vale o dobro", "relampago": "Relâmpago", "surpresa": "Desafio surpresa" };
+  const especiais = { "": "Normal", "dobro": "Vale o dobro", "relampago": "Relâmpago", "surpresa": "Desafio surpresa", "karaoke": "Karaokê" };
 
   function clonar(lista) {
     return JSON.parse(JSON.stringify(lista));
@@ -27,7 +27,7 @@ const Catalogo = (() => {
       pontos: numero(musica.pontos, 1, CONFIGURACAO.pontosPadrao),
       arquivo: String(musica.arquivo || "").trim() || `${String(posicao + 1).padStart(2, "0")}.mp3`
     };
-    if (musica.especial === "dobro" || musica.especial === "relampago" || musica.especial === "surpresa") {
+    if (musica.especial === "dobro" || musica.especial === "relampago" || musica.especial === "surpresa" || musica.especial === "karaoke") {
       resultado.especial = musica.especial;
     }
     if (String(musica.dica || "").trim()) {

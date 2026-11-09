@@ -187,6 +187,57 @@ const ReprodutorTrecho = (() => {
     elemento.pause();
   }
 
+  const niveisDeVolume = [1, 1.5, 2, 3];
+  let contextoDeAudio = null;
+  let amplificador = null;
+  let indiceDoVolume = 0;
+
+  function podeAmplificar() {
+    return /^https?:$/.test(location.protocol) && Boolean(window.AudioContext || window.webkitAudioContext);
+  }
+
+  function montarAmplificador() {
+    if (amplificador) {
+      return true;
+    }
+    try {
+      const Contexto = window.AudioContext || window.webkitAudioContext;
+      contextoDeAudio = new Contexto();
+      const fonte = contextoDeAudio.createMediaElementSource(elemento);
+      amplificador = contextoDeAudio.createGain();
+      const compressor = contextoDeAudio.createDynamicsCompressor();
+      fonte.connect(amplificador);
+      amplificador.connect(compressor);
+      compressor.connect(contextoDeAudio.destination);
+      return true;
+    } catch (erro) {
+      amplificador = null;
+      return false;
+    }
+  }
+
+  function alternarVolume() {
+    if (!podeAmplificar()) {
+      return null;
+    }
+    const proximo = (indiceDoVolume + 1) % niveisDeVolume.length;
+    if (niveisDeVolume[proximo] > 1 && !montarAmplificador()) {
+      return null;
+    }
+    indiceDoVolume = proximo;
+    if (amplificador) {
+      amplificador.gain.value = niveisDeVolume[indiceDoVolume];
+      if (contextoDeAudio.state === "suspended") {
+        contextoDeAudio.resume();
+      }
+    }
+    return Math.round(niveisDeVolume[indiceDoVolume] * 100);
+  }
+
+  function volumeAtual() {
+    return Math.round(niveisDeVolume[indiceDoVolume] * 100);
+  }
+
   elemento.addEventListener("error", ativarModoSimulado);
 
   return {
@@ -200,6 +251,9 @@ const ReprodutorTrecho = (() => {
     iniciarRevelacao,
     repetirNaRevelacao,
     alternarSom,
-    parar
+    parar,
+    alternarVolume,
+    volumeAtual,
+    podeAmplificar
   };
 })();

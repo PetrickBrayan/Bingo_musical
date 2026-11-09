@@ -67,6 +67,9 @@ const Jogo = (() => {
   function pontosDaMusica(indice) {
     const musica = listaAtual()[indice];
     const base = musica.pontos || CONFIGURACAO.pontosPadrao;
+    if (!modoDesempate && musica.especial === "karaoke") {
+      return CONFIGURACAO.pontosKaraoke;
+    }
     if (!modoDesempate && musica.especial === "surpresa") {
       return base * (desafioAtual ? desafioAtual.multiplicador : 1);
     }
@@ -81,6 +84,9 @@ const Jogo = (() => {
   function pontosDaMusicaDoCatalogo(indice) {
     const musica = MUSICAS[indice];
     const base = musica.pontos || CONFIGURACAO.pontosPadrao;
+    if (musica.especial === "karaoke") {
+      return CONFIGURACAO.pontosKaraoke;
+    }
     const dobrada = musica.especial === "dobro" || musica.especial === "relampago";
     return dobrada ? base * CONFIGURACAO.multiplicadorEspecial : base;
   }
@@ -276,7 +282,7 @@ const Jogo = (() => {
       const penalidade = CONFIGURACAO.pontosPerdidosPorErro > 0
         ? ` Quem errar perde ${CONFIGURACAO.pontosPerdidosPorErro}.`
         : "";
-      const titulosEspeciais = { dobro: "Vale o dobro!", relampago: "Música relâmpago!", surpresa: "Desafio do nada!" };
+      const titulosEspeciais = { dobro: "Vale o dobro!", relampago: "Música relâmpago!", surpresa: "Desafio do nada!", karaoke: "Karaokê!" };
       return {
         titulo: titulosEspeciais[especialDaMusica()] || (valeMaisQueOPadrao(indiceMusica) ? "Valendo mais!" : "Prepare-se!"),
         subtitulo: frase + penalidade,
@@ -330,7 +336,8 @@ const Jogo = (() => {
 
     revelado() {
       const musica = musicaAtual();
-      return { titulo: musica.titulo, subtitulo: `${musica.interprete} • ${musica.decada}`, centroDisco: "♪" };
+      const convite = especialDaMusica() === "karaoke" ? " • Agora todo mundo canta junto!" : "";
+      return { titulo: musica.titulo, subtitulo: `${musica.interprete} • ${musica.decada}${convite}`, centroDisco: "♪" };
     },
 
     encerrado() {
@@ -454,7 +461,8 @@ const Jogo = (() => {
     Tela.mostrarAreaFinal({
       visivel: estado === "encerrado",
       desempate: desempatePossivel(),
-      certificado: lideresComPontos().length > 0 && !desempatePossivel()
+      certificado: lideresComPontos().length > 0 && !desempatePossivel(),
+      relatorio: Placar.exportar().historico.length > 0 && !desempatePossivel()
     });
   }
 
@@ -509,6 +517,8 @@ const Jogo = (() => {
       Tela.anunciarEspecial("Vale o dobro!", `Esta música vale ${pontosDaMusica(indiceMusica)} pontos`, "dobro");
     } else if (especialDaMusica() === "surpresa" && desafioAtual) {
       Tela.anunciarEspecial("Desafio do nada!", desafioAtual.texto, "surpresa");
+    } else if (especialDaMusica() === "karaoke") {
+      Tela.anunciarEspecial("Karaokê!", `Cantem junto depois de acertar. Vale ${CONFIGURACAO.pontosKaraoke} pontos`, "karaoke");
     } else if (especialDaMusica() === "relampago") {
       Tela.anunciarEspecial("Relâmpago!", `Trecho curtinho e vale ${pontosDaMusica(indiceMusica)} pontos`, "relampago");
     }

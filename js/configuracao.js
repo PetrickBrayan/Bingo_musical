@@ -18,6 +18,7 @@ const CONFIGURACAO = {
   duracaoRelampagoSegundos: 7,
   pontosBonusCantor: 3,
   pontosPerdidosCantor: 2,
+  pontosKaraoke: 15,
   pontosDesempate: 1,
   deficitMinimoVirada: 15,
   ganhoMinimoAzarao: 4,

@@ -96,6 +96,7 @@
     <button id="botaoTextoMenor" class="botao-ferramenta" type="button" aria-label="Letras menores" title="Letras menores">A−</button>
     <button id="botaoTextoMaior" class="botao-ferramenta" type="button" aria-label="Letras maiores" title="Letras maiores">A+</button>
     <button id="botaoTema" class="botao-ferramenta" type="button" aria-label="Alternar tema claro ou escuro" title="Tema claro ou escuro">☀</button>
+    <button id="botaoVolume" class="botao-ferramenta" type="button" aria-label="Aumentar o volume do som" title="Volume extra (tecla W)" hidden>🔊</button>
     <button id="botaoContraste" class="botao-ferramenta" type="button" aria-pressed="false" aria-label="Alto contraste" title="Alto contraste">◐</button>
     <button id="botaoTelaCheia" class="botao-tela-cheia" type="button" aria-pressed="false" title="Tela cheia">
       <svg class="botao-tela-cheia__icone" viewBox="0 0 24 24" aria-hidden="true">
@@ -144,16 +145,19 @@
         <p id="textoDica" class="texto-dica" hidden></p>
 
         <div id="painelBoasVindas" class="painel-boas-vindas" hidden>
-          <p class="proposta">Uma competição de músicas entre as mesas. Ouça o trecho, levante a plaquinha e mostre que você viveu os Anos Dourados.</p>
+          <p class="proposta">Uma competição de músicas entre as mesas. Ouça, levante a plaquinha e mostre que você viveu os Anos Dourados.</p>
           <ol class="chips-proposta">
-            <li>Ouça o trecho</li>
-            <li>Levante a plaquinha</li>
-            <li>Acerte e some pontos</li>
+            <li><span class="chips-proposta__numero">1</span> Ouça o trecho</li>
+            <li><span class="chips-proposta__numero">2</span> Levante a plaquinha</li>
+            <li><span class="chips-proposta__numero">3</span> Acerte e some pontos</li>
           </ol>
           <div class="botoes-boas-vindas">
-            <button id="botaoBoasVindasGuia" class="botao-grande" type="button">Como jogar</button>
-            <button id="botaoBoasVindasComandos" class="botao-grande" type="button">Comandos</button>
-            <button id="botaoPularParaJogo" class="botao-grande botao-grande--principal" type="button">Pular já para o jogo</button>
+            <button id="botaoPularParaJogo" class="botao-grande botao-grande--principal" type="button">Ir para o jogo</button>
+            <div class="botoes-boas-vindas__apoio">
+              <button id="botaoBoasVindasGuia" class="botao-grande" type="button">Como jogar</button>
+              <button id="botaoBoasVindasComandos" class="botao-grande" type="button">Comandos</button>
+            </div>
+            <p class="dica-boas-vindas">Primeira vez? Leia o "Como jogar", leva 2 minutos.</p>
           </div>
         </div>
 
@@ -222,6 +226,7 @@
         <div id="areaFinal" class="area-final" hidden>
           <button id="botaoDesempate" class="botao-grande botao-grande--principal" type="button" hidden>Desempate!</button>
           <button id="botaoCertificado" class="botao-grande" type="button">Certificado</button>
+          <button id="botaoRelatorio" class="botao-grande" type="button" hidden>Relatório</button>
           <button id="botaoIntervaloFinal" class="botao-grande" type="button" hidden>Intervalo</button>
         </div>
       </div>
@@ -246,12 +251,12 @@
         <button id="botaoPrincipal" class="botao-toque botao-toque--principal" type="button"></button>
         <button id="botaoMenu" class="botao-toque botao-toque--secundario" type="button">Menu</button>
       </nav>
-      <p class="creditos">Jogo criado por <strong>Petrick Brayan</strong></p>
+      <p class="creditos"><span class="creditos__nota" aria-hidden="true">♪</span> Jogo criado por <strong>Petrick Brayan</strong> <span class="creditos__nota" aria-hidden="true">♪</span></p>
     </footer>
 
   </main>
 
-  <section id="preparacao" class="sobreposicao sobreposicao-centro" hidden>
+  <section id="preparacao" class="sobreposicao sobreposicao-centro" role="dialog" aria-modal="true" hidden>
     <h2>Preparar o evento</h2>
     <p class="pergunta-dispositivo">Faça isto uma vez, antes de os convidados chegarem.</p>
     <div class="cartoes-dispositivo cartoes-preparacao">
@@ -262,7 +267,7 @@
     </div>
   </section>
 
-  <section id="editorMesas" class="sobreposicao" data-pai="preparacao" hidden>
+  <section id="editorMesas" class="sobreposicao" role="dialog" aria-modal="true" data-pai="preparacao" hidden>
     <h2>Nomes das mesas</h2>
     <p class="aviso-lista">O nome é opcional. Toque na bolinha para trocar a cor.</p>
     <div class="botoes-lista">
@@ -272,7 +277,7 @@
     <div id="listaEditorMesas" class="grade-editor-mesas"></div>
   </section>
 
-  <section id="editorMusicas" class="sobreposicao" data-pai="preparacao" hidden>
+  <section id="editorMusicas" class="sobreposicao" role="dialog" aria-modal="true" data-pai="preparacao" hidden>
     <h2>Editar músicas</h2>
     <p class="aviso-lista">Salvar muda a ordem do jogo e apaga um jogo salvo, se houver.</p>
     <div class="botoes-lista">
@@ -290,7 +295,7 @@
     </div>
   </section>
 
-  <section id="checklist" class="sobreposicao" data-pai="preparacao" hidden>
+  <section id="checklist" class="sobreposicao" role="dialog" aria-modal="true" data-pai="preparacao" hidden>
     <h2>Testar tudo</h2>
     <p id="resumoChecklist" class="resumo-checklist">Rodando o teste…</p>
     <div class="botoes-lista">
@@ -301,7 +306,7 @@
     <ul id="itensChecklist" class="itens-checklist"></ul>
   </section>
 
-  <section id="intervalo" class="sobreposicao sobreposicao-centro" hidden>
+  <section id="intervalo" class="sobreposicao sobreposicao-centro" role="dialog" aria-modal="true" hidden>
     <h2>Intervalo</h2>
     <p class="voltamos-ja">Voltamos já!</p>
     <p id="relogioIntervalo" class="relogio-intervalo">05:00</p>
@@ -313,7 +318,7 @@
     <ol id="listaIntervalo" class="lista-placar lista-intervalo"></ol>
   </section>
 
-  <section id="certificado" class="sobreposicao" hidden>
+  <section id="certificado" class="sobreposicao" role="dialog" aria-modal="true" hidden>
     <h2>Certificado</h2>
     <div class="botoes-lista">
       <button id="botaoImprimirCertificado" class="botao-controle botao-controle--destaque" type="button">Imprimir certificado</button>
@@ -324,13 +329,24 @@
     <div id="certificados" class="certificados"></div>
   </section>
 
-  <section id="placar" class="sobreposicao" hidden>
+  <section id="relatorio" class="sobreposicao" role="dialog" aria-modal="true" hidden>
+    <h2>Relatório da partida</h2>
+    <div class="botoes-lista">
+      <button id="botaoImprimirRelatorio" class="botao-controle botao-controle--destaque" type="button">Imprimir relatório</button>
+      <button id="botaoBaixarRelatorioPdf" class="botao-controle" type="button">Baixar PDF</button>
+      <button id="botaoBaixarRelatorioImagem" class="botao-controle" type="button">Baixar imagens</button>
+    </div>
+    <p class="aviso-lista">Se a impressora não abrir, baixe o PDF e imprima depois por outro aparelho.</p>
+    <div id="relatorios" class="certificados"></div>
+  </section>
+
+  <section id="placar" class="sobreposicao" role="dialog" aria-modal="true" hidden>
     <h2>Placar das Mesas</h2>
     <ol id="listaPlacar" class="lista-placar"></ol>
     <p class="dica-sobreposicao">P ou ESC fecha</p>
   </section>
 
-  <section id="listaDeMusicas" class="sobreposicao" hidden>
+  <section id="listaDeMusicas" class="sobreposicao" role="dialog" aria-modal="true" hidden>
     <h2>Lista de Músicas</h2>
     <p class="aviso-lista">Esta tela mostra as respostas. Use antes do jogo ou fora do telão.</p>
     <div class="rolagem-tabela">
@@ -357,52 +373,45 @@
     <p class="dica-sobreposicao">L ou ESC fecha</p>
   </section>
 
-  <section id="guia" class="sobreposicao" hidden>
+  <section id="guia" class="sobreposicao" role="dialog" aria-modal="true" hidden>
     <h2>Como jogar</h2>
 
     <div class="paginas-guia">
 
       <article class="pagina-guia">
+        <span class="guia-quem">Para todos</span>
         <h3>Bem-vindos ao Bingo Musical!</h3>
         <p class="guia-destaque">Hoje quem manda é a música.</p>
         <ul class="guia-lista">
-          <li>Cada mesa é um time. A mesa inteira joga junto e ganha ou perde pontos junta.</li>
-          <li>O jogo toca um pedacinho de uma música dos anos 50, 60, 70 e 80.</li>
-          <li>Quem souber a música levanta a plaquinha da sua mesa.</li>
-          <li>No final, vence a mesa com mais pontos. Tem pódio, troféus e certificado.</li>
+          <li>Cada mesa é um time. A mesa toda joga junta.</li>
+          <li>O jogo toca um pedacinho de uma música antiga (anos 50, 60, 70 e 80).</li>
+          <li>Quem souber a música levanta a plaquinha da mesa.</li>
+          <li>Ganha quem juntar mais pontos.</li>
         </ul>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>Antes de começar (para o apresentador)</h3>
-        <ol class="guia-passos">
-          <li><strong>Preparar evento.</strong> Na abertura, toque nesse botão. Lá você dá nome e cor às mesas, edita as músicas e testa tudo.</li>
-          <li><strong>Testar tudo.</strong> Confere o som, a tela cheia e cada arquivo de música. Se faltar algum, aparece um aviso vermelho.</li>
-          <li><strong>Usar sem internet.</strong> Com o jogo aberto pelo endereço da internet, guarde os áudios uma vez. Depois ele funciona até sem Wi-Fi.</li>
-          <li><strong>Quantas mesas?</strong> Na abertura, use − e + para ajustar o número de mesas.</li>
-        </ol>
-      </article>
-
-      <article class="pagina-guia" hidden>
+        <span class="guia-quem">Para todos</span>
         <h3>Como é cada rodada</h3>
         <ol class="guia-passos">
-          <li><strong>Ouvir.</strong> O trecho toca. Na tela aparecem o disco, o rádio ou a TV, conforme a época da música.</li>
-          <li><strong>Levantar.</strong> Quem souber levanta a plaquinha. O apresentador aperta Espaço para parar a música e digita o número da primeira mesa a levantar.</li>
-          <li><strong>Responder.</strong> A mesa escolhe uma entre quatro opções (no modo com juiz, o apresentador marca Acertou ou Errou).</li>
-          <li><strong>Resultado.</strong> O jogo confere na hora, mostra a música certa e toca o resto do trecho para o pessoal cantar junto.</li>
+          <li><strong>Ouvir.</strong> Toca um pedacinho da música.</li>
+          <li><strong>Levantar.</strong> Quem sabe levanta a plaquinha. O apresentador aperta Espaço e diz o número da primeira mesa.</li>
+          <li><strong>Responder.</strong> A mesa escolhe uma entre 4 opções.</li>
+          <li><strong>Ver o resultado.</strong> O jogo mostra a resposta e todo mundo canta junto.</li>
         </ol>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>Ganhar e perder pontos</h3>
+        <span class="guia-quem">Para todos</span>
+        <h3>Pontos: quanto vale?</h3>
         <div class="guia-cartoes">
           <div class="guia-cartao guia-cartao--certo">
             <p class="guia-cartao__numero">+10</p>
-            <p>Acertou. O valor de cada música aparece no topo da tela. Algumas valem mais, como as últimas.</p>
+            <p>Acertou a música. Cada música mostra seu valor no alto da tela.</p>
           </div>
           <div class="guia-cartao guia-cartao--errado">
             <p class="guia-cartao__numero">−3</p>
-            <p>Errou ou desistiu. A mesa perde 3 pontos e fica fora daquela música. As outras podem levantar de novo.</p>
+            <p>Errou ou desistiu. A mesa perde 3 pontos e espera a próxima música.</p>
           </div>
           <div class="guia-cartao">
             <p class="guia-cartao__numero">0</p>
@@ -412,150 +421,158 @@
       </article>
 
       <article class="pagina-guia" hidden>
+        <span class="guia-quem">Para todos</span>
         <h3>Músicas especiais</h3>
-        <div class="guia-cartoes">
+        <div class="guia-cartoes guia-cartoes--quatro">
           <div class="guia-cartao">
             <p class="guia-cartao__numero">×2</p>
-            <p>Vale o dobro. Uma faixa dourada anuncia antes de tocar. Na lista de músicas aparece como "Vale o dobro".</p>
+            <p>Vale o dobro. Um aviso aparece antes de tocar.</p>
           </div>
           <div class="guia-cartao">
             <p class="guia-cartao__numero">⚡</p>
-            <p>Relâmpago. O trecho é bem curtinho, só 7 segundos, e também vale o dobro. Atenção total!</p>
+            <p>Relâmpago. Toca só 7 segundos e vale o dobro. Preste atenção!</p>
           </div>
           <div class="guia-cartao">
             <p class="guia-cartao__numero">?</p>
-            <p>Desafio do nada. Aparece sem aviso e sorteia uma surpresa: valer triplo, rodada sem castigo ou hora da dança.</p>
+            <p>Desafio do nada. O jogo sorteia uma surpresa: pontos triplos, rodada sem castigo ou hora da dança.</p>
+          </div>
+          <div class="guia-cartao">
+            <p class="guia-cartao__numero">🎤</p>
+            <p>Karaokê. Vale 15 pontos. Depois de acertar, todo mundo canta junto.</p>
           </div>
         </div>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>O coringa</h3>
-        <p class="guia-destaque">Cada mesa tem 1 coringa por jogo.</p>
-        <ul class="guia-lista">
-          <li>Quando a mesa for responder, o apresentador aperta K (ou o botão "Usar coringa").</li>
-          <li>Se a mesa acertar, os pontos valem em dobro.</li>
-          <li>Se errar, a perda também é em dobro. É uma aposta!</li>
-          <li>Apertou K sem querer? Aperte K de novo para desfazer antes de responder.</li>
-        </ul>
-      </article>
-
-      <article class="pagina-guia" hidden>
+        <span class="guia-quem">Para todos</span>
         <h3>Bônus do cantor</h3>
-        <p class="guia-destaque">Acertou o título? Ganhe pontos extras!</p>
+        <p class="guia-destaque">Acertou a música? Dá para ganhar mais.</p>
         <ul class="guia-lista">
-          <li>Depois de acertar a música, aparece uma segunda pergunta: quem canta essa música?</li>
-          <li>Acertou o cantor: +3 pontos de bônus. Errou o cantor: perde 2 pontos, e o jogo mostra só o nome certo do cantor.</li>
-          <li>Com o coringa, o bônus e a perda também dobram.</li>
-          <li>O apresentador pode pular o bônus apertando Esc.</li>
+          <li>Acertou a música? Vem uma segunda pergunta: <strong>quem canta?</strong></li>
+          <li>Acertou o cantor: ganha +3 pontos.</li>
+          <li>Errou o cantor: perde 2 pontos, e a tela mostra o nome certo.</li>
+          <li>Quem opera pode pular o bônus apertando Esc.</li>
         </ul>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>Precisa de uma ajudinha?</h3>
+        <span class="guia-quem">Para todos</span>
+        <h3>O coringa</h3>
+        <p class="guia-destaque">Uma aposta: dobra o ganho e a perda.</p>
+        <ul class="guia-lista">
+          <li>Cada mesa tem 1 coringa para o jogo inteiro.</li>
+          <li>Use antes de responder (tecla K ou botão "Usar coringa").</li>
+          <li>Se acertar, ganha o dobro. Se errar, perde o dobro.</li>
+          <li>Apertou sem querer? Aperte K de novo para desfazer.</li>
+        </ul>
+      </article>
+
+      <article class="pagina-guia" hidden>
+        <span class="guia-quem">Para todos</span>
+        <h3>Precisa de ajuda?</h3>
         <div class="guia-cartoes">
           <div class="guia-cartao">
-            <p class="guia-cartao__numero">+5s</p>
-            <p>O trecho toca por mais 5 segundos. Custa 2 pontos do valor daquela música e só vale uma vez por música. Tecla A.</p>
+            <p class="guia-cartao__numero">Dica</p>
+            <p>Mostra uma pista na tela. Não custa nada. Tecla D.</p>
           </div>
           <div class="guia-cartao">
-            <p class="guia-cartao__numero">Dica</p>
-            <p>Uma pista aparece na tela, como a década e o tamanho do título. Não custa nada. Tecla D.</p>
+            <p class="guia-cartao__numero">+5s</p>
+            <p>Toca mais 5 segundos. Custa 2 pontos e vale 1 vez por música. Tecla A.</p>
           </div>
           <div class="guia-cartao">
             <p class="guia-cartao__numero">Repetir</p>
-            <p>Toca o trecho de novo, sem custo. Tecla R. O jogo comenta a cada pedido, então não abuse!</p>
+            <p>Toca de novo, sem custo. Tecla R.</p>
           </div>
         </div>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>Hora do microfone!</h3>
-        <p class="guia-destaque">Não sabe o nome nem o cantor? Cante!</p>
+        <span class="guia-quem">Para todos</span>
+        <h3>Não sei o nome… vou cantar!</h3>
         <ol class="guia-passos">
-          <li><strong>Escolher.</strong> A mesa toca em "Não sei o nome… vou cantar!" (tecla C).</li>
-          <li><strong>Ouvir de novo.</strong> O trecho toca outra vez para ajudar a lembrar.</li>
-          <li><strong>Cantar.</strong> Quando acaba, a mesa tem 15 segundos para cantar o começo ou o refrão.</li>
-          <li><strong>Julgamento.</strong> A plateia aplaude. Mandou bem: metade dos pontos. Não rolou: não perde nada, mas fica fora da música.</li>
+          <li><strong>Escolher.</strong> Toque em "Não sei o nome… vou cantar!" (tecla C).</li>
+          <li><strong>Ouvir.</strong> O pedacinho toca de novo.</li>
+          <li><strong>Cantar.</strong> A mesa tem 15 segundos para cantar o começo ou o refrão.</li>
+          <li><strong>Aplaudir.</strong> Se a plateia gostar, a mesa ganha metade dos pontos. Se não, não perde nada.</li>
         </ol>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>Quem vence? Empate e troféus</h3>
+        <span class="guia-quem">Para todos</span>
+        <h3>Como o jogo termina</h3>
         <ul class="guia-lista">
-          <li>Vence a mesa com mais pontos no fim das músicas. O apresentador também pode parar antes, com "Parar por aqui".</li>
-          <li>Empatou na ponta? Vem a morte súbita: uma música extra só para as mesas empatadas. Quem acertar primeiro leva.</li>
-          <li>No final aparecem o pódio animado e os troféus: Ouvido de Ouro (mais acertos), Coragem (mais microfones), Virada do Jogo e Azarão.</li>
-          <li>O botão "Certificado" cria o certificado da mesa campeã, com nome, data e horário. Dá para imprimir ou baixar em PDF.</li>
+          <li>Ganha a mesa com mais pontos.</li>
+          <li>Empate? Tem desempate: uma música extra só para as mesas empatadas.</li>
+          <li>No fim aparecem o pódio e os troféus.</li>
+          <li>Dá para imprimir o certificado da campeã ou baixar o relatório da partida em PDF.</li>
         </ul>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>Placar, intervalo e épocas</h3>
-        <ul class="guia-lista">
-          <li>O placar pequeno embaixo mostra só as 3 primeiras mesas. P abre o placar completo.</li>
-          <li>Hora do café? A tecla I abre o intervalo, com contagem, classificação e "Voltamos já!".</li>
-          <li>Cada época tem seu visual: 📻 rádio nos anos 60, 💿 vinil nos anos 70, 📺 TV colorida nos anos 80 e 🎶 jukebox nos anos 50.</li>
-          <li>Nos últimos 5 segundos do trecho a tela fica tensa e o relógio faz tique-taque.</li>
-        </ul>
+        <span class="guia-quem">Para quem opera o jogo</span>
+        <h3>Antes do evento</h3>
+        <ol class="guia-passos">
+          <li><strong>Preparar evento.</strong> Dê nome e cor às mesas e edite as músicas.</li>
+          <li><strong>Testar tudo.</strong> Confere som, tela cheia e cada arquivo de música. O que faltar aparece em vermelho.</li>
+          <li><strong>Sem internet.</strong> Abra o jogo pelo endereço da internet e toque em "Usar sem internet". Depois ele funciona sem Wi-Fi.</li>
+          <li><strong>Quantas mesas?</strong> Na primeira tela, use − e +.</li>
+        </ol>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>Letras maiores e contraste</h3>
+        <span class="guia-quem">Para quem opera o jogo</span>
+        <h3>Os controles</h3>
         <div class="guia-cartoes">
           <div class="guia-cartao">
-            <p class="guia-cartao__numero">A+ A−</p>
-            <p>No canto de cima da tela. Aumentam ou diminuem as letras de tudo. Bom para quem está longe do telão.</p>
+            <p class="guia-cartao__numero">Teclado</p>
+            <p>Espaço avança. Esc volta. Números escolhem a mesa e a resposta. H mostra todos os comandos.</p>
           </div>
           <div class="guia-cartao">
-            <p class="guia-cartao__numero">◐</p>
-            <p>Alto contraste. Deixa as cores mais fortes e o texto mais fácil de ler.</p>
+            <p class="guia-cartao__numero">TV</p>
+            <p>OK avança. ← volta. ↑ abre o menu. Verde é dica, amarelo é +5s, azul é placar e vermelho é parar.</p>
+          </div>
+          <div class="guia-cartao">
+            <p class="guia-cartao__numero">Celular</p>
+            <p>Toque nos números e nas respostas. A barra de baixo e o Menu têm o resto.</p>
           </div>
         </div>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>Tema e tela cheia</h3>
-        <div class="guia-cartoes">
+        <span class="guia-quem">Para quem opera o jogo</span>
+        <h3>Ver e ouvir melhor</h3>
+        <div class="guia-cartoes guia-cartoes--quatro">
           <div class="guia-cartao">
-            <p class="guia-cartao__numero">☀ ☾</p>
-            <p>Tema claro ou escuro, com cenários diferentes para cada época. A tecla O também troca.</p>
+            <p class="guia-cartao__numero">A+ A−</p>
+            <p>Aumentam ou diminuem as letras. Bom para quem está longe do telão.</p>
+          </div>
+          <div class="guia-cartao">
+            <p class="guia-cartao__numero">☀ ◐</p>
+            <p>Tema claro ou escuro, e alto contraste. Tecla O troca o tema.</p>
+          </div>
+          <div class="guia-cartao">
+            <p class="guia-cartao__numero">🔊</p>
+            <p>Volume extra: 150%, 200% ou 300%. Tecla W. Só funciona com o jogo aberto pelo endereço da internet.</p>
           </div>
           <div class="guia-cartao">
             <p class="guia-cartao__numero">Tela cheia</p>
-            <p>Entra e sai da tela cheia quando quiser. A tecla F também faz isso.</p>
+            <p>Tecla F ou o botão. Se o navegador bloquear, aperte F11.</p>
           </div>
         </div>
       </article>
 
       <article class="pagina-guia" hidden>
-        <h3>Controles do apresentador</h3>
-        <div class="guia-cartoes">
-          <div class="guia-cartao">
-            <p class="guia-cartao__titulo">Teclado</p>
-            <p>Espaço avança, Esc volta, números escolhem a mesa e as respostas. K coringa, C microfone, I intervalo, T preparar. H mostra todos os comandos.</p>
-          </div>
-          <div class="guia-cartao">
-            <p class="guia-cartao__titulo">Controle da TV</p>
-            <p>OK avança, ← volta, ↑ abre o menu e os números escolhem a mesa. Verde é dica, amarelo é +5s, azul é placar e vermelho é parar.</p>
-          </div>
-          <div class="guia-cartao">
-            <p class="guia-cartao__titulo">Celular</p>
-            <p>Toque nos números das mesas e nas respostas. Os botões grandes embaixo fazem o resto, e o Menu tem todo o resto.</p>
-          </div>
-        </div>
-      </article>
-
-      <article class="pagina-guia" hidden>
+        <span class="guia-quem">Para quem opera o jogo</span>
         <h3>Algo deu errado?</h3>
         <ul class="guia-lista">
-          <li><strong>Sem som:</strong> toque em qualquer botão da tela uma vez, o navegador libera o som. Confira também o volume do telão.</li>
-          <li><strong>Música faltando:</strong> o jogo avisa e segue só com o relógio. Use "Testar tudo" antes do evento.</li>
-          <li><strong>Marcou a mesa errada:</strong> Esc volta um passo, e U desfaz a última pontuação.</li>
-          <li><strong>Saiu da tela cheia:</strong> toque no botão "Tela cheia" no canto de cima.</li>
-          <li><strong>Precisa parar:</strong> o progresso fica salvo. Ao abrir de novo, use "Continuar de onde parou".</li>
+          <li><strong>Sem som:</strong> toque em qualquer botão uma vez. Confira o volume do telão.</li>
+          <li><strong>Faltou uma música:</strong> o jogo segue só com o relógio. Use "Testar tudo" antes do evento.</li>
+          <li><strong>Marcou a mesa errada:</strong> Esc volta um passo. U desfaz a última pontuação.</li>
+          <li><strong>Tela cheia não abre:</strong> uma extensão de volume pode bloquear. Aperte F11.</li>
+          <li><strong>Precisou parar:</strong> o jogo guarda o progresso. Use "Continuar de onde parou".</li>
         </ul>
       </article>
+
 
     </div>
 
@@ -567,13 +584,13 @@
     <p class="dica-sobreposicao">← → navegam • ESC fecha</p>
   </section>
 
-  <section id="menuAcoes" class="sobreposicao sobreposicao-centro" hidden>
+  <section id="menuAcoes" class="sobreposicao sobreposicao-centro" role="dialog" aria-modal="true" hidden>
     <h2>Menu</h2>
     <ul id="listaMenu" class="lista-menu"></ul>
     <p class="dica-sobreposicao">↑ ↓ escolhem • OK confirma • Voltar fecha</p>
   </section>
 
-  <section id="ajuda" class="sobreposicao" hidden>
+  <section id="ajuda" class="sobreposicao" role="dialog" aria-modal="true" hidden>
     <h2>Comandos</h2>
 
     <div id="escolhaDispositivo">
@@ -589,32 +606,38 @@
       <div class="painel-dispositivo" data-dispositivo="computador" hidden>
         <h3>No computador</h3>
         <dl class="lista-ajuda">
-          <dt><kbd>ESPAÇO</kbd> <kbd>ENTER</kbd> <kbd>→</kbd></dt>
-          <dd>Avançar: tocar, alguém levantou, confirmar, próxima música</dd>
-          <dt><kbd>ESC</kbd> <kbd>←</kbd></dt>
-          <dd>Voltar um passo, sem perder pontos. No bônus do cantor, pula o bônus</dd>
+          <dt><kbd>ESPAÇO</kbd> <kbd>ENTER</kbd></dt>
+          <dd>Seguir para o próximo passo</dd>
+          <dt><kbd>ESC</kbd></dt>
+          <dd>Voltar um passo (não perde pontos)</dd>
           <dt><kbd>0</kbd> a <kbd>9</kbd></dt>
-          <dd>Número da mesa. Na resposta, 1 a 4 escolhe a opção e o número seguinte canta no microfone</dd>
+          <dd>Digitar o número da mesa. Na resposta, 1 a 4 escolhe a opção</dd>
           <dt><kbd>X</kbd></dt>
-          <dd>A mesa desistiu ou errou (perde pontos)</dd>
+          <dd>A mesa errou ou desistiu (perde pontos)</dd>
           <dt><kbd>K</kbd></dt>
-          <dd>Coringa da mesa que vai responder (dobra ganho e perda)</dd>
+          <dd>Coringa: dobra o ganho e a perda</dd>
           <dt><kbd>C</kbd></dt>
-          <dd>Microfone: o trecho toca de novo e a mesa canta em seguida</dd>
-          <dt><kbd>D</kbd> <kbd>A</kbd> <kbd>R</kbd> <kbd>V</kbd></dt>
-          <dd>Dica, +5 segundos (−2 pontos), repetir trecho, revelar resposta</dd>
-          <dt><kbd>P</kbd> <kbd>L</kbd> <kbd>G</kbd> <kbd>H</kbd></dt>
-          <dd>Placar, lista de músicas, guia do jogo e comandos</dd>
+          <dd>Microfone: a mesa canta</dd>
+          <dt><kbd>D</kbd> <kbd>A</kbd> <kbd>R</kbd></dt>
+          <dd>Dica, +5 segundos (−2 pontos) e repetir o trecho</dd>
+          <dt><kbd>V</kbd></dt>
+          <dd>Mostrar a resposta</dd>
+          <dt><kbd>P</kbd> <kbd>L</kbd></dt>
+          <dd>Placar e lista de músicas</dd>
+          <dt><kbd>G</kbd> <kbd>H</kbd></dt>
+          <dd>Como jogar e esta lista de comandos</dd>
           <dt><kbd>I</kbd> <kbd>T</kbd></dt>
-          <dd>Intervalo com "voltamos já" e Preparar evento (nomes, músicas e teste)</dd>
+          <dd>Intervalo e Preparar evento</dd>
           <dt><kbd>U</kbd> <kbd>E</kbd></dt>
           <dd>Desfazer a última pontuação e parar por aqui</dd>
-          <dt><kbd>M</kbd> <kbd>F</kbd> <kbd>O</kbd></dt>
-          <dd>Ligar ou desligar o som, tela cheia e tema claro ou escuro</dd>
+          <dt><kbd>M</kbd> <kbd>W</kbd></dt>
+          <dd>Ligar ou desligar o som e volume extra</dd>
+          <dt><kbd>F</kbd> <kbd>O</kbd></dt>
+          <dd>Tela cheia e tema claro ou escuro. Se a tela cheia não abrir, aperte F11</dd>
           <dt><kbd>B</kbd> <kbd>J</kbd> <kbd>N</kbd></dt>
-          <dd>Esconder ou mostrar botões, modo de resposta e novo jogo</dd>
+          <dd>Esconder botões, jeito de responder e novo jogo</dd>
           <dt><kbd>+</kbd> <kbd>−</kbd></dt>
-          <dd>Mais ou menos mesas, na abertura</dd>
+          <dd>Mais ou menos mesas (na primeira tela)</dd>
         </dl>
       </div>
 
@@ -622,21 +645,25 @@
         <h3>Na Smart TV</h3>
         <dl class="lista-ajuda">
           <dt><kbd>OK</kbd> <kbd>→</kbd></dt>
-          <dd>Avançar e confirmar</dd>
+          <dd>Seguir e confirmar</dd>
           <dt><kbd>←</kbd> <kbd>Voltar</kbd></dt>
           <dd>Voltar um passo e fechar telas</dd>
           <dt><kbd>↑</kbd> <kbd>↓</kbd></dt>
-          <dd>Abrir o menu e navegar nele. Na abertura, mudam o número de mesas</dd>
+          <dd>Abrir o menu e andar por ele</dd>
           <dt><kbd>0</kbd> a <kbd>9</kbd></dt>
-          <dd>Número da mesa e da resposta. O número depois das opções é o microfone</dd>
-          <dt><kbd>Vermelho</kbd> <kbd>Verde</kbd></dt>
-          <dd>Parar por aqui e dica</dd>
-          <dt><kbd>Amarelo</kbd> <kbd>Azul</kbd></dt>
-          <dd>+5 segundos e placar</dd>
+          <dd>Número da mesa e da resposta</dd>
+          <dt><kbd>Vermelho</kbd></dt>
+          <dd>Parar por aqui</dd>
+          <dt><kbd>Verde</kbd></dt>
+          <dd>Dica</dd>
+          <dt><kbd>Amarelo</kbd></dt>
+          <dd>+5 segundos</dd>
+          <dt><kbd>Azul</kbd></dt>
+          <dd>Placar</dd>
           <dt>Menu (↑)</dt>
-          <dd>Coringa, intervalo, preparar evento, lista de músicas, guia e tela cheia ficam no menu</dd>
+          <dd>Coringa, intervalo, preparar evento, lista, guia e tela cheia</dd>
           <dt>Controle com ponteiro</dt>
-          <dd>Aponte e clique nos botões da tela, inclusive A+, A− e o contraste</dd>
+          <dd>Aponte e clique nos botões da tela</dd>
         </dl>
       </div>
 
@@ -644,17 +671,17 @@
         <h3>No celular ou tablet</h3>
         <dl class="lista-ajuda">
           <dt>Mesas e respostas</dt>
-          <dd>Toque no número da mesa e depois na resposta escolhida</dd>
+          <dd>Toque no número da mesa e depois na resposta</dd>
           <dt>Coringa</dt>
-          <dd>Na vez da mesa, toque em "Usar coringa" antes de responder</dd>
+          <dd>Toque em "Usar coringa" antes de responder</dd>
           <dt>Microfone</dt>
-          <dd>Toque em "Não sei o nome… vou cantar!". O trecho toca de novo e depois a mesa canta</dd>
+          <dd>Toque em "Não sei o nome… vou cantar!"</dd>
           <dt>Barra de baixo</dt>
-          <dd>Voltar, o botão principal da rodada e o Menu</dd>
+          <dd>Voltar, botão principal e Menu</dd>
           <dt>Menu</dt>
-          <dd>Dica, +5 segundos, repetir, placar, lista de músicas, guia, intervalo, preparar evento e tela cheia</dd>
+          <dd>Dica, +5 segundos, repetir, placar, lista, guia, intervalo e tela cheia</dd>
           <dt>Letras</dt>
-          <dd>Toque em A+ ou A− no canto de cima para ajustar o tamanho</dd>
+          <dd>Toque em A+ ou A− no alto da tela</dd>
           <dt>Dica</dt>
           <dd>Use o aparelho em pé. A tela se ajusta sozinha</dd>
         </dl>
@@ -662,7 +689,7 @@
     </div>
   </section>
 
-  <section id="confirmacao" class="sobreposicao sobreposicao-centro" hidden>
+  <section id="confirmacao" class="sobreposicao sobreposicao-centro" role="dialog" aria-modal="true" hidden>
     <h2>Parar por aqui?</h2>
     <p class="texto-confirmacao">O jogo termina agora e mostramos a mesa com mais pontos.</p>
     <div class="botoes-confirmacao">
@@ -690,6 +717,7 @@
   <script src="js/efeitos.js"></script>
   <script src="js/confete.js"></script>
   <script src="js/certificado.js"></script>
+  <script src="js/relatorio.js"></script>
   <script src="js/offline.js"></script>
   <script src="js/tela.js"></script>
   <script src="js/preparacao.js"></script>
