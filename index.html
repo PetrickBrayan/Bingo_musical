@@ -86,6 +86,30 @@
       <rect x="40" y="176" width="22" height="10" rx="3" fill="#cfd3d8" stroke="#3a3f46"/><rect x="66" y="176" width="22" height="10" rx="3" fill="#cfd3d8" stroke="#3a3f46"/>
       <circle cx="176" cy="174" r="4" fill="#ff5252"/>
     </symbol>
+    <linearGradient id="gDiscman" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f1f5fa"/><stop offset="0.5" stop-color="#b3bfcd"/><stop offset="1" stop-color="#7d8a9b"/></linearGradient>
+    <linearGradient id="gCdPrata" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff9bd0"/><stop offset="0.2" stop-color="#e9eef5"/><stop offset="0.4" stop-color="#8fd8ee"/><stop offset="0.6" stop-color="#f3f7fc"/><stop offset="0.8" stop-color="#c8b6ee"/><stop offset="1" stop-color="#f2e8c9"/></linearGradient>
+    <linearGradient id="gAzul" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4d8cf0"/><stop offset="1" stop-color="#173f94"/></linearGradient>
+    <symbol id="aparelho-anos-90" viewBox="0 0 200 200">
+      <rect x="3" y="3" width="194" height="194" rx="38" fill="url(#gDiscman)" stroke="#566170" stroke-width="3"/>
+      <rect x="9" y="9" width="182" height="182" rx="33" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="91" fill="#0d1420" stroke="url(#gCromo)" stroke-width="3"/>
+      <circle cx="100" cy="100" r="84" fill="url(#gCdPrata)"/>
+      <circle cx="100" cy="100" r="62" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="2"/>
+      <circle cx="100" cy="100" r="30" fill="#e3e9f2" stroke="#ffffff" stroke-width="3"/>
+      <circle cx="100" cy="100" r="10" fill="#0d1420"/>
+      <rect x="15" y="15" width="36" height="15" rx="4" fill="url(#gAzul)" stroke="#0f2a66"/>
+      <text x="33" y="26.5" font-family="Arial,sans-serif" font-size="9" font-weight="bold" fill="#ffffff" text-anchor="middle">CD</text>
+      <rect x="147" y="15" width="40" height="17" rx="3" fill="#a9c1a0" stroke="#3f5239" stroke-width="1.5"/>
+      <text x="160" y="28" font-family="monospace" font-size="11" font-weight="bold" fill="#1c2b19" text-anchor="middle">01</text>
+      <polygon points="171,21 171,28 177,24.5" fill="#1c2b19"/>
+      <circle cx="24" cy="174" r="9" fill="url(#gCromo)" stroke="#3a3f46" stroke-width="2"/>
+      <polygon points="21.5,169.5 21.5,178.5 28.5,174" fill="#2a3340"/>
+      <circle cx="46" cy="184" r="7" fill="url(#gCromo)" stroke="#3a3f46" stroke-width="2"/>
+      <rect x="43" y="181" width="6" height="6" fill="#2a3340"/>
+      <rect x="146" y="181" width="30" height="9" rx="4.5" fill="url(#gCromo)" stroke="#3a3f46" stroke-width="1.5"/>
+      <circle cx="178" cy="166" r="4.5" fill="#ff3b4e"/>
+      <circle cx="178" cy="166" r="8" fill="none" stroke="#ff3b4e" stroke-opacity="0.45" stroke-width="2"/>
+    </symbol>
   </defs>
 </svg>
 
@@ -258,21 +282,31 @@
 
   <section id="preparacao" class="sobreposicao sobreposicao-centro" role="dialog" aria-modal="true" hidden>
     <h2>Preparar o evento</h2>
-    <p class="pergunta-dispositivo">Faça isto uma vez, antes de os convidados chegarem.</p>
+    <p class="pergunta-dispositivo">Faça isto uma vez, antes de os convidados chegarem. Siga a ordem 1, 2, 3 e 4.</p>
     <div class="cartoes-dispositivo cartoes-preparacao">
-      <button id="botaoCartaoMesas" class="cartao-dispositivo" type="button"><strong>Nomes das mesas</strong><span>Dê identidade e cor a cada mesa</span></button>
-      <button id="botaoCartaoMusicas" class="cartao-dispositivo" type="button"><strong>Editar músicas</strong><span>Ordem, pontos, dica e especiais</span></button>
-      <button id="botaoCartaoChecklist" class="cartao-dispositivo" type="button"><strong>Testar tudo</strong><span>Som, tela cheia e cada áudio</span></button>
-      <button id="botaoCartaoOffline" class="cartao-dispositivo" type="button"><strong>Usar sem internet</strong><span id="situacaoOffline">Verificando…</span></button>
+      <button id="botaoCartaoMesas" class="cartao-dispositivo" type="button"><span class="passo-preparacao">1</span><strong>Nomes das mesas</strong><span>Dê identidade e cor a cada mesa</span><small id="statusMesas" class="status-preparacao"></small></button>
+      <button id="botaoCartaoMusicas" class="cartao-dispositivo" type="button"><span class="passo-preparacao">2</span><strong>Editar músicas</strong><span>Ordem, pontos, dica e especiais</span><small id="statusMusicas" class="status-preparacao"></small></button>
+      <button id="botaoCartaoChecklist" class="cartao-dispositivo" type="button"><span class="passo-preparacao">3</span><strong>Testar tudo</strong><span>Som, tela cheia e cada áudio</span><small id="statusChecklist" class="status-preparacao"></small></button>
+      <button id="botaoCartaoOffline" class="cartao-dispositivo" type="button"><span class="passo-preparacao">4</span><strong>Usar sem internet</strong><span id="situacaoOffline">Verificando…</span></button>
     </div>
   </section>
 
   <section id="editorMesas" class="sobreposicao" role="dialog" aria-modal="true" data-pai="preparacao" hidden>
     <h2>Nomes das mesas</h2>
     <p class="aviso-lista">O nome é opcional. Toque na bolinha para trocar a cor.</p>
+    <p id="resumoMesas" class="resumo-editor"></p>
     <div class="botoes-lista">
       <button id="botaoSugerirNomes" class="botao-controle botao-controle--destaque" type="button">Sugerir nomes divertidos</button>
+      <button id="botaoColarNomes" class="botao-controle" type="button">Colar uma lista de nomes</button>
       <button id="botaoLimparNomes" class="botao-controle" type="button">Limpar nomes</button>
+    </div>
+    <div id="areaColarNomes" class="area-colar-nomes" hidden>
+      <label for="campoColarNomes">Um nome por linha. A primeira linha vira a mesa 1, a segunda a mesa 2, e assim por diante.</label>
+      <textarea id="campoColarNomes" rows="6" maxlength="2000" placeholder="Os Seresteiros&#10;Vinil de Ouro&#10;Rosa dos Ventos"></textarea>
+      <div class="botoes-lista">
+        <button id="botaoAplicarNomes" class="botao-controle botao-controle--destaque" type="button">Aplicar nomes</button>
+        <button id="botaoCancelarColar" class="botao-controle" type="button">Cancelar</button>
+      </div>
     </div>
     <div id="listaEditorMesas" class="grade-editor-mesas"></div>
   </section>
@@ -284,6 +318,15 @@
       <button id="botaoSalvarMusicas" class="botao-controle botao-controle--destaque" type="button">Salvar</button>
       <button id="botaoAdicionarMusica" class="botao-controle" type="button">Adicionar música</button>
       <button id="botaoRestaurarMusicas" class="botao-controle" type="button">Restaurar padrão</button>
+      <button id="botaoEmbaralharMusicas" class="botao-controle" type="button">Embaralhar a ordem</button>
+      <button id="botaoOrdenarPorDecada" class="botao-controle" type="button">Ordenar por década</button>
+      <button id="botaoBaixarMusicas" class="botao-controle" type="button">Baixar musicas.js</button>
+    </div>
+    <p id="resumoMusicas" class="resumo-editor"></p>
+    <ul id="problemasMusicas" class="problemas-musicas" hidden></ul>
+    <div class="linha-busca">
+      <label for="filtroMusicas">Buscar</label>
+      <input id="filtroMusicas" type="search" placeholder="Música, cantor ou década" autocomplete="off">
     </div>
     <div class="rolagem-tabela">
       <table class="tabela-editor">
@@ -493,7 +536,7 @@
           <li><strong>Escolher.</strong> Toque em "Não sei o nome… vou cantar!" (tecla C).</li>
           <li><strong>Ouvir.</strong> O pedacinho toca de novo.</li>
           <li><strong>Cantar.</strong> A mesa tem 15 segundos para cantar o começo ou o refrão.</li>
-          <li><strong>Aplaudir.</strong> Se a plateia gostar, a mesa ganha metade dos pontos. Se não, não perde nada.</li>
+          <li><strong>Aplaudir.</strong> Se a plateia gostar, a mesa ganha 9 pontos. Se não, não perde nada.</li>
         </ol>
       </article>
 

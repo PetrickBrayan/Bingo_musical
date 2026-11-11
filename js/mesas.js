@@ -6,7 +6,9 @@ const Mesas = (() => {
     "Os Românticos", "Fita Cassete", "Flores do Samba", "Coração Sertanejo", "Lenços ao Vento",
     "Chá das Cinco", "Toca-Discos", "Os Serenateiros", "Gafieira Real", "Voz do Coração",
     "Anos Dourados", "Sambistas do Balanço", "Noite de Gala", "Os Crooners", "Lamparina Acesa",
-    "Bossa Nova", "Memórias Cantadas", "Hora da Serenata", "Os Eternos Jovens", "Melodia de Ouro"
+    "Bossa Nova", "Memórias Cantadas", "Hora da Serenata", "Os Eternos Jovens", "Melodia de Ouro",
+    "Sessão da Tarde", "Fita VHS", "Disco Laser", "Turma do Balanço", "Pagode da Alegria",
+    "Os Sonhadores", "Mesa dos Campeões", "Eco do Passado", "Fina Flor", "Os Animados"
   ];
 
   let nomes = [];
@@ -81,6 +83,21 @@ const Mesas = (() => {
     salvar();
   }
 
+  function definirNomes(textos, quantidade) {
+    for (let mesa = 1; mesa <= quantidade; mesa++) {
+      nomes[mesa - 1] = String(textos[mesa - 1] === undefined ? "" : textos[mesa - 1]).trim().slice(0, 28);
+    }
+    salvar();
+  }
+
+  function contarNomes(quantidade) {
+    let total = 0;
+    for (let mesa = 1; mesa <= quantidade; mesa++) {
+      total += nome(mesa) ? 1 : 0;
+    }
+    return total;
+  }
+
   function limparNomes() {
     nomes = [];
     salvar();
@@ -88,5 +105,5 @@ const Mesas = (() => {
 
   carregar();
 
-  return { nome, cor, rotulo, apelido, paraMesa, listar, definirNome, trocarCor, sugerirNomes, limparNomes };
+  return { nome, cor, rotulo, apelido, paraMesa, listar, definirNome, definirNomes, contarNomes, trocarCor, sugerirNomes, limparNomes };
 })();

@@ -9,6 +9,7 @@ const CONFIGURACAO = {
   pontosPerdidosPorErro: 3,
   permitirPontosNegativos: true,
   fracaoPontosMicrofone: 0.5,
+  pontosMicrofone: 9,
   duracaoMicrofoneSegundos: 15,
   parteParaCantarPadrao: "o refrão",
   duracaoInterludioMilissegundos: 2400,

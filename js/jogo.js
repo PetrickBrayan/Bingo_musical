@@ -119,7 +119,7 @@ const Jogo = (() => {
   }
 
   function pontosDoMicrofone() {
-    return Math.round(valorAtual() * CONFIGURACAO.fracaoPontosMicrofone);
+    return modoDesempate ? CONFIGURACAO.pontosDesempate : CONFIGURACAO.pontosMicrofone;
   }
 
   function textoDoValor() {
@@ -439,7 +439,7 @@ const Jogo = (() => {
     Tela.mostrarAtalhosInicio(estado === "inicio");
     Tela.mostrarBoasVindas(estado === "boasvindas");
     Tela.mostrarAcoesInicio(estado === "inicio", existeProgressoSalvo());
-    Tela.mostrarMicrofone(estado === "respondendo", modoComJuiz() ? "C" : `${alternativas.length + 1} ou C`);
+    Tela.mostrarMicrofone(estado === "respondendo", (modoComJuiz() ? "C" : `${alternativas.length + 1} ou C`) + ` • vale ${pontosDoMicrofone()}`);
     Tela.mostrarCoringa(estado === "respondendo" && coringaDisponivel(mesaEmResposta), coringaAtivo, CONFIGURACAO.multiplicadorCoringa);
     Tela.mostrarMiniPlacar(CONFIGURACAO.placarNoCanto && emPartida() ? placarDoCanto() : []);
     Tela.definirRotulosResposta(rotulosDaResposta());

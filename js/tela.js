@@ -88,7 +88,8 @@ const Tela = (() => {
     "anos-50": { icone: "🎶", nome: "Jukebox", simbolo: "#aparelho-anos-50" },
     "anos-60": { icone: "📻", nome: "Rádio", simbolo: "#aparelho-anos-60" },
     "anos-70": { icone: "💿", nome: "Vinil", simbolo: "#aparelho-anos-70" },
-    "anos-80": { icone: "📺", nome: "TV", simbolo: "#aparelho-anos-80" }
+    "anos-80": { icone: "📺", nome: "TV", simbolo: "#aparelho-anos-80" },
+    "anos-90": { icone: "📀", nome: "CD", simbolo: "#aparelho-anos-90" }
   };
   const rotuloEspecial = pegar("rotuloEspecial");
   const anuncioEspecial = pegar("anuncioEspecial");

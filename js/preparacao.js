@@ -9,6 +9,15 @@ const Preparacao = (() => {
   const itensChecklist = pegar("itensChecklist");
   const relogioIntervalo = pegar("relogioIntervalo");
   const listaIntervalo = pegar("listaIntervalo");
+  const statusMesas = pegar("statusMesas");
+  const statusMusicas = pegar("statusMusicas");
+  const statusChecklist = pegar("statusChecklist");
+  const resumoMesas = pegar("resumoMesas");
+  const resumoMusicas = pegar("resumoMusicas");
+  const problemasMusicas = pegar("problemasMusicas");
+  const filtroMusicas = pegar("filtroMusicas");
+  const areaColarNomes = pegar("areaColarNomes");
+  const campoColarNomes = pegar("campoColarNomes");
   const certificados = pegar("certificados");
   const relatorios = pegar("relatorios");
 
@@ -42,7 +51,34 @@ const Preparacao = (() => {
     botao.addEventListener("click", acao);
   }
 
+  function textoDeEspeciais(contagem) {
+    const partes = [];
+    if (contagem.dobro + contagem.relampago + contagem.surpresa > 0) {
+      partes.push(`${contagem.dobro + contagem.relampago + contagem.surpresa} especiais`);
+    }
+    if (contagem.karaoke > 0) {
+      partes.push(`${contagem.karaoke} de karaokê`);
+    }
+    return partes.length ? ` · ${partes.join(" · ")}` : "";
+  }
+
+  function atualizarResumos() {
+    const analise = Catalogo.analisar(Catalogo.copiaAtual());
+    statusMesas.textContent = `${Mesas.contarNomes(CONFIGURACAO.quantidadeMesas)} de ${CONFIGURACAO.quantidadeMesas} mesas com nome`;
+    statusMusicas.textContent = `${analise.contagem.total} músicas${textoDeEspeciais(analise.contagem)}`;
+    const faltando = resultadosAudio.filter((resultado) => resultado.situacao === "erro").length;
+    statusChecklist.textContent = resultadosAudio.length === 0
+      ? "Ainda não testado"
+      : (faltando === 0 ? "Todos os áudios encontrados" : `${faltando} áudio(s) com problema`);
+    statusChecklist.className = "status-preparacao" + (resultadosAudio.length > 0 && faltando > 0 ? " status-preparacao--alerta" : "");
+    statusMusicas.className = "status-preparacao" + (analise.problemas.length > 0 ? " status-preparacao--alerta" : "");
+    if (analise.problemas.length > 0) {
+      statusMusicas.textContent += ` · ${analise.problemas.length} aviso(s)`;
+    }
+  }
+
   function abrirHub() {
+    atualizarResumos();
     Tela.abrirSobreposicao("preparacao");
     atualizarOffline();
   }
@@ -95,9 +131,20 @@ const Preparacao = (() => {
       campo.maxLength = 28;
       campo.placeholder = "Nome da mesa (opcional)";
       campo.value = Mesas.nome(mesa);
+      campo.setAttribute("aria-label", `Nome da mesa ${mesa}`);
       campo.addEventListener("input", () => {
         Mesas.definirNome(mesa, campo.value);
+        atualizarResumoDeMesas();
         Jogo.renderizar();
+      });
+      campo.addEventListener("keydown", (evento) => {
+        if (evento.key === "Enter") {
+          evento.preventDefault();
+          const proximo = listaEditorMesas.querySelectorAll("input")[mesa];
+          if (proximo) {
+            proximo.focus();
+          }
+        }
       });
       linha.appendChild(cor);
       linha.appendChild(campo);
@@ -105,13 +152,45 @@ const Preparacao = (() => {
     }
   }
 
+  function atualizarResumoDeMesas() {
+    resumoMesas.textContent = `${Mesas.contarNomes(CONFIGURACAO.quantidadeMesas)} de ${CONFIGURACAO.quantidadeMesas} mesas já têm nome.`;
+  }
+
   function abrirEditorMesas() {
+    areaColarNomes.hidden = true;
     renderizarEditorMesas();
+    atualizarResumoDeMesas();
     Tela.abrirSobreposicao("editorMesas");
   }
 
+  function aplicarNomesColados() {
+    const linhas = campoColarNomes.value.split(/\r?\n/).map((linha) => linha.trim());
+    while (linhas.length > 0 && linhas[linhas.length - 1] === "") {
+      linhas.pop();
+    }
+    if (linhas.length === 0) {
+      Tela.mostrarAviso("Cole ao menos um nome, um por linha");
+      return;
+    }
+    Mesas.definirNomes(linhas, CONFIGURACAO.quantidadeMesas);
+    campoColarNomes.value = "";
+    areaColarNomes.hidden = true;
+    renderizarEditorMesas();
+    atualizarResumoDeMesas();
+    Jogo.renderizar();
+    const excedente = linhas.length - CONFIGURACAO.quantidadeMesas;
+    Tela.mostrarAviso(excedente > 0 ? `Nomes aplicados. ${excedente} linha(s) passaram do número de mesas.` : "Nomes aplicados");
+  }
+
+  const rotulosDosCampos = {
+    titulo: "Título", interprete: "Cantor", categoria: "Categoria", duracaoSegundos: "Trecho em segundos",
+    pontos: "Pontos", dica: "Dica", parteParaCantar: "Parte para cantar", arquivo: "Arquivo de áudio",
+    decada: "Década", especial: "Especial"
+  };
+
   function criarCampo(posicao, campo, tipo, extra) {
     const entrada = criar("input");
+    entrada.setAttribute("aria-label", `${rotulosDosCampos[campo]} da música ${posicao + 1}`);
     entrada.type = tipo || "text";
     entrada.value = rascunho[posicao][campo] === undefined ? "" : rascunho[posicao][campo];
     if (tipo === "number") {
@@ -122,12 +201,14 @@ const Preparacao = (() => {
     }
     entrada.addEventListener("input", () => {
       rascunho[posicao][campo] = tipo === "number" ? Number(entrada.value) : entrada.value;
+      atualizarAvisosDeMusicas();
     });
     return entrada;
   }
 
   function criarSeletor(posicao, campo, opcoes) {
     const seletor = criar("select");
+    seletor.setAttribute("aria-label", `${rotulosDosCampos[campo]} da música ${posicao + 1}`);
     opcoes.forEach((opcao) => {
       const item = criar("option", "", opcao.texto);
       item.value = opcao.valor;
@@ -136,6 +217,7 @@ const Preparacao = (() => {
     seletor.value = rascunho[posicao][campo] || "";
     seletor.addEventListener("change", () => {
       rascunho[posicao][campo] = seletor.value;
+      atualizarAvisosDeMusicas();
     });
     return seletor;
   }
@@ -159,10 +241,75 @@ const Preparacao = (() => {
     return botao;
   }
 
+  function textoPesquisavel(musica) {
+    return `${musica.titulo || ""} ${musica.interprete || ""} ${musica.decada || ""} ${musica.categoria || ""}`.toLowerCase();
+  }
+
+  function atualizarAvisosDeMusicas() {
+    const analise = Catalogo.analisar(rascunho);
+    const contagem = analise.contagem;
+    resumoMusicas.textContent = `${contagem.total} músicas${textoDeEspeciais(contagem)}.`;
+    limpar(problemasMusicas);
+    analise.problemas.forEach((problema) => {
+      problemasMusicas.appendChild(criar("li", "", problema.texto));
+    });
+    problemasMusicas.hidden = analise.problemas.length === 0;
+    const comProblema = {};
+    analise.problemas.forEach((problema) => { comProblema[problema.posicao] = true; });
+    Array.prototype.forEach.call(corpoEditorMusicas.querySelectorAll("tr"), (linha) => {
+      linha.classList.toggle("linha-com-problema", Boolean(comProblema[Number(linha.getAttribute("data-posicao"))]));
+    });
+  }
+
+  function aplicarFiltroDeMusicas() {
+    const termo = filtroMusicas.value.trim().toLowerCase();
+    Array.prototype.forEach.call(corpoEditorMusicas.querySelectorAll("tr"), (linha) => {
+      const musica = rascunho[Number(linha.getAttribute("data-posicao"))];
+      linha.hidden = termo !== "" && textoPesquisavel(musica).indexOf(termo) === -1;
+    });
+  }
+
+  function embaralharMusicas() {
+    for (let i = rascunho.length - 1; i > 0; i--) {
+      const sorteado = Math.floor(Math.random() * (i + 1));
+      const guardado = rascunho[i];
+      rascunho[i] = rascunho[sorteado];
+      rascunho[sorteado] = guardado;
+    }
+    renderizarEditorMusicas();
+    Tela.mostrarAviso("Ordem embaralhada. Toque em Salvar para valer.");
+  }
+
+  function ordenarMusicasPorDecada() {
+    const indexadas = rascunho.map((musica, posicao) => ({ musica, posicao }));
+    indexadas.sort((a, b) => {
+      const diferenca = Catalogo.decadas.indexOf(a.musica.decada) - Catalogo.decadas.indexOf(b.musica.decada);
+      return diferenca !== 0 ? diferenca : a.posicao - b.posicao;
+    });
+    rascunho = indexadas.map((item) => item.musica);
+    renderizarEditorMusicas();
+    Tela.mostrarAviso("Ordenadas dos anos 50 aos 90. Toque em Salvar para valer.");
+  }
+
+  function duplicarMusica(posicao) {
+    const copia = JSON.parse(JSON.stringify(rascunho[posicao]));
+    copia.titulo = `${copia.titulo} (cópia)`;
+    copia.arquivo = "";
+    rascunho.splice(posicao + 1, 0, copia);
+    renderizarEditorMusicas();
+  }
+
+  function baixarMusicas() {
+    const codigo = Catalogo.gerarCodigo(rascunho, MUSICAS_DESEMPATE);
+    entregarArquivo(new Blob([codigo], { type: "text/javascript;charset=utf-8" }), "musicas.js");
+    Tela.mostrarAviso("musicas.js gerado. Troque o arquivo js/musicas.js do projeto por ele.");
+  }
+
   function renderizarEditorMusicas() {
     limpar(corpoEditorMusicas);
     rascunho.forEach((musica, posicao) => {
       const linha = document.createElement("tr");
+      linha.setAttribute("data-posicao", String(posicao));
       linha.appendChild(criar("td", "", String(posicao + 1)));
       [
         criarCampo(posicao, "titulo"),
@@ -183,6 +330,7 @@ const Preparacao = (() => {
       const ordem = criar("td", "celula-ordem");
       ordem.appendChild(criarBotaoPequeno("↑", () => mover(posicao, -1), "Subir"));
       ordem.appendChild(criarBotaoPequeno("↓", () => mover(posicao, 1), "Descer"));
+      ordem.appendChild(criarBotaoPequeno("⧉", () => duplicarMusica(posicao), "Duplicar"));
       ordem.appendChild(criarBotaoPequeno("✕", () => {
         rascunho.splice(posicao, 1);
         renderizarEditorMusicas();
@@ -190,6 +338,8 @@ const Preparacao = (() => {
       linha.appendChild(ordem);
       corpoEditorMusicas.appendChild(linha);
     });
+    atualizarAvisosDeMusicas();
+    aplicarFiltroDeMusicas();
   }
 
   function garantirListaDeCategorias() {
@@ -208,6 +358,7 @@ const Preparacao = (() => {
 
   function abrirEditorMusicas() {
     garantirListaDeCategorias();
+    filtroMusicas.value = "";
     rascunho = Catalogo.copiaAtual();
     renderizarEditorMusicas();
     Tela.abrirSobreposicao("editorMusicas");
@@ -285,6 +436,7 @@ const Preparacao = (() => {
       const faltando = resultados.filter((item) => item.situacao === "erro").length;
       seloPreparacao.textContent = `${faltando} MP3 faltando`;
       seloPreparacao.hidden = faltando === 0;
+      atualizarResumos();
       if (!silencioso || Tela.sobreposicaoAbertaPorId("checklist")) {
         renderizarChecklist();
       }
@@ -538,11 +690,13 @@ const Preparacao = (() => {
     aoClicar("botaoSugerirNomes", () => {
       Mesas.sugerirNomes(CONFIGURACAO.quantidadeMesas);
       renderizarEditorMesas();
+      atualizarResumoDeMesas();
       Jogo.renderizar();
     });
     aoClicar("botaoLimparNomes", () => {
       Mesas.limparNomes();
       renderizarEditorMesas();
+      atualizarResumoDeMesas();
       Jogo.renderizar();
     });
     aoClicar("botaoSalvarMusicas", salvarMusicas);
@@ -551,6 +705,21 @@ const Preparacao = (() => {
       renderizarEditorMusicas();
     });
     aoClicar("botaoRestaurarMusicas", restaurarMusicas);
+    aoClicar("botaoBaixarMusicas", baixarMusicas);
+    aoClicar("botaoEmbaralharMusicas", embaralharMusicas);
+    aoClicar("botaoOrdenarPorDecada", ordenarMusicasPorDecada);
+    filtroMusicas.addEventListener("input", aplicarFiltroDeMusicas);
+    aoClicar("botaoColarNomes", () => {
+      areaColarNomes.hidden = !areaColarNomes.hidden;
+      if (!areaColarNomes.hidden) {
+        campoColarNomes.focus();
+      }
+    });
+    aoClicar("botaoAplicarNomes", aplicarNomesColados);
+    aoClicar("botaoCancelarColar", () => {
+      campoColarNomes.value = "";
+      areaColarNomes.hidden = true;
+    });
     aoClicar("botaoTestarSom", testarSom);
     aoClicar("botaoTestarTelaCheia", testarTelaCheia);
     aoClicar("botaoRetestar", abrirChecklist);

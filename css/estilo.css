@@ -2061,6 +2061,14 @@ body[data-decada="anos-80"].entrando .toca-discos {
   animation: ligarTv 0.8s ease-out;
 }
 
+body[data-decada="anos-90"].entrando .toca-discos {
+  -webkit-animation: abrirTampaCd 0.9s cubic-bezier(0.2, 1.1, 0.4, 1);
+  animation: abrirTampaCd 0.9s cubic-bezier(0.2, 1.1, 0.4, 1);
+}
+
+@-webkit-keyframes abrirTampaCd { from { opacity: 0; -webkit-transform: scale(0.7) rotate(-120deg); transform: scale(0.7) rotate(-120deg); } to { opacity: 1; -webkit-transform: none; transform: none; } }
+@keyframes abrirTampaCd { from { opacity: 0; -webkit-transform: scale(0.7) rotate(-120deg); transform: scale(0.7) rotate(-120deg); } to { opacity: 1; -webkit-transform: none; transform: none; } }
+
 @-webkit-keyframes sintonizar { from { background-position: 5% 0, 0 0, 0 0; } to { background-position: 95% 0, 0 0, 0 0; } }
 @keyframes sintonizar { from { background-position: 5% 0, 0 0, 0 0; } to { background-position: 95% 0, 0 0, 0 0; } }
 @-webkit-keyframes ondas { 0% { opacity: 0.9; -webkit-transform: scale(0.4); transform: scale(0.4); } 100% { opacity: 0; -webkit-transform: scale(2.2); transform: scale(2.2); } }
@@ -2408,4 +2416,144 @@ body {
   .sobreposicao {
     padding-top: 118px;
   }
+}
+
+.cartoes-preparacao .cartao-dispositivo {
+  position: relative;
+  padding-left: calc(var(--u) * 5);
+}
+
+.passo-preparacao {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--u) * 1.2);
+  width: calc(var(--u) * 2.8);
+  height: calc(var(--u) * 2.8);
+  margin-top: calc(var(--u) * -1.4);
+  border-radius: 50%;
+  background: rgba(var(--ouro-rgb), 0.18);
+  border: 2px solid var(--ouro);
+  color: var(--ouro);
+  font-weight: 800;
+  font-size: calc(var(--u) * 1.6);
+  line-height: calc(var(--u) * 2.8 - 4px);
+  text-align: center;
+}
+
+.status-preparacao {
+  display: block;
+  margin-top: calc(var(--u) * 0.4);
+  color: var(--ouro);
+  font-size: calc(var(--u) * 1.3);
+  font-weight: 700;
+}
+
+.status-preparacao--alerta {
+  color: var(--aviso);
+}
+
+.resumo-editor {
+  margin: calc(var(--u) * 0.4) 0;
+  color: var(--ouro);
+  font-size: calc(var(--u) * 1.6);
+  font-weight: 700;
+}
+
+.problemas-musicas {
+  margin: calc(var(--u) * 0.6) 0;
+  padding: calc(var(--u) * 0.8) calc(var(--u) * 1.2) calc(var(--u) * 0.8) calc(var(--u) * 2.8);
+  border: 2px solid var(--aviso);
+  border-radius: calc(var(--u) * 0.8);
+  background: rgba(255, 179, 71, 0.1);
+  color: var(--creme);
+  font-size: calc(var(--u) * 1.4);
+  max-height: calc(var(--u) * 14);
+  overflow-y: auto;
+}
+
+.problemas-musicas li {
+  margin: calc(var(--u) * 0.2) 0;
+}
+
+.linha-busca {
+  display: -webkit-flex;
+  display: flex;
+  -webkit-align-items: center;
+  align-items: center;
+  margin: calc(var(--u) * 0.6) 0;
+}
+
+.linha-busca label {
+  margin-right: calc(var(--u) * 0.8);
+  color: var(--creme-suave);
+  font-size: calc(var(--u) * 1.5);
+}
+
+.linha-busca input {
+  -webkit-flex: 1;
+  flex: 1;
+  min-width: 0;
+  max-width: calc(var(--u) * 40);
+}
+
+.tabela-editor tr.linha-com-problema td:first-child {
+  box-shadow: inset 4px 0 0 var(--aviso);
+  color: var(--aviso);
+  font-weight: 800;
+}
+
+.tabela-editor tr.linha-com-problema input {
+  border-color: var(--aviso);
+}
+
+.tabela-editor th {
+  position: sticky;
+  top: 0;
+  background: var(--fundo-sobreposicao);
+  z-index: 1;
+}
+
+.area-colar-nomes {
+  margin: calc(var(--u) * 0.8) 0;
+  padding: calc(var(--u) * 1);
+  border: 1px solid var(--linha);
+  border-radius: calc(var(--u) * 0.8);
+  background: rgba(var(--creme-rgb), 0.05);
+}
+
+.area-colar-nomes label {
+  display: block;
+  margin-bottom: calc(var(--u) * 0.6);
+  color: var(--creme-suave);
+  font-size: calc(var(--u) * 1.5);
+}
+
+.area-colar-nomes textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: calc(var(--u) * 0.6) calc(var(--u) * 0.9);
+  border-radius: calc(var(--u) * 0.8);
+  border: 1px solid var(--linha);
+  background: var(--fundo-elevado);
+  color: var(--creme);
+  font: inherit;
+  font-size: max(16px, calc(var(--u) * 1.6));
+}
+
+.tabela-editor .celula-ordem {
+  white-space: nowrap;
+}
+
+.tabela-editor .celula-ordem .botao-controle {
+  display: inline-block;
+  min-width: 44px;
+  margin-right: calc(var(--u) * 0.3);
+  padding-left: calc(var(--u) * 0.8);
+  padding-right: calc(var(--u) * 0.8);
+}
+
+.cartoes-preparacao .status-preparacao {
+  text-align: left;
+  margin-left: 0;
+  padding-left: 0;
 }

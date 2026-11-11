@@ -35,7 +35,7 @@ const Narrador = (() => {
     "Ninguém? Sério? O cantor está de braços cruzados."
   ];
   const comentariosMicrofoneBom = [
-    "Afinado ou não, a coragem vale metade dos pontos!",
+    "Afinado ou não, a coragem vale 9 pontos!",
     "A plateia aprova! Uma salva de palmas para os artistas.",
     "Subiu no palco e não fez feio!"
   ];
