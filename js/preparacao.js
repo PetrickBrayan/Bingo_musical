@@ -1,5 +1,5 @@
 const Preparacao = (() => {
-  const pegar = (identificador) => document.getElementById(identificador);
+  const pegar = (identificador) => document.getElementById(identificador) || document.createElement("div");
   const botaoPreparar = pegar("botaoPreparar");
   const seloPreparacao = pegar("seloPreparacao");
   const situacaoOffline = pegar("situacaoOffline");
@@ -63,6 +63,16 @@ const Preparacao = (() => {
   }
 
   function atualizarResumos() {
+    try {
+      calcularResumos();
+    } catch (erro) {
+      statusMesas.textContent = "";
+      statusMusicas.textContent = "";
+      statusChecklist.textContent = "";
+    }
+  }
+
+  function calcularResumos() {
     const analise = Catalogo.analisar(Catalogo.copiaAtual());
     statusMesas.textContent = `${Mesas.contarNomes(CONFIGURACAO.quantidadeMesas)} de ${CONFIGURACAO.quantidadeMesas} mesas com nome`;
     statusMusicas.textContent = `${analise.contagem.total} músicas${textoDeEspeciais(analise.contagem)}`;
@@ -78,8 +88,8 @@ const Preparacao = (() => {
   }
 
   function abrirHub() {
-    atualizarResumos();
     Tela.abrirSobreposicao("preparacao");
+    atualizarResumos();
     atualizarOffline();
   }
 
@@ -153,6 +163,9 @@ const Preparacao = (() => {
   }
 
   function atualizarResumoDeMesas() {
+    if (typeof Mesas.contarNomes !== "function") {
+      return;
+    }
     resumoMesas.textContent = `${Mesas.contarNomes(CONFIGURACAO.quantidadeMesas)} de ${CONFIGURACAO.quantidadeMesas} mesas já têm nome.`;
   }
 
@@ -246,6 +259,9 @@ const Preparacao = (() => {
   }
 
   function atualizarAvisosDeMusicas() {
+    if (typeof Catalogo.analisar !== "function") {
+      return;
+    }
     const analise = Catalogo.analisar(rascunho);
     const contagem = analise.contagem;
     resumoMusicas.textContent = `${contagem.total} músicas${textoDeEspeciais(contagem)}.`;
