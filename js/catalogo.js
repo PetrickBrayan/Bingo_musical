@@ -7,9 +7,32 @@ const Catalogo = (() => {
     return JSON.parse(JSON.stringify(lista));
   }
 
-  function substituir(lista) {
+  let todas = [];
+  let indisponiveis = {};
+
+  function recalcularJogaveis() {
+    const jogaveis = todas.filter((musica) => !indisponiveis[musica.arquivo]);
+    const escolhidas = jogaveis.length > 0 ? jogaveis : todas;
     MUSICAS.length = 0;
-    lista.forEach((musica) => MUSICAS.push(musica));
+    escolhidas.forEach((musica) => MUSICAS.push(musica));
+  }
+
+  function substituir(lista) {
+    todas = lista.slice();
+    recalcularJogaveis();
+  }
+
+  function definirIndisponiveis(arquivos) {
+    indisponiveis = {};
+    arquivos.forEach((arquivo) => {
+      indisponiveis[arquivo] = true;
+    });
+    recalcularJogaveis();
+    return todas.length - MUSICAS.length;
+  }
+
+  function quantasIgnoradas() {
+    return todas.length - MUSICAS.length;
   }
 
   function reconhecerDecada(texto) {
@@ -105,7 +128,7 @@ const Catalogo = (() => {
   }
 
   function copiaAtual() {
-    return clonar(MUSICAS);
+    return clonar(todas);
   }
 
   function novaMusica(posicao) {
@@ -173,5 +196,5 @@ const Catalogo = (() => {
 
   carregar();
 
-  return { assinaturaDoArquivo, foiAtualizadaPeloArquivo, analisar, gerarCodigo, reconhecerDecada, salvar, restaurarPadrao, copiaAtual, novaMusica, decadas, categorias, especiais };
+  return { definirIndisponiveis, quantasIgnoradas, assinaturaDoArquivo, foiAtualizadaPeloArquivo, analisar, gerarCodigo, reconhecerDecada, salvar, restaurarPadrao, copiaAtual, novaMusica, decadas, categorias, especiais };
 })();

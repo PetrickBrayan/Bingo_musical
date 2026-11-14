@@ -79,7 +79,7 @@ const Preparacao = (() => {
     const faltando = resultadosAudio.filter((resultado) => resultado.situacao === "erro").length;
     statusChecklist.textContent = resultadosAudio.length === 0
       ? "Ainda não testado"
-      : (faltando === 0 ? "Todos os áudios encontrados" : `${faltando} áudio(s) com problema`);
+      : (faltando === 0 ? "Todos os áudios encontrados" : (Catalogo.quantasIgnoradas() > 0 ? `${faltando} sem áudio, o jogo pula sozinho` : `${faltando} áudio(s) com problema`));
     statusChecklist.className = "status-preparacao" + (resultadosAudio.length > 0 && faltando > 0 ? " status-preparacao--alerta" : "");
     statusMusicas.className = "status-preparacao" + (analise.problemas.length > 0 ? " status-preparacao--alerta" : "");
     if (analise.problemas.length > 0) {
@@ -401,7 +401,32 @@ const Preparacao = (() => {
     testarAudios(true);
   }
 
-  function testarArquivo(musica, minimo) {
+  function consultarServidor(endereco) {
+    if (!window.fetch || location.protocol === "file:") {
+      return Promise.resolve("desconhecido");
+    }
+    return fetch(endereco, { method: "HEAD", cache: "no-store" })
+      .then((resposta) => {
+        const tipo = resposta.headers.get("Content-Type") || "";
+        if (resposta.status === 404 || resposta.status === 410 || (resposta.ok && tipo.indexOf("text/html") === 0)) {
+          return "faltando";
+        }
+        return resposta.ok ? "existe" : "desconhecido";
+      })
+      .catch(() => "desconhecido");
+  }
+
+  function estaNoCacheDeAudios(endereco) {
+    if (!window.caches) {
+      return Promise.resolve(false);
+    }
+    return caches.open("bingo-audios-v1")
+      .then((cache) => cache.match(new URL(endereco, location.href).href.split("?")[0]))
+      .then((guardado) => Boolean(guardado))
+      .catch(() => false);
+  }
+
+  function lerDuracao(endereco, minimo, existeComCerteza) {
     return new Promise((resolver) => {
       const audio = new Audio();
       let concluido = false;
@@ -414,7 +439,9 @@ const Preparacao = (() => {
         audio.removeAttribute("src");
         resolver({ situacao, texto });
       };
-      const limite = setTimeout(() => terminar("erro", "Não respondeu a tempo"), 9000);
+      const limite = setTimeout(() => {
+        terminar(existeComCerteza ? "ok" : "alerta", existeComCerteza ? "Encontrado" : "Não deu para conferir agora");
+      }, existeComCerteza ? 6000 : 12000);
       audio.preload = "metadata";
       audio.addEventListener("loadedmetadata", () => {
         const duracao = audio.duration;
@@ -424,13 +451,49 @@ const Preparacao = (() => {
           terminar("ok", Number.isFinite(duracao) ? `${Math.round(duracao)}s de áudio` : "Encontrado");
         }
       });
-      audio.addEventListener("error", () => terminar("erro", "Arquivo faltando ou ilegível"));
-      audio.src = CONFIGURACAO.pastaAudios + musica.arquivo;
+      audio.addEventListener("error", () => {
+        terminar(existeComCerteza ? "alerta" : "erro", existeComCerteza ? "Existe, mas o navegador não conseguiu ler" : "Arquivo faltando ou ilegível");
+      });
+      audio.src = endereco;
     });
   }
 
+  function testarArquivo(musica, minimo) {
+    const endereco = CONFIGURACAO.pastaAudios + musica.arquivo;
+    return consultarServidor(endereco).then((situacaoNoServidor) => {
+      if (situacaoNoServidor === "faltando") {
+        return { situacao: "erro", texto: "Arquivo faltando na pasta audios" };
+      }
+      if (situacaoNoServidor === "existe") {
+        return lerDuracao(endereco, minimo, true);
+      }
+      return estaNoCacheDeAudios(endereco).then((guardado) => lerDuracao(endereco, minimo, guardado));
+    });
+  }
+
+  function executarEmLotes(tarefas, limite) {
+    const resultados = new Array(tarefas.length);
+    let proxima = 0;
+    const trabalhador = () => {
+      if (proxima >= tarefas.length) {
+        return Promise.resolve();
+      }
+      const posicao = proxima;
+      proxima += 1;
+      return tarefas[posicao]().then((resultado) => {
+        resultados[posicao] = resultado;
+        return trabalhador();
+      });
+    };
+    const trabalhadores = [];
+    for (let numero = 0; numero < Math.min(limite, tarefas.length); numero++) {
+      trabalhadores.push(trabalhador());
+    }
+    return Promise.all(trabalhadores).then(() => resultados);
+  }
+
   function testarAudios(silencioso) {
-    const alvos = MUSICAS.map((musica, indice) => ({
+    const alvos = Catalogo.copiaAtual().map((musica, indice) => ({
       rotulo: `${indice + 1}. ${musica.titulo}`,
       musica,
       minimo: (musica.duracaoSegundos || CONFIGURACAO.duracaoPadraoTrechoSegundos) + CONFIGURACAO.segundosDeAjuda,
@@ -441,15 +504,16 @@ const Preparacao = (() => {
       minimo: musica.duracaoSegundos,
       obrigatorio: false
     })));
-    return Promise.all(alvos.map((alvo) => testarArquivo(alvo.musica, alvo.minimo).then((resultado) => {
+    return executarEmLotes(alvos.map((alvo) => () => testarArquivo(alvo.musica, alvo.minimo).then((resultado) => {
       if (resultado.situacao === "erro" && !alvo.obrigatorio) {
         resultado.situacao = "alerta";
         resultado.texto += " (só é usado no desempate)";
       }
       return Object.assign({ rotulo: alvo.rotulo, arquivo: alvo.musica.arquivo }, resultado);
-    }))).then((resultados) => {
+    })), 4).then((resultados) => {
       resultadosAudio = resultados;
       const faltando = resultados.filter((item) => item.situacao === "erro").length;
+      Jogo.aplicarDisponibilidadeDeAudios(resultados.filter((item) => item.situacao === "erro").map((item) => item.arquivo));
       seloPreparacao.textContent = `${faltando} MP3 faltando`;
       seloPreparacao.hidden = faltando === 0;
       atualizarResumos();
@@ -476,9 +540,12 @@ const Preparacao = (() => {
     });
     const faltando = resultadosAudio.filter((item) => item.situacao === "erro").length;
     const avisos = itens.filter((item) => item.situacao === "alerta").length;
-    resumoChecklist.classList.toggle("problema", faltando > 0);
+    const ignoradas = Catalogo.quantasIgnoradas();
+    resumoChecklist.classList.toggle("problema", faltando > 0 && ignoradas === 0);
     if (resultadosAudio.length === 0) {
       resumoChecklist.textContent = "Rodando o teste…";
+    } else if (faltando > 0 && ignoradas > 0) {
+      resumoChecklist.textContent = `O jogo já pula sozinho as ${ignoradas} música(s) sem áudio e joga com as ${MUSICAS.length} que estão prontas. Para incluir as outras, coloque os MP3 na pasta audios.`;
     } else if (faltando > 0) {
       resumoChecklist.textContent = `ATENÇÃO: ${faltando} arquivo(s) de áudio faltando. Coloque-os na pasta audios.`;
     } else if (avisos > 0) {

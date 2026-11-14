@@ -543,6 +543,10 @@ const Jogo = (() => {
 
   function comecarDoZero() {
     restaurarAvisoDaLista();
+    if (arquivosSemAudioPendentes) {
+      Catalogo.definirIndisponiveis(arquivosSemAudioPendentes);
+      arquivosSemAudioPendentes = null;
+    }
     if (existeProgressoSalvo()) {
       Armazenamento.limpar(CONFIGURACAO.chaveProgresso);
       progressoSalvo = null;
@@ -1433,6 +1437,22 @@ const Jogo = (() => {
     Tela.mostrarAviso("O navegador bloqueou o som. Toque em Tocar novamente.");
   }
 
+  let arquivosSemAudioPendentes = null;
+
+  function aplicarDisponibilidadeDeAudios(arquivos) {
+    if (estado !== "boasvindas" && estado !== "inicio") {
+      arquivosSemAudioPendentes = arquivos;
+      return;
+    }
+    arquivosSemAudioPendentes = null;
+    const antes = MUSICAS.length;
+    const ignoradas = Catalogo.definirIndisponiveis(arquivos);
+    if (MUSICAS.length !== antes) {
+      renderizar();
+      Tela.mostrarAviso(`Jogando com as ${MUSICAS.length} músicas que têm áudio. ${ignoradas} ficam de fora por enquanto.`);
+    }
+  }
+
   function iniciarAplicacao() {
     Ajustes.carregar();
     if (Catalogo.foiAtualizadaPeloArquivo()) {
@@ -1502,6 +1522,7 @@ const Jogo = (() => {
     pedirEncerramento,
     confirmarEncerramento,
     confirmarAvisoDaLista,
+    aplicarDisponibilidadeDeAudios,
     desfazerPontuacao,
     alternarPlacar,
     alternarGuia,
