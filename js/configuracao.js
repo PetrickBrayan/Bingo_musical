@@ -41,6 +41,8 @@ const CONFIGURACAO = {
   chaveProgresso: "bingoMusical.progresso.v1",
   chaveMesas: "bingoMusical.mesas.v1",
   chaveMusicas: "bingoMusical.musicas.v1",
+  chaveAssinaturaMusicas: "bingoMusical.musicas.assinatura.v1",
+  chaveBackupMusicas: "bingoMusical.musicas.backup.v1",
   chaveAjustes: "bingoMusical.ajustes.v1",
   chaveAvisoLista: "bingoMusical.semAvisoLista.v1",
   pastaAudios: "audios/",

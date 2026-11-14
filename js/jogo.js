@@ -1435,6 +1435,9 @@ const Jogo = (() => {
 
   function iniciarAplicacao() {
     Ajustes.carregar();
+    if (Catalogo.foiAtualizadaPeloArquivo()) {
+      Tela.mostrarAviso("A lista de músicas foi atualizada com a versão mais nova do jogo");
+    }
     progressoSalvo = Armazenamento.carregar(CONFIGURACAO.chaveProgresso);
     proximaMusicaSalva = existeProgressoSalvo() ? progressoSalvo.proximaMusica : 0;
 
