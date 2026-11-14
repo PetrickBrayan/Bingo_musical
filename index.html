@@ -389,6 +389,19 @@
     <p class="dica-sobreposicao">P ou ESC fecha</p>
   </section>
 
+  <section id="avisoLista" class="sobreposicao sobreposicao-centro" role="dialog" aria-modal="true" aria-labelledby="tituloAvisoLista" hidden>
+    <h2 id="tituloAvisoLista">Ver a lista de músicas?</h2>
+    <p class="texto-confirmacao">A lista mostra o título e o cantor de todas as músicas. Se a plateia estiver olhando para a tela, o jogo perde a graça, porque as respostas ficam à mostra. Se quiser ver mesmo assim, a escolha é sua.</p>
+    <label class="opcao-nao-avisar" for="caixaNaoAvisarLista">
+      <input id="caixaNaoAvisarLista" type="checkbox">
+      <span>Não me avise outra vez <small>(volta a avisar quando o jogo recomeçar do zero)</small></span>
+    </label>
+    <div class="botoes-confirmacao">
+      <button id="botaoConfirmarAvisoLista" class="botao-resposta botao-acerto" type="button">Sim, mostrar a lista <small>OK</small></button>
+      <button id="botaoCancelarAvisoLista" class="botao-resposta botao-erro" type="button">Não, voltar <small>Esc</small></button>
+    </div>
+  </section>
+
   <section id="listaDeMusicas" class="sobreposicao" role="dialog" aria-modal="true" hidden>
     <h2>Lista de Músicas</h2>
     <p class="aviso-lista">Esta tela mostra as respostas. Use antes do jogo ou fora do telão.</p>

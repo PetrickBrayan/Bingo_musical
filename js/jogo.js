@@ -542,6 +542,7 @@ const Jogo = (() => {
   }
 
   function comecarDoZero() {
+    restaurarAvisoDaLista();
     if (existeProgressoSalvo()) {
       Armazenamento.limpar(CONFIGURACAO.chaveProgresso);
       progressoSalvo = null;
@@ -608,6 +609,7 @@ const Jogo = (() => {
       return;
     }
     limparTemporizadores();
+    restaurarAvisoDaLista();
     Armazenamento.limpar(CONFIGURACAO.chaveProgresso);
     progressoSalvo = null;
     proximaMusicaSalva = 0;
@@ -1010,7 +1012,31 @@ const Jogo = (() => {
     renderizar();
   }
 
+  function avisoDaListaDesligado() {
+    return Armazenamento.carregar(CONFIGURACAO.chaveAvisoLista) === true;
+  }
+
+  function restaurarAvisoDaLista() {
+    Armazenamento.limpar(CONFIGURACAO.chaveAvisoLista);
+  }
+
   function alternarListaMusicas() {
+    if (Tela.sobreposicaoAbertaPorId("listaDeMusicas") || avisoDaListaDesligado()) {
+      abrirListaDeMusicas();
+      return;
+    }
+    Tela.abrirAvisoLista();
+  }
+
+  function confirmarAvisoDaLista() {
+    if (Tela.avisoListaMarcado()) {
+      Armazenamento.salvar(CONFIGURACAO.chaveAvisoLista, true);
+    }
+    Tela.fecharSobreposicoes();
+    abrirListaDeMusicas();
+  }
+
+  function abrirListaDeMusicas() {
     const linhas = MUSICAS.map((musica, indice) => {
       const situacao = descreverSituacao(indice);
       return {
@@ -1446,6 +1472,8 @@ const Jogo = (() => {
       aoAumentarMesas: () => alterarQuantidadeMesas(1),
       aoConfirmarEncerramento: confirmarEncerramento,
       aoContinuarJogando: () => Tela.fecharSobreposicoes(),
+      aoConfirmarAvisoLista: confirmarAvisoDaLista,
+      aoCancelarAvisoLista: () => Tela.fecharSobreposicoes(),
       aoVoltar: voltar,
       aoAvancar: avancar,
       aoAbrirMenu: abrirMenu,
@@ -1470,6 +1498,7 @@ const Jogo = (() => {
     alternarSom,
     pedirEncerramento,
     confirmarEncerramento,
+    confirmarAvisoDaLista,
     desfazerPontuacao,
     alternarPlacar,
     alternarGuia,

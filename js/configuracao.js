@@ -42,6 +42,7 @@ const CONFIGURACAO = {
   chaveMesas: "bingoMusical.mesas.v1",
   chaveMusicas: "bingoMusical.musicas.v1",
   chaveAjustes: "bingoMusical.ajustes.v1",
+  chaveAvisoLista: "bingoMusical.semAvisoLista.v1",
   pastaAudios: "audios/",
   duracaoAvisoMilissegundos: 3500
 };

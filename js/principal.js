@@ -122,6 +122,16 @@ function tratarComandoComConfirmacao(comando) {
   }
 }
 
+function tratarComandoComAvisoDaLista(comando) {
+  if (comando === "avancar" || comando === "sim") {
+    Jogo.confirmarAvisoDaLista();
+  } else if (comando === "cima" || comando === "baixo") {
+    Tela.alternarMarcacaoDoAvisoLista();
+  } else if (["voltar", "cancelar", "listaMusicas"].indexOf(comando) !== -1) {
+    Tela.fecharSobreposicoes();
+  }
+}
+
 function tratarComandoComMenu(comando) {
   if (comando === "avancar") {
     Tela.executarMenu();
@@ -147,6 +157,8 @@ function tratarComandoComGuia(comando) {
 function tratarComandoComSobreposicao(comando) {
   if (Tela.confirmacaoAberta()) {
     tratarComandoComConfirmacao(comando);
+  } else if (Tela.avisoListaAberto()) {
+    tratarComandoComAvisoDaLista(comando);
   } else if (Tela.menuAberto()) {
     tratarComandoComMenu(comando);
   } else if (Tela.guiaAberto()) {

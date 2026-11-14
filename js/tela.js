@@ -75,6 +75,10 @@ const Tela = (() => {
   const listaMenu = pegar("listaMenu");
   const ajuda = pegar("ajuda");
   const confirmacao = pegar("confirmacao");
+  const avisoLista = pegar("avisoLista");
+  const caixaNaoAvisarLista = pegar("caixaNaoAvisarLista");
+  const botaoConfirmarAvisoLista = pegar("botaoConfirmarAvisoLista");
+  const botaoCancelarAvisoLista = pegar("botaoCancelarAvisoLista");
   const botaoConfirmarParada = pegar("botaoConfirmarParada");
   const botaoContinuarJogando = pegar("botaoContinuarJogando");
   const aviso = pegar("aviso");
@@ -116,7 +120,7 @@ const Tela = (() => {
   const certificado = pegar("certificado");
   const relatorio = pegar("relatorio");
 
-  const sobreposicoes = [placar, listaDeMusicas, guia, menuAcoes, ajuda, confirmacao, preparacao, editorMesas, editorMusicas, checklist, intervalo, certificado, relatorio];
+  const sobreposicoes = [placar, listaDeMusicas, guia, menuAcoes, ajuda, confirmacao, avisoLista, preparacao, editorMesas, editorMusicas, checklist, intervalo, certificado, relatorio];
   const sobreposicoesComBotaoFechar = [placar, listaDeMusicas, guia, ajuda, preparacao, editorMesas, editorMusicas, checklist, intervalo, certificado, relatorio];
   let temporizadorAnuncio = null;
   let temporizadorEntrada = null;
@@ -214,6 +218,8 @@ const Tela = (() => {
       [botaoMaisMesas, acoes.aoAumentarMesas],
       [botaoConfirmarParada, acoes.aoConfirmarEncerramento],
       [botaoContinuarJogando, acoes.aoContinuarJogando],
+      [botaoConfirmarAvisoLista, acoes.aoConfirmarAvisoLista],
+      [botaoCancelarAvisoLista, acoes.aoCancelarAvisoLista],
       [botaoVoltar, acoes.aoVoltar],
       [botaoPrincipal, acoes.aoAvancar],
       [botaoMenu, acoes.aoAbrirMenu],
@@ -763,6 +769,26 @@ const Tela = (() => {
     }
   }
 
+  caixaNaoAvisarLista.addEventListener("change", () => caixaNaoAvisarLista.blur());
+
+  function abrirAvisoLista() {
+    fecharSobreposicoes();
+    caixaNaoAvisarLista.checked = false;
+    avisoLista.hidden = false;
+  }
+
+  function avisoListaAberto() {
+    return !avisoLista.hidden;
+  }
+
+  function avisoListaMarcado() {
+    return caixaNaoAvisarLista.checked;
+  }
+
+  function alternarMarcacaoDoAvisoLista() {
+    caixaNaoAvisarLista.checked = !caixaNaoAvisarLista.checked;
+  }
+
   function abrirConfirmacao() {
     fecharSobreposicoes();
     confirmacao.hidden = false;
@@ -972,6 +998,10 @@ const Tela = (() => {
     voltarDaSobreposicao,
     sobreposicaoAberta,
     confirmacaoAberta,
+    abrirAvisoLista,
+    avisoListaAberto,
+    avisoListaMarcado,
+    alternarMarcacaoDoAvisoLista,
     menuAberto,
     guiaAberto,
     fecharSobreposicoes,
